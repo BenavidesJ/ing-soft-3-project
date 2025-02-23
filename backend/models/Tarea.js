@@ -1,21 +1,26 @@
 import { Model, DataTypes } from 'sequelize';
 
 export default (sequelize) => {
-  class Proyecto extends Model {
+  class Tarea extends Model {
     static associate(models) {
-      Proyecto.hasMany(models.Costo, {
+      Tarea.belongsToMany(models.Usuario, {
+        through: models.UsuarioTarea,
+        foreignKey: 'idTarea',
+      });
+
+      Tarea.belongsTo(models.Proyecto, {
         foreignKey: 'Proyecto_idProyecto',
       });
 
-      Proyecto.hasMany(models.Tarea, {
-        foreignKey: 'Proyecto_idProyecto',
+      Tarea.belongsTo(models.Recurso, {
+        foreignKey: 'Recurso_idRecurso',
       });
     }
   }
 
-  Proyecto.init(
+  Tarea.init(
     {
-      idProyecto: {
+      idTarea: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
@@ -28,24 +33,16 @@ export default (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      Objetivo: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      Presupuesto: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: false,
-      },
-      Estado: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
       FechaInicio: {
         type: DataTypes.DATE,
         allowNull: false,
       },
       FechaFin: {
         type: DataTypes.DATE,
+        allowNull: false,
+      },
+      Estado: {
+        type: DataTypes.STRING,
         allowNull: false,
       },
       Activo: {
@@ -56,11 +53,11 @@ export default (sequelize) => {
     },
     {
       sequelize,
-      modelName: 'Proyecto',
-      tableName: 'Proyecto',
+      modelName: 'Tarea',
+      tableName: 'Tarea',
       timestamps: false,
     }
   );
 
-  return Proyecto;
+  return Tarea;
 };
