@@ -17,11 +17,11 @@ export default (sequelize) => {
         autoIncrement: true,
       },
       Nombre: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(45),
         allowNull: false,
       },
       TipoRecurso: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(45),
         allowNull: false,
       },
     },

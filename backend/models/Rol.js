@@ -22,7 +22,7 @@ export default (sequelize) => {
         autoIncrement: true,
       },
       NombreRol: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(45),
         allowNull: false,
       },
     },

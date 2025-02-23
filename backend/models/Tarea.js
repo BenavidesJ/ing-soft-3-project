@@ -8,10 +8,6 @@ export default (sequelize) => {
         foreignKey: 'idTarea',
       });
 
-      Tarea.belongsTo(models.Proyecto, {
-        foreignKey: 'Proyecto_idProyecto',
-      });
-
       Tarea.belongsTo(models.Recurso, {
         foreignKey: 'Recurso_idRecurso',
       });
@@ -26,23 +22,23 @@ export default (sequelize) => {
         autoIncrement: true,
       },
       Nombre: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(45),
         allowNull: false,
       },
       Descripcion: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(45),
         allowNull: false,
       },
       FechaInicio: {
-        type: DataTypes.DATE,
+        type: DataTypes.DATEONLY,
         allowNull: false,
       },
       FechaFin: {
-        type: DataTypes.DATE,
+        type: DataTypes.DATEONLY,
         allowNull: false,
       },
       Estado: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(45),
         allowNull: false,
       },
       Activo: {

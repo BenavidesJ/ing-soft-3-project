@@ -24,19 +24,19 @@ export default (sequelize) => {
         autoIncrement: true,
       },
       Nombre: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(45),
         allowNull: false,
       },
       Apellido1: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(45),
         allowNull: false,
       },
       Apellido2: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(45),
         allowNull: true,
       },
       Correo: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(45),
         allowNull: false,
         unique: true,
         validate: {
@@ -46,10 +46,10 @@ export default (sequelize) => {
         },
       },
       Contrasena: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(45),
         allowNull: false,
         len: {
-          args: [6, 255],
+          args: [6, 45],
           msg: 'La contraseña debe tener al menos 6 caracteres.',
         },
         isValidPassword(value) {
@@ -61,7 +61,7 @@ export default (sequelize) => {
         },
       },
       NombreUsuario: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(45),
         allowNull: false,
       },
       Activo: {
