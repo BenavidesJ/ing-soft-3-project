@@ -18,7 +18,7 @@ export default (sequelize) => {
         autoIncrement: true,
       },
       NombrePermiso: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(45),
         allowNull: false,
       },
     },
