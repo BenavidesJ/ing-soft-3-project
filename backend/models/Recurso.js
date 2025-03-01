@@ -1,37 +1,23 @@
-import { Model, DataTypes } from 'sequelize';
+import { DataTypes } from 'sequelize';
+import { sequelize } from '../database.js';
 
-export default (sequelize) => {
-  class Recurso extends Model {
-    static associate(models) {
-      Recurso.hasMany(models.Tarea, {
-        foreignKey: 'Recurso_idRecurso',
-      });
-    }
-  }
-
-  Recurso.init(
-    {
-      idRecurso: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-      },
-      Nombre: {
-        type: DataTypes.STRING(45),
-        allowNull: false,
-      },
-      TipoRecurso: {
-        type: DataTypes.STRING(45),
-        allowNull: false,
-      },
+export const Recurso = sequelize.define(
+  'Recurso',
+  {
+    idRecurso: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
     },
-    {
-      sequelize,
-      modelName: 'Recurso',
-      tableName: 'Recurso',
-      timestamps: false,
-    }
-  );
-
-  return Recurso;
-};
+    Nombre: {
+      type: DataTypes.STRING(45),
+      allowNull: false,
+    },
+  },
+  {
+    tableName: 'Recurso',
+    freezeTableName: true,
+    timestamps: false,
+  }
+);

@@ -1,31 +1,37 @@
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../database.js';
 
-export const Costo = sequelize.define(
-  'Costo',
+export const PerfilUsuario = sequelize.define(
+  'PerfilUsuario',
   {
-    idCosto: {
+    idPerfilUsuario: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
-    },
-    CostoTotal: {
-      type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
     },
-    idProyecto: {
+    idUsuario: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Proyecto',
-        key: 'idProyecto',
+        model: 'Usuario',
+        key: 'idUsuario',
       },
       onUpdate: 'CASCADE',
       onDelete: 'CASCADE',
     },
+    nombreUsuario: {
+      type: DataTypes.STRING(45),
+      allowNull: false,
+    },
+    urlImagenPerfil: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      defaultValue: null,
+    },
   },
   {
-    tableName: 'Costo',
+    tableName: 'PerfilUsuario',
     freezeTableName: true,
     timestamps: false,
   }
