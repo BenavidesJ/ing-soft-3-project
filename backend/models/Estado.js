@@ -1,23 +1,22 @@
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../database.js';
 
-export const Rol = sequelize.define(
-  'Rol',
+export const Estado = sequelize.define(
+  'Estado',
   {
-    idRol: {
+    idEstado: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
-      allowNull: false,
     },
-    NombreRol: {
+    NombreEstado: {
       type: DataTypes.STRING(45),
-      allowNull: false,
       unique: true,
+      allowNull: false,
     },
   },
   {
-    tableName: 'Rol',
+    tableName: 'Estado',
     freezeTableName: true,
     timestamps: false,
   }

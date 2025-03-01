@@ -1,50 +1,107 @@
-'use strict';
+import { Usuario } from './Usuario.js';
+import { BitacoraEventos } from './BitacoraEventos.js';
+import { Estado } from './Estado.js';
+import { Proyecto } from './Proyecto.js';
+import { Costo } from './Costo.js';
+import { PerfilUsuario } from './PerfilUsuario.js';
+import { Permiso } from './Permiso.js';
+import { Tarea } from './Tarea.js';
+import { Recurso } from './Recurso.js';
+import { Rol } from './Rol.js';
 
-const fs = require('fs');
-const path = require('path');
-const Sequelize = require('sequelize');
-const process = require('process');
-const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || 'development';
-const config = require(__dirname + '/../config/config.cjs')[env];
-const db = {};
+// =========== 1:N / 1:1 ===========
 
-let sequelize;
-if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
-} else {
-  sequelize = new Sequelize(
-    config.database,
-    config.username,
-    config.password,
-    config
-  );
-}
+// Usuario -> BitacoraEventos (1:N)
+Usuario.hasMany(BitacoraEventos, { foreignKey: 'idUsuario' });
+BitacoraEventos.belongsTo(Usuario, { foreignKey: 'idUsuario' });
 
-fs.readdirSync(__dirname)
-  .filter((file) => {
-    return (
-      file.indexOf('.') !== 0 &&
-      file !== basename &&
-      file.slice(-3) === '.js' &&
-      file.indexOf('.test.js') === -1
-    );
-  })
-  .forEach((file) => {
-    const model = require(path.join(__dirname, file))(
-      sequelize,
-      Sequelize.DataTypes
-    );
-    db[model.name] = model;
-  });
+// Estado -> Tarea (1:N)
+Estado.hasMany(Tarea, { foreignKey: 'Estado_idEstado' });
+Tarea.belongsTo(Estado, { foreignKey: 'Estado_idEstado' });
 
-Object.keys(db).forEach((modelName) => {
-  if (db[modelName].associate) {
-    db[modelName].associate(db);
-  }
+// Estado -> Proyecto (1:N)
+Estado.hasMany(Proyecto, { foreignKey: 'Estado_idEstado' });
+Proyecto.belongsTo(Estado, { foreignKey: 'Estado_idEstado' });
+
+// Proyecto -> Costo (1:N)
+Proyecto.hasMany(Costo, { foreignKey: 'Proyecto_idProyecto' });
+Costo.belongsTo(Proyecto, { foreignKey: 'Proyecto_idProyecto' });
+
+// Usuario -> PerfilUsuario (1:1) [o 1:N, según convenga]
+Usuario.hasOne(PerfilUsuario, { foreignKey: 'idUsuario' });
+PerfilUsuario.belongsTo(Usuario, { foreignKey: 'idUsuario' });
+
+// =========== N:M (tablas intermedias) ===========
+
+// Proyecto <-> Tarea
+Proyecto.belongsToMany(Tarea, {
+  through: 'Proyecto_Tarea',
+  foreignKey: 'Proyecto_idProyecto',
+  otherKey: 'Tarea_idTarea',
+});
+Tarea.belongsToMany(Proyecto, {
+  through: 'Proyecto_Tarea',
+  foreignKey: 'Tarea_idTarea',
+  otherKey: 'Proyecto_idProyecto',
 });
 
-db.sequelize = sequelize;
-db.Sequelize = Sequelize;
+// Rol <-> Permiso
+Rol.belongsToMany(Permiso, {
+  through: 'Rol_Permiso',
+  foreignKey: 'Roles_idRol',
+  otherKey: 'Permisos_idPermiso',
+});
+Permiso.belongsToMany(Rol, {
+  through: 'Rol_Permiso',
+  foreignKey: 'Permisos_idPermiso',
+  otherKey: 'Roles_idRol',
+});
 
-module.exports = db;
+// Tarea <-> Recurso
+Tarea.belongsToMany(Recurso, {
+  through: 'Tarea_Recurso',
+  foreignKey: 'Tarea_idTarea',
+  otherKey: 'Recurso_idRecurso',
+});
+Recurso.belongsToMany(Tarea, {
+  through: 'Tarea_Recurso',
+  foreignKey: 'Recurso_idRecurso',
+  otherKey: 'Tarea_idTarea',
+});
+
+// Usuario <-> Rol
+Usuario.belongsToMany(Rol, {
+  through: 'Usuario_Rol',
+  foreignKey: 'Usuario_idUsuario',
+  otherKey: 'Rol_idRol',
+});
+Rol.belongsToMany(Usuario, {
+  through: 'Usuario_Rol',
+  foreignKey: 'Rol_idRol',
+  otherKey: 'Usuario_idUsuario',
+});
+
+// Usuario <-> Tarea
+Usuario.belongsToMany(Tarea, {
+  through: 'Usuario_Tarea',
+  foreignKey: 'Usuario_idUsuario',
+  otherKey: 'Tarea_idTarea',
+});
+Tarea.belongsToMany(Usuario, {
+  through: 'Usuario_Tarea',
+  foreignKey: 'Tarea_idTarea',
+  otherKey: 'Usuario_idUsuario',
+});
+
+export {
+  Usuario,
+  BitacoraEventos,
+  Estado,
+  Proyecto,
+  Costo,
+  PerfilUsuario,
+  Permiso,
+  Tarea,
+  Recurso,
+  Rol,
+};
