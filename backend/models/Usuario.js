@@ -36,17 +36,6 @@ export const Usuario = sequelize.define(
     Contrasena: {
       type: DataTypes.STRING(255),
       allowNull: false,
-      len: {
-        args: [6, 255],
-        msg: 'La contraseña debe tener al menos 6 caracteres.',
-      },
-      isValidPassword(value) {
-        if (!validPasswordRegex.test(value)) {
-          throw new Error(
-            'La contraseña debe contener al menos una letra mayúscula, un número y un símbolo (@#!.).'
-          );
-        }
-      },
     },
     Activo: {
       type: DataTypes.BOOLEAN,
