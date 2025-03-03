@@ -14,8 +14,8 @@ export const createUser = async (req, res) => {
     };
     if (!validPasswordRegex.test(Contrasena) && Contrasena.length <= 6) {
       throw new Error(
-            'La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un símbolo (@#!.).'
-          );
+        'La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un símbolo (@#!.).'
+      );
     };
     const hashedPassword = await bcrypt.hash(Contrasena, 10);
     const user = await Usuario.create({Correo,Contrasena:hashedPassword,Apellido1,Apellido2:Apellido2 ? Apellido2 : "",Nombre});
