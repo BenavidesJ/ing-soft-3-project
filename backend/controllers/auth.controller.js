@@ -13,7 +13,6 @@ dotenv.config();
 export const registro = async (req, res) => {
   const { Correo, Contrasena, Nombre, Apellido1, Apellido2 } = req.body;
   try {
-    console.log(Correo, Contrasena, Nombre, Apellido1, Apellido2);
     if (!Correo || !Contrasena || !Nombre || !Apellido1) {
       throw new Error('Por favor, complete todos los campos.');
     }
