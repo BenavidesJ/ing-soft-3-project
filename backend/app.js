@@ -3,6 +3,7 @@ import express from 'express';
 import { db_connection } from './database.js';
 import { API_URL } from './common/strings.js';
 import authRoutes from './routes/auth.route.js';
+import userRoutes from './routes/user.route.js';
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(`${API_URL}/auth`, authRoutes);
+app.use(`${API_URL}/usuarios`, userRoutes);
 
 app.listen(port, () => {
   db_connection();
