@@ -1,5 +1,4 @@
 import { DataTypes, Sequelize } from 'sequelize';
-import { validPasswordRegex } from '../common/strings.js';
 import { sequelize } from '../database.js';
 
 export const Usuario = sequelize.define(

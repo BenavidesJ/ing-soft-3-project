@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import express from 'express';
+import cors from 'cors';
 import { db_connection } from './database.js';
 import { API_URL } from './common/strings.js';
 import authRoutes from './routes/auth.route.js';
@@ -12,6 +13,13 @@ const port = process.env.APP_PORT;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(
+  cors({
+    credentials: true,
+    origin: process.env.CLIENT_URL,
+  })
+);
 
 app.use(`${API_URL}/auth`, authRoutes);
 app.use(`${API_URL}/usuarios`, userRoutes);

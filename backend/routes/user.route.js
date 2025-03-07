@@ -15,9 +15,9 @@ router.post('/crear', createUser);
 router.patch('/modificar', updateUser);
 // eliminar un usuario (borrado lógico)
 router.patch('/eliminar', deleteUser);
-// obtener un usuario por su ID
-router.get('/usuario/:id', getUserById);
 // obtener todos los usuarios
-router.get('/usuarios', getUsers);
+router.get('/', getUsers);
+// obtener un usuario por su ID
+router.get('/:id', getUserById);
 
 export default router;

@@ -155,7 +155,7 @@ export const resetearPassword = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'Te hemos enviado un correo para que restaures tu contrasena.',
+      message: 'Hemos enviado un correo para que restaures tu contrasena.',
     });
   } catch (error) {
     return res.status(500).json({

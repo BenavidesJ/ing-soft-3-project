@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../database.js';
+import { isValidDateFormat } from '../common/isValidDateFormat.js';
 
 export const Proyecto = sequelize.define(
   'Proyecto',
@@ -14,20 +15,54 @@ export const Proyecto = sequelize.define(
       allowNull: false,
     },
     Descripcion: {
-      type: DataTypes.STRING(45),
+      type: DataTypes.STRING(100),
       allowNull: false,
     },
     Objetivo: {
-      type: DataTypes.STRING(45),
+      type: DataTypes.STRING(100),
       allowNull: false,
     },
     FechaInicio: {
       type: DataTypes.DATE,
       allowNull: false,
+      validate: {
+        isValidDate(value) {
+          if (isValidDateFormat(value)) {
+            throw new Error(
+              'La fecha de inicio debe tener el formato dd/mm/yyyy y ser válida.'
+            );
+          }
+        },
+      },
     },
     FechaFin: {
       type: DataTypes.DATE,
       allowNull: true,
+      validate: {
+        isValidDate(value) {
+          if (isValidDateFormat(value)) {
+            throw new Error(
+              'La fecha de finalizacion debe tener el formato dd/mm/yyyy y ser válida.'
+            );
+          }
+        },
+        isAfterStartDate(value) {
+          if (value && this.FechaInicio) {
+            const fechaInicio = new Date(
+              ...this.FechaInicio.split('/').reverse().map(Number)
+            );
+            const fechaFinalizacion = new Date(
+              ...value.split('/').reverse().map(Number)
+            );
+
+            if (fechaFinalizacion < fechaInicio) {
+              throw new Error(
+                'La fecha de finalizacion no puede ser anterior a la fecha de inicio.'
+              );
+            }
+          }
+        },
+      },
     },
     Presupuesto: {
       type: DataTypes.DECIMAL(10, 2),
