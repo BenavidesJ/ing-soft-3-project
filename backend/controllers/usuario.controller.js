@@ -50,13 +50,78 @@ export const createUser = async (req, res) => {
   }
 };
 
-export const updateUser = async (req, res) => {};
+export const updateUser = async (req, res) => {
+  try {
+    const {
+      idUsuario,
+      Nombre,
+      Correo,
+      Contrasena,
+      Apellido1,
+      Apellido2,
+      Activo,
+    } = req.body;
+    const user = await Usuario.findOne({
+      where: {
+        idUsuario,
+      },
+    });
 
-export const deleteUser = async (req, res) => {};
+    if (!user) {
+      throw new Error(`El usuario con ID ${idUsuario} no existe.`);
+    }
+
+    await Usuario.update(
+      { Activo, Nombre, Correo, Contrasena, Apellido1, Apellido2 },
+      {
+        where: {
+          idUsuario,
+        },
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: 'Usuario modificado correctamente.',
+    });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  const idUsuario = req.params.id;
+  try {
+    const user = await Usuario.findOne({
+      where: {
+        idUsuario,
+      },
+    });
+
+    if (!user) {
+      throw new Error(`El usuario con ID ${idUsuario} no existe.`);
+    }
+
+    await Usuario.update(
+      { Activo: false },
+      {
+        where: {
+          idUsuario,
+        },
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: 'Usuario eliminado correctamente.',
+    });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error.message });
+  }
+};
 
 export const getUserById = async (req, res) => {
   const userID = req.params.id;
-  console.log(userID);
   try {
     const user = await Usuario.findOne({
       where: {
@@ -80,6 +145,7 @@ export const getUserById = async (req, res) => {
         idUsuario: user.idUsuario,
         Nombre: `${user.Nombre} ${user.Apellido1} ${user.Apellido2 || ''}`,
         Correo: user.Correo,
+        Activo: user.Activo,
         Perfil: {
           idPerfilUsuario: userProfile.idPerfilUsuario,
           NombreUsuario: userProfile.nombreUsuario,
@@ -97,15 +163,25 @@ export const getUserById = async (req, res) => {
 export const getUsers = async (_req, res) => {
   try {
     const users = await Usuario.findAll({
-      attributes: ['idUsuario', 'Nombre', 'Apellido1', 'Apellido2', 'Correo'],
+      attributes: [
+        'idUsuario',
+        'Nombre',
+        'Apellido1',
+        'Apellido2',
+        'Correo',
+        'Activo',
+      ],
     });
     if (!users) {
       throw new Error('No se encontraron usuarios.');
     }
+
+    const activeUsers = users.filter((user) => user.Activo);
+
     return res.status(200).json({
       success: true,
       message: 'Usuarios encontrados',
-      data: users,
+      data: activeUsers,
     });
   } catch (error) {
     return res.status(400).json({ success: false, message: error.message });
