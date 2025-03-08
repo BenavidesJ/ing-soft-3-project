@@ -14,7 +14,7 @@ router.post('/crear', createUser);
 // modificar un usuario
 router.patch('/modificar', updateUser);
 // modificar el perfil de un usuario
-router.patch('/modificar-perfil');
+// router.patch('/modificar-perfil', () => {});
 // obtener todos los usuarios
 router.get('/', getUsers);
 // obtener un usuario por su ID

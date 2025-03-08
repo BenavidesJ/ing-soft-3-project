@@ -5,6 +5,10 @@ import { db_connection } from './database.js';
 import { API_URL } from './common/strings.js';
 import authRoutes from './routes/auth.route.js';
 import userRoutes from './routes/user.route.js';
+import statusRoutes from './routes/estado.route.js';
+import projectRoutes from './routes/proyecto.route.js';
+import resourcesRoutes from './routes/recursos.route.js';
+import taskRoutes from './routes/tarea.route.js';
 
 dotenv.config();
 
@@ -23,6 +27,10 @@ app.use(
 
 app.use(`${API_URL}/auth`, authRoutes);
 app.use(`${API_URL}/usuarios`, userRoutes);
+app.use(`${API_URL}/estados`, statusRoutes);
+app.use(`${API_URL}/proyectos`, projectRoutes);
+app.use(`${API_URL}/tareas`, taskRoutes);
+app.use(`${API_URL}/recursos`, resourcesRoutes);
 
 app.listen(port, () => {
   db_connection();

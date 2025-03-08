@@ -27,7 +27,12 @@ export const createProject = async (req, res) => {
       throw new Error('Todos los campos son obligatorios.');
     }
 
-    const status = await Estado.findOne({ where: { Nombre: Status } });
+    const nombreEstado =
+      String(Status).charAt(0).toUpperCase() + Status.slice(1);
+
+    const status = await Estado.findOne({
+      where: { NombreEstado: nombreEstado },
+    });
 
     if (!status) {
       throw new Error('El estado ingresado no existe, por favor verifique.');
@@ -37,10 +42,10 @@ export const createProject = async (req, res) => {
       Nombre,
       Descripcion,
       Objetivo,
-      FechaInicio,
-      FechaFin,
+      FechaInicio: new Date(FechaInicio),
+      FechaFin: new Date(FechaFin),
       Presupuesto,
-      Estado: status.idEstado,
+      Estado_idEstado: status.idEstado,
     });
 
     return res.status(200).json({

@@ -27,7 +27,7 @@ export const Proyecto = sequelize.define(
       allowNull: false,
       validate: {
         isValidDate(value) {
-          if (isValidDateFormat(value)) {
+          if (!isValidDateFormat(value)) {
             throw new Error(
               'La fecha de inicio debe tener el formato dd/mm/yyyy y ser válida.'
             );
@@ -40,7 +40,7 @@ export const Proyecto = sequelize.define(
       allowNull: true,
       validate: {
         isValidDate(value) {
-          if (isValidDateFormat(value)) {
+          if (!isValidDateFormat(value)) {
             throw new Error(
               'La fecha de finalizacion debe tener el formato dd/mm/yyyy y ser válida.'
             );
@@ -49,15 +49,15 @@ export const Proyecto = sequelize.define(
         isAfterStartDate(value) {
           if (value && this.FechaInicio) {
             const fechaInicio = new Date(
-              ...this.FechaInicio.split('/').reverse().map(Number)
+              ...String(this.FechaInicio).split('/').reverse().map(Number)
             );
             const fechaFinalizacion = new Date(
-              ...value.split('/').reverse().map(Number)
+              ...String(value).split('/').reverse().map(Number)
             );
 
-            if (fechaFinalizacion < fechaInicio) {
+            if (fechaFinalizacion <= fechaInicio) {
               throw new Error(
-                'La fecha de finalizacion no puede ser anterior a la fecha de inicio.'
+                'La fecha de finalizacion debe ser posterior a la fecha de inicio.'
               );
             }
           }
@@ -73,7 +73,7 @@ export const Proyecto = sequelize.define(
       allowNull: false,
       defaultValue: true,
     },
-    idEstado: {
+    Estado_idEstado: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
