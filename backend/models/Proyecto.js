@@ -71,6 +71,7 @@ export const Proyecto = sequelize.define(
     Activo: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
+      defaultValue: true,
     },
     idEstado: {
       type: DataTypes.INTEGER,
