@@ -1,0 +1,9 @@
+// sobreescritura de estilos de bootstrap para manejo de branding
+
+$theme-colors: (
+  'info': tomato,
+  'danger': teal,
+  'primary': red,
+);
+
+@import '~bootstrap/scss/bootstrap';
