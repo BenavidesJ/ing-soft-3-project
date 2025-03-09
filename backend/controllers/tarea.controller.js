@@ -1,3 +1,4 @@
+import { validateDates } from '../common/dateValidation.js';
 import { Tarea, Proyecto, Estado, Usuario } from '../models/index.js';
 
 export const createTask = async (req, res) => {
@@ -16,6 +17,8 @@ export const createTask = async (req, res) => {
     if (!status) {
       throw new Error('El estado ingresado no existe, por favor verifique.');
     }
+
+    validateDates(effectiveStart, FechaFin);
 
     const task = await Tarea.create({
       Nombre,
@@ -36,10 +39,19 @@ export const createTask = async (req, res) => {
 
 export const updateTask = async (req, res) => {
   try {
-    const { idTarea, ...updates } = req.body;
+    const { idTarea, FechaInicio, FechaFin, ...updates } = req.body;
     if (!idTarea) throw new Error('ID de la tarea es requerido.');
+
     const task = await Tarea.findByPk(idTarea);
     if (!task) throw new Error('Tarea no encontrada.');
+
+    if (FechaInicio || FechaFin) {
+      const effectiveStart = FechaInicio || task.FechaInicio;
+      validateDates(effectiveStart, FechaFin);
+      if (FechaInicio) updates.FechaInicio = FechaInicio;
+      if (FechaFin) updates.FechaFin = FechaFin;
+    }
+
     await task.update(updates);
     return res.status(200).json({
       success: true,
@@ -101,7 +113,6 @@ export const getTasksByStatus = async (req, res) => {
 };
 
 export const getTasksByProject = async (req, res) => {
-  //** ver luego */
   try {
     const projectId = req.params.id;
     const project = await Proyecto.findByPk(projectId, { include: Tarea });
@@ -117,7 +128,6 @@ export const getTasksByProject = async (req, res) => {
 };
 
 export const getTasksByMember = async (req, res) => {
-  //** ver luego */
   try {
     const userId = req.params.id;
     const user = await Usuario.findByPk(userId, { include: Tarea });

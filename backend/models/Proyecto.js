@@ -1,6 +1,5 @@
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../database.js';
-import { isValidDateFormat } from '../common/isValidDateFormat.js';
 
 export const Proyecto = sequelize.define(
   'Proyecto',

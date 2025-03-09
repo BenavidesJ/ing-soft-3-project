@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import { Tarea, Proyecto, Estado, Costo } from '../models/index.js';
+import { validateDates } from '../common/dateValidation.js';
 
 dotenv.config();
 
@@ -37,6 +38,8 @@ export const createProject = async (req, res) => {
       throw new Error('El estado ingresado no existe, por favor verifique.');
     }
 
+    validateDates(FechaInicio, FechaFin);
+
     const project = await Proyecto.create({
       Nombre,
       Descripcion,
@@ -58,10 +61,20 @@ export const createProject = async (req, res) => {
 
 export const updateProject = async (req, res) => {
   try {
-    const { idProyecto, ...updates } = req.body;
+    const { idProyecto, FechaInicio, FechaFin, ...updates } = req.body;
     if (!idProyecto) throw new Error('ID del proyecto es requerido.');
+
     const project = await Proyecto.findByPk(idProyecto);
     if (!project) throw new Error('Proyecto no encontrado.');
+
+    const effectiveStart = FechaInicio || project.FechaInicio;
+
+    if (FechaInicio || FechaFin) {
+      validateDates(effectiveStart, FechaFin);
+      if (FechaInicio) updates.FechaInicio = FechaInicio;
+      if (FechaFin) updates.FechaFin = FechaFin;
+    }
+
     await project.update(updates);
     return res.status(200).json({
       success: true,
