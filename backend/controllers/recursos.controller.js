@@ -1,6 +1,4 @@
-import { Recurso } from '../models/Recurso.js';
-import { Tarea } from '../models/Tarea.js';
-import { Proyecto } from '../models/Proyecto.js';
+import { Recurso, Tarea, Proyecto } from '../models/index.js';
 
 export const createResource = async (req, res) => {
   try {

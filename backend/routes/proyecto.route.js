@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+  assignTaskToProject,
   createCost,
   createProject,
   deleteProject,
@@ -15,6 +16,8 @@ const router = express.Router();
 router.post('/crear', createProject);
 // crear un costo y asignarlo a un proyecto
 router.post('/costo', createCost);
+// asignar una tarea a un proyecto
+router.post('/asignar-tarea', assignTaskToProject);
 // modificar un proyecto
 router.patch('/modificar', updateProject);
 // obtener todos los proyectos

@@ -1,7 +1,4 @@
-import { Tarea } from '../models/Tarea.js';
-import { Usuario } from '../models/Usuario.js';
-import { Proyecto } from '../models/Proyecto.js';
-import { Estado } from '../models/Estado.js';
+import { Tarea, Proyecto, Estado, Usuario } from '../models/index.js';
 
 export const createTask = async (req, res) => {
   try {
@@ -54,7 +51,6 @@ export const updateTask = async (req, res) => {
 };
 
 export const assignTaskToMember = async (req, res) => {
-  // *** revisar despues
   try {
     const { idTarea, idUsuario } = req.body;
     if (!idTarea || !idUsuario)

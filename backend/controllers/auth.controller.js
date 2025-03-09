@@ -1,10 +1,7 @@
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 
-import { Usuario } from '../models/Usuario.js';
-import { PerfilUsuario } from '../models/PerfilUsuario.js';
-import { Rol } from '../models/Rol.js';
-import { Permiso } from '../models/Permiso.js';
+import { Usuario, Rol, PerfilUsuario, Permiso } from '../models/index.js';
 import { generateJWT } from '../common/generateJWT.js';
 import { validPasswordRegex } from '../common/strings.js';
 import { sendEmail } from '../services/mail.js';
@@ -209,7 +206,6 @@ export const createPermission = async (req, res) => {
 };
 
 export const assignRoleToUser = async (req, res) => {
-  //* revisar despues
   try {
     const { idUsuario, idRol } = req.body;
     if (!idUsuario || !idRol)
@@ -229,7 +225,6 @@ export const assignRoleToUser = async (req, res) => {
 };
 
 export const assignPermissionToRole = async (req, res) => {
-  //* revisar despues
   try {
     const { idRol, idPermiso } = req.body;
     if (!idRol || !idPermiso)
@@ -249,7 +244,6 @@ export const assignPermissionToRole = async (req, res) => {
 };
 
 export const modifyUserRole = async (req, res) => {
-  //* revisar despues
   try {
     const { idUsuario, roles } = req.body; // roles: array de IDs de rol
     if (!idUsuario || !roles)
@@ -268,7 +262,6 @@ export const modifyUserRole = async (req, res) => {
 };
 
 export const modifyRolePermission = async (req, res) => {
-  //* revisar despues
   try {
     const { idRol, permisos } = req.body; // permisos: array de IDs de permiso
     if (!idRol || !permisos)

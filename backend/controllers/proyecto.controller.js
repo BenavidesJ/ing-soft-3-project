@@ -1,7 +1,5 @@
 import dotenv from 'dotenv';
-import { Proyecto } from '../models/Proyecto.js';
-import { Costo } from '../models/Costo.js';
-import { Estado } from '../models/Estado.js';
+import { Tarea, Proyecto, Estado, Costo } from '../models/index.js';
 
 dotenv.config();
 
@@ -152,6 +150,29 @@ export const createCost = async (req, res) => {
       success: true,
       message: 'Costo creado y asignado al proyecto correctamente.',
       data: cost,
+    });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const assignTaskToProject = async (req, res) => {
+  try {
+    const { idProyecto, idTarea } = req.body;
+    if (!idProyecto || !idTarea)
+      throw new Error('Se requieren el ID del proyecto y el ID de la tarea.');
+
+    const project = await Proyecto.findByPk(idProyecto);
+    if (!project) throw new Error('Proyecto no encontrado.');
+
+    const task = await Tarea.findByPk(idTarea);
+    if (!task) throw new Error('Tarea no encontrada.');
+
+    await project.addTarea(task);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Tarea asignada al proyecto correctamente.',
     });
   } catch (error) {
     return res.status(400).json({ success: false, message: error.message });
