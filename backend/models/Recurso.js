@@ -11,7 +11,7 @@ export const Recurso = sequelize.define(
       allowNull: false,
     },
     Nombre: {
-      type: DataTypes.STRING(45),
+      type: DataTypes.STRING(125),
       allowNull: false,
     },
   },

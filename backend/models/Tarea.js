@@ -11,11 +11,11 @@ export const Tarea = sequelize.define(
       allowNull: false,
     },
     Nombre: {
-      type: DataTypes.STRING(45),
+      type: DataTypes.STRING(100),
       allowNull: false,
     },
     Descripcion: {
-      type: DataTypes.STRING(45),
+      type: DataTypes.STRING(100),
       allowNull: false,
     },
     FechaInicio: {
@@ -29,6 +29,7 @@ export const Tarea = sequelize.define(
     Activo: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
+      defaultValue: true,
     },
     idEstado: {
       type: DataTypes.INTEGER,

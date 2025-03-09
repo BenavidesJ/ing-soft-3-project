@@ -9,6 +9,7 @@ export const Proyecto = sequelize.define(
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
+      allowNull: false,
     },
     Nombre: {
       type: DataTypes.STRING(45),
@@ -23,46 +24,12 @@ export const Proyecto = sequelize.define(
       allowNull: false,
     },
     FechaInicio: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: false,
-      validate: {
-        isValidDate(value) {
-          if (!isValidDateFormat(value)) {
-            throw new Error(
-              'La fecha de inicio debe tener el formato dd/mm/yyyy y ser válida.'
-            );
-          }
-        },
-      },
     },
     FechaFin: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: true,
-      validate: {
-        isValidDate(value) {
-          if (!isValidDateFormat(value)) {
-            throw new Error(
-              'La fecha de finalizacion debe tener el formato dd/mm/yyyy y ser válida.'
-            );
-          }
-        },
-        isAfterStartDate(value) {
-          if (value && this.FechaInicio) {
-            const fechaInicio = new Date(
-              ...String(this.FechaInicio).split('/').reverse().map(Number)
-            );
-            const fechaFinalizacion = new Date(
-              ...String(value).split('/').reverse().map(Number)
-            );
-
-            if (fechaFinalizacion <= fechaInicio) {
-              throw new Error(
-                'La fecha de finalizacion debe ser posterior a la fecha de inicio.'
-              );
-            }
-          }
-        },
-      },
     },
     Presupuesto: {
       type: DataTypes.DECIMAL(10, 2),
@@ -73,7 +40,7 @@ export const Proyecto = sequelize.define(
       allowNull: false,
       defaultValue: true,
     },
-    Estado_idEstado: {
+    idEstado: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {

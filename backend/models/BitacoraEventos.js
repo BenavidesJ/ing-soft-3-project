@@ -15,8 +15,8 @@ export const BitacoraEventos = sequelize.define(
       defaultValue: DataTypes.NOW,
     },
     Tabla_afectada: {
-      type: DataTypes.STRING,
-      allowNull: false,
+      type: DataTypes.STRING(255),
+      allowNull: true,
     },
     Tipo_evento: {
       type: DataTypes.ENUM('INSERT', 'UPDATE', 'DELETE', 'ERROR'),

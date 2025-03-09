@@ -45,7 +45,7 @@ export const createProject = async (req, res) => {
       FechaInicio: new Date(FechaInicio),
       FechaFin: new Date(FechaFin),
       Presupuesto,
-      Estado_idEstado: status.idEstado,
+      idEstado: status.idEstado,
     });
 
     return res.status(200).json({
