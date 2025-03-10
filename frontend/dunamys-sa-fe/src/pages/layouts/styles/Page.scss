@@ -1,0 +1,25 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
+  main {
+    flex: 1;
+    background-color: #d6efd8;
+  }
+
+  footer {
+    background-color: #1a5319;
+    color: #ffffff;
+    font-size: 1.15rem;
+    text-align: center;
+    padding: 1rem;
+  }
+}

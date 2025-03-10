@@ -1,3 +1,9 @@
+import { PublicLayout } from '../layouts/PublicLayout';
+
 export const Login = () => {
-  return <div>Login</div>;
+  return (
+    <PublicLayout>
+      <div>Login</div>
+    </PublicLayout>
+  );
 };
