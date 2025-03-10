@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router';
-import { Login, Register } from './pages/public';
+import { Login, Register, RestorePassword } from './pages/public';
 import { Dashboard } from './pages/private';
 import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 
@@ -11,6 +11,8 @@ function App() {
         {/* Rutas publicas */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<RestorePassword />} />
+
         {/* Rutas privadas */}
         <Route
           path="/dashboard"
