@@ -1,9 +1,12 @@
-// sobreescritura de estilos de bootstrap para manejo de branding
-
-$theme-colors: (
-  'info': tomato,
-  'danger': teal,
-  'primary': red,
+@use 'bootstrap' with (
+  $theme-colors: (
+    'primary': #78f68f,
+    'secondary': #d6efd8,
+    'success': #02da8a,
+    'info': #11319c,
+    'warning': #d1e42f,
+    'danger': #fa1652,
+    'light': #f8f9fa,
+    'dark': #191919,
+  )
 );
-
-@import '~bootstrap/scss/bootstrap';

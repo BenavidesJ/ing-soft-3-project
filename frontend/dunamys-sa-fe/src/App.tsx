@@ -1,20 +1,23 @@
-import Button from 'react-bootstrap/Button';
+import { Route, Routes } from 'react-router';
 import './App.css';
+import { Login, Register } from './pages/public';
 
 function App() {
   return (
-    <>
-      <h1>App nueva con bootstrap</h1>
-      <Button variant="primary">Primary</Button>
-      <Button variant="secondary">Secondary</Button>
-      <Button variant="success">Success</Button>
-      <Button variant="warning">Warning</Button>
-      <Button variant="danger">Danger</Button>
-      <Button variant="info">Info</Button>
-      <Button variant="light">Light</Button>
-      <Button variant="dark">Dark</Button>
-      <Button variant="link">Link</Button>
-    </>
+    <Routes>
+      <Route
+        index
+        element={
+          <>
+            <h1>Home</h1>
+          </>
+        }
+      />
+      <Route>
+        <Route path="login" element={<Login />} />
+        <Route path="register" element={<Register />} />
+      </Route>
+    </Routes>
   );
 }
 
