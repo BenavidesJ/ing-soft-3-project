@@ -2,8 +2,10 @@ import { z } from 'zod';
 import { PublicLayout } from '../layouts/PublicLayout';
 import { Card } from 'react-bootstrap';
 import { Form, Input, SubmitButton } from '../../components/Forms';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { login } from '../../services/auth';
+import { useLoading } from '../../context/LoadingContext';
+import { useAuth } from '../../context';
 
 const loginSchema = z.object({
   Correo: z.string().email('Formato de correo incorrecto'),
@@ -11,12 +13,23 @@ const loginSchema = z.object({
 });
 
 export const Login = () => {
+  const { setLoading } = useLoading();
+  const { startSession } = useAuth();
+  const navigate = useNavigate();
+
   const onSubmit = async (data: { Correo: string; Contrasena: string }) => {
     try {
       const response = await login(data);
-      console.log('Login exitoso:', response.data);
+      const user = await response.data;
+      setLoading(true);
+      startSession(response.data);
+      if (user) {
+        navigate('/dashboard', { replace: true });
+      }
     } catch (err: any) {
       console.log(err);
+    } finally {
+      setLoading(false);
     }
   };
 

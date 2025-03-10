@@ -1,3 +1,4 @@
+import { LoadingOverlay } from '../../components/Loading/LoadingOverlay';
 import { BrandName } from '../../utils/strings';
 import { NavigationBar } from './components/NavigationBar';
 import './styles/Page.scss';
@@ -15,6 +16,7 @@ export const PublicLayout = ({ children }: PublicLayoutProps) => {
         &copy; {new Date().getFullYear()} {BrandName} | Todos los derechos
         reservados.
       </footer>
+      <LoadingOverlay />
     </div>
   );
 };
