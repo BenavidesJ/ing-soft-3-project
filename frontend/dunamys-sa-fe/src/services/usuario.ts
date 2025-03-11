@@ -1,5 +1,36 @@
 import api from './api';
+import { ApiResponse, Usuario } from './types';
 
-export const getUserByID = (userID: number) => {
-  return api.get(`usuarios/${userID}`);
+export const createUser = (data: {
+  Nombre: string;
+  Apellido1: string;
+  Apellido2?: string;
+  Correo: string;
+  Contrasena: string;
+}) => {
+  return api.post<ApiResponse<Usuario>>('usuarios/crear', data);
+};
+
+export const updateUser = (data: {
+  idUsuario: number;
+  Nombre?: string;
+  Apellido1?: string;
+  Apellido2?: string;
+  Correo?: string;
+  Contrasena?: string;
+  Activo?: boolean;
+}) => {
+  return api.patch<ApiResponse<null>>('usuarios/modificar', data);
+};
+
+export const getUsers = () => {
+  return api.get<ApiResponse<Usuario[]>>('usuarios/');
+};
+
+export const getUserByID = (id: number) => {
+  return api.get<ApiResponse<Usuario>>(`usuarios/${id}`);
+};
+
+export const deleteUser = (id: number) => {
+  return api.patch<ApiResponse<null>>(`usuarios/eliminar/${id}`);
 };

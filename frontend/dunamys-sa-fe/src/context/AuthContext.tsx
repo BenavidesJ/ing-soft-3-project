@@ -13,11 +13,15 @@ interface PerfilUsuario {
 }
 interface UserData {
   idUsuario: number;
-  Access_token: string;
-  Correo: string;
   Nombre: string;
-  Perfil: PerfilUsuario;
-  ImagenPerfil?: string;
+  Apellido1: string;
+  Apellido2?: string;
+  Correo: string;
+  Activo: boolean;
+  Fecha_creacion?: string;
+  Fecha_modificacion?: string;
+  Perfil?: PerfilUsuario;
+  Access_token?: string;
 }
 
 interface AuthContextProps {
@@ -37,23 +41,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
   const [currentUser, setCurrentUser] = useState<UserData | undefined>();
 
-  const loggedUserInfo = async () => {
-    const user = localStorage.getItem('user');
-    if (!user) {
-      setCurrentUser(undefined);
-      return;
-    }
+  // const loggedUserInfo = async () => {
+  //   const user = localStorage.getItem('user');
+  //   if (!user) {
+  //     setCurrentUser(undefined);
+  //     return;
+  //   }
 
-    const storedUser: UserData = JSON.parse(user);
+  //   const storedUser: UserData = await JSON.parse(user);
+  //   console.log('JBO debug usuario', { storedUser, id: storedUser.idUsuario });
 
-    const loggedUser = await getUserByID(storedUser.idUsuario);
-    setCurrentUser(loggedUser.data);
-  };
+  //   const loggedUser = await getUserByID(storedUser && storedUser);
+  //   setCurrentUser(loggedUser.data as unknown as UserData);
+  // };
 
   const startSession = async (userData: UserData) => {
     localStorage.setItem('user', JSON.stringify(userData));
     setIsAuthenticated(true);
-    await loggedUserInfo();
+    // await loggedUserInfo();
   };
 
   const endSession = () => {

@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router';
 import { Login, Register, RestorePassword } from './pages/public';
 import {
   Dashboard,
+  DetalleProyecto,
   GestionProyectos,
   GestionTareas,
   GestionUsuarios,
@@ -33,6 +34,14 @@ function App() {
           element={
             <PrivateRoute>
               <GestionProyectos />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/proyecto/:id"
+          element={
+            <PrivateRoute>
+              <DetalleProyecto />
             </PrivateRoute>
           }
         />

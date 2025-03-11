@@ -10,8 +10,11 @@ import { Avatar } from '../../components';
 import { useEffect } from 'react';
 
 const loginSchema = z.object({
-  Correo: z.string().email('Formato de correo incorrecto'),
-  Contrasena: z.string().min(1, 'La contraseña es obligatoria'),
+  Correo: z
+    .string()
+    .min(1, 'El correo es obligatorio')
+    .email('Formato de correo incorrecto'),
+  Contrasena: z.string().min(6, 'La contraseña es obligatoria'),
 });
 
 export const Login = () => {

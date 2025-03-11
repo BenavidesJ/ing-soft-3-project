@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Dropdown, Modal, Button } from 'react-bootstrap';
+import { Dropdown, Modal, Button, Placeholder, Card } from 'react-bootstrap';
 import { Form, Input, SubmitButton } from '../Forms';
 import { useAuth } from '../../context/AuthContext';
 import { Avatar } from '../Avatar/Avatar';
@@ -12,7 +12,7 @@ export const userProfileSchema = z.object({
 });
 
 export function UserProfile() {
-  const { currentUser } = useAuth();
+  const { currentUser, endSession } = useAuth();
   const [showModal, setShowModal] = useState(false);
 
   const [formValues, setFormValues] = useState({
@@ -44,7 +44,7 @@ export function UserProfile() {
   };
 
   if (!currentUser) {
-    return <div>Cargando...</div>;
+    return <Placeholder as={Card} xs={10} size="lg" />;
   }
 
   return (
@@ -79,7 +79,18 @@ export function UserProfile() {
             <small>correo: {formValues.Correo}</small>
           </div>
           <Dropdown.Divider />
-          <Dropdown.Item onClick={handleOpenModal}>Editar perfil</Dropdown.Item>
+          <Dropdown.Item
+            className="bg-info text-white rounded mb-1"
+            onClick={handleOpenModal}
+          >
+            Editar perfil
+          </Dropdown.Item>
+          <Dropdown.Item
+            className="bg-danger text-white rounded"
+            onClick={endSession}
+          >
+            Cerrar Sesión
+          </Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
 
@@ -99,10 +110,14 @@ export function UserProfile() {
             <Input name="Correo" label="Correo" type="email" />
 
             <div className="d-flex justify-content-end mt-3">
-              <Button variant="secondary" onClick={handleCloseModal}>
+              <Button
+                variant="danger"
+                className="text-white"
+                onClick={handleCloseModal}
+              >
                 Cerrar
               </Button>
-              <SubmitButton variant="primary" className="ms-2">
+              <SubmitButton variant="success" className=" text-white ms-2">
                 Guardar
               </SubmitButton>
             </div>
