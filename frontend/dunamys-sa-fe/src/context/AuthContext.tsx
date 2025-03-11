@@ -1,8 +1,23 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from 'react';
 import { getUserByID } from '../services/usuario';
 
+interface PerfilUsuario {
+  NombreUsuario: string;
+  idPerfilUsuario: number;
+}
 interface UserData {
-  accessToken: string;
+  idUsuario: number;
+  Access_token: string;
+  Correo: string;
+  Nombre: string;
+  Perfil: PerfilUsuario;
+  ImagenPerfil?: string;
 }
 
 interface AuthContextProps {
@@ -16,34 +31,43 @@ interface AuthContextProps {
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const currentUserSession = () => !!sessionStorage.getItem('user');
+  const currentUserSession = () => !!localStorage.getItem('user');
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
     currentUserSession()
   );
   const [currentUser, setCurrentUser] = useState<UserData | undefined>();
 
   const loggedUserInfo = async () => {
-    const user = sessionStorage.getItem('user');
+    const user = localStorage.getItem('user');
     if (!user) {
       setCurrentUser(undefined);
       return;
     }
-    const userID = JSON.parse(user).data.idUsuario;
-    const loggedUserInfo = await getUserByID(userID);
-    setCurrentUser(loggedUserInfo.data);
+
+    const storedUser: UserData = JSON.parse(user);
+
+    const loggedUser = await getUserByID(storedUser.idUsuario);
+    setCurrentUser(loggedUser.data);
   };
 
   const startSession = async (userData: UserData) => {
-    sessionStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('user', JSON.stringify(userData));
     setIsAuthenticated(true);
     await loggedUserInfo();
   };
 
   const endSession = () => {
-    sessionStorage.removeItem('user');
+    localStorage.removeItem('user');
     setIsAuthenticated(false);
     setCurrentUser(undefined);
   };
+
+  useEffect(() => {
+    const user = localStorage.getItem('user');
+    if (user) {
+      setCurrentUser(JSON.parse(user).data);
+    }
+  }, []);
 
   return (
     <AuthContext.Provider

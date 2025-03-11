@@ -1,6 +1,12 @@
 import { Navigate, Route, Routes } from 'react-router';
 import { Login, Register, RestorePassword } from './pages/public';
-import { Dashboard } from './pages/private';
+import {
+  Dashboard,
+  GestionProyectos,
+  GestionTareas,
+  GestionUsuarios,
+  Reportes,
+} from './pages/private';
 import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 
 function App() {
@@ -19,6 +25,38 @@ function App() {
           element={
             <PrivateRoute>
               <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/gestion-proyectos"
+          element={
+            <PrivateRoute>
+              <GestionProyectos />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/gestion-tareas"
+          element={
+            <PrivateRoute>
+              <GestionTareas />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/gestion-usuarios"
+          element={
+            <PrivateRoute>
+              <GestionUsuarios />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/reportes"
+          element={
+            <PrivateRoute>
+              <Reportes />
             </PrivateRoute>
           }
         />

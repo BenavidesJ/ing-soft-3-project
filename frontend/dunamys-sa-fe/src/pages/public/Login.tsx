@@ -6,6 +6,8 @@ import { Link, useNavigate } from 'react-router';
 import { login } from '../../services/auth';
 import { useLoading } from '../../context/LoadingContext';
 import { useAuth } from '../../context';
+import { Avatar } from '../../components';
+import { useEffect } from 'react';
 
 const loginSchema = z.object({
   Correo: z.string().email('Formato de correo incorrecto'),
@@ -14,7 +16,7 @@ const loginSchema = z.object({
 
 export const Login = () => {
   const { setLoading } = useLoading();
-  const { startSession } = useAuth();
+  const { startSession, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const onSubmit = async (data: { Correo: string; Contrasena: string }) => {
@@ -33,6 +35,12 @@ export const Login = () => {
     }
   };
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated]);
+
   return (
     <PublicLayout>
       <div
@@ -41,16 +49,19 @@ export const Login = () => {
       >
         <Card style={{ maxWidth: '400px', width: '100%', padding: '1rem' }}>
           <Card.Body>
-            <div className="text-center mb-3">
-              <img
-                src="/img/user-icon.png"
-                alt="Icono de usuario"
-                width="80"
-                height="80"
-              />
+            <div
+              className="mb-3"
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Avatar size={120} />
             </div>
 
-            <h3 className="text-center mb-4">Bienvenido</h3>
+            <h3 className="text-center mb-4">Inicio de Sesión</h3>
 
             <Form schema={loginSchema} onSubmit={onSubmit} mode="onBlur">
               <Input

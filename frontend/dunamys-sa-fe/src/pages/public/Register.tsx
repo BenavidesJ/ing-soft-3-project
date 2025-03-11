@@ -1,9 +1,11 @@
 import { Card } from 'react-bootstrap';
 import { PublicLayout } from '../layouts/PublicLayout';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { z } from 'zod';
 import { Form, Input, SubmitButton } from '../../components/Forms';
 import { RegisterData, registro } from '../../services/auth';
+import { useAuth } from '../../context';
+import { useEffect } from 'react';
 
 const registerSchema = z.object({
   Correo: z.string().email('Formato de correo incorrecto'),
@@ -14,14 +16,27 @@ const registerSchema = z.object({
 });
 
 export const Register = () => {
+  const { startSession, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const onSubmit = async (data: RegisterData) => {
     try {
       const response = await registro(data);
-      console.log('Login exitoso:', response.data);
+      const user = await response.data;
+      startSession(response.data);
+      if (user) {
+        navigate('/dashboard', { replace: true });
+      }
     } catch (err: any) {
       console.log(err);
     }
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated]);
+
   return (
     <PublicLayout>
       <div
@@ -30,16 +45,7 @@ export const Register = () => {
       >
         <Card style={{ maxWidth: '400px', width: '100%', padding: '1rem' }}>
           <Card.Body>
-            <div className="text-center mb-3">
-              <img
-                src="/img/user-icon.png"
-                alt="Icono de usuario"
-                width="80"
-                height="80"
-              />
-            </div>
-
-            <h3 className="text-center mb-4">Bienvenido</h3>
+            <h3 className="text-center mb-4">Registro</h3>
 
             <Form schema={registerSchema} onSubmit={onSubmit} mode="onBlur">
               <Input
