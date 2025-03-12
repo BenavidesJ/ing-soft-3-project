@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import { Tarea, Proyecto, Estado, Costo } from '../models/index.js';
 import { validateDates } from '../common/dateValidation.js';
+import dayjs from 'dayjs';
 
 dotenv.config();
 
@@ -40,12 +41,17 @@ export const createProject = async (req, res) => {
 
     validateDates(FechaInicio, FechaFin);
 
+    const isoStart = dayjs(FechaInicio, 'DD/MM/YYYY').format('YYYY-MM-DD');
+    const isoEnd = FechaFin
+      ? dayjs(FechaFin, 'DD/MM/YYYY').format('YYYY-MM-DD')
+      : null;
+
     const project = await Proyecto.create({
       Nombre,
       Descripcion,
       Objetivo,
-      FechaInicio,
-      FechaFin,
+      FechaInicio: isoStart,
+      FechaFin: isoEnd,
       Presupuesto,
       idEstado: status.idEstado,
     });
@@ -61,18 +67,39 @@ export const createProject = async (req, res) => {
 
 export const updateProject = async (req, res) => {
   try {
-    const { idProyecto, FechaInicio, FechaFin, ...updates } = req.body;
+    const { idProyecto, FechaInicio, FechaFin, Status, ...updates } = req.body;
     if (!idProyecto) throw new Error('ID del proyecto es requerido.');
 
     const project = await Proyecto.findByPk(idProyecto);
     if (!project) throw new Error('Proyecto no encontrado.');
 
     const effectiveStart = FechaInicio || project.FechaInicio;
+    const effectiveEnd =
+      typeof FechaFin !== 'undefined' ? FechaFin : project.FechaFin;
 
-    if (FechaInicio || FechaFin) {
-      validateDates(effectiveStart, FechaFin);
-      if (FechaInicio) updates.FechaInicio = FechaInicio;
-      if (FechaFin) updates.FechaFin = FechaFin;
+    validateDates(effectiveStart, effectiveEnd);
+
+    if (FechaInicio) {
+      updates.FechaInicio = dayjs(FechaInicio, 'DD/MM/YYYY').format(
+        'YYYY-MM-DD'
+      );
+    }
+    if (typeof FechaFin !== 'undefined') {
+      updates.FechaFin = FechaFin
+        ? dayjs(FechaFin, 'DD/MM/YYYY').format('YYYY-MM-DD')
+        : null;
+    }
+
+    if (Status) {
+      const nombreEstado =
+        String(Status).charAt(0).toUpperCase() + Status.slice(1);
+      const estado = await Estado.findOne({
+        where: { NombreEstado: nombreEstado },
+      });
+      if (!estado) {
+        throw new Error('El estado ingresado no existe, por favor verifique.');
+      }
+      updates.idEstado = estado.idEstado;
     }
 
     await project.update(updates);

@@ -4,7 +4,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat.js';
 dayjs.extend(customParseFormat);
 
 export const validateDates = (fechaInicio, fechaFin) => {
-  const format = 'DD/MMM/YYYY';
+  const format = 'DD/MM/YYYY';
   const startDate = dayjs(fechaInicio, format, true);
   const endDate = dayjs(fechaFin, format, true);
 

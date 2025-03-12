@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { validateDates } from '../common/dateValidation.js';
 import { Tarea, Proyecto, Estado, Usuario } from '../models/index.js';
 
@@ -18,13 +19,18 @@ export const createTask = async (req, res) => {
       throw new Error('El estado ingresado no existe, por favor verifique.');
     }
 
-    validateDates(effectiveStart, FechaFin);
+    validateDates(FechaInicio, FechaFin);
+
+    const isoStart = dayjs(FechaInicio, 'DD/MM/YYYY').format('YYYY-MM-DD');
+    const isoEnd = FechaFin
+      ? dayjs(FechaFin, 'DD/MM/YYYY').format('YYYY-MM-DD')
+      : null;
 
     const task = await Tarea.create({
       Nombre,
       Descripcion,
-      FechaInicio,
-      FechaFin,
+      FechaInicio: isoStart,
+      FechaFin: isoEnd,
       idEstado: status.idEstado,
     });
     return res.status(201).json({

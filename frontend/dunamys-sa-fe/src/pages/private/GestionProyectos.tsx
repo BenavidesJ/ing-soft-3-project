@@ -1,53 +1,158 @@
-import { Alert, Table } from 'react-bootstrap';
-import { PrivateLayout } from '../layouts/PrivateLayout';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
-import { getAllProyectos, getProyectoById } from '../../services/proyecto';
+import { Alert, Button, Table, Modal } from 'react-bootstrap';
+import { PrivateLayout } from '../layouts/PrivateLayout';
+import { Form, Input, SubmitButton, SelectInput } from '../../components/Forms';
+import { ConfirmModal, EstadoBadges } from '../../components';
+import { z } from 'zod';
+import {
+  getAllProyectos,
+  createProyecto,
+  updateProyecto,
+  deleteProyecto,
+} from '../../services/proyecto';
+import { getAllEstados } from '../../services/estado';
 import { Proyecto } from '../../services/types';
 import { useLoading } from '../../context/LoadingContext';
+import dayjs from 'dayjs';
+
+const projectSchema = z.object({
+  Nombre: z.string().min(1, 'El nombre es obligatorio'),
+  Descripcion: z.string().min(1, 'La descripción es obligatoria'),
+  Objetivo: z.string().min(1, 'El objetivo es obligatorio'),
+  FechaInicio: z.string().min(1, 'La fecha de inicio es obligatoria'),
+  FechaFin: z
+    .string()
+    .optional()
+    .transform((val) => (val === '' ? undefined : val)),
+  Presupuesto: z.preprocess(
+    (val) => Number(val),
+    z.number({ invalid_type_error: 'El presupuesto debe ser un número' })
+  ),
+  Status: z.string().default('Pendiente'),
+});
 
 export const GestionProyectos = () => {
-  const [projects, setProjects] = useState<Proyecto[] | undefined>();
-  const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
+  const [projects, setProjects] = useState<Proyecto[]>([]);
+  const [estados, setEstados] = useState<any[]>([]);
+  const [showModal, setShowModal] = useState(false);
+  const [editingProject, setEditingProject] = useState<Proyecto | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<number | null>(null);
   const { setLoading } = useLoading();
 
+  const fetchProjects = async () => {
+    try {
+      setLoading(true);
+      const response = await getAllProyectos();
+      setProjects(response.data.data || []);
+    } catch (err: any) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchEstados = async () => {
+    try {
+      const response = await getAllEstados();
+      setEstados(response.data.data || []);
+    } catch (error) {
+      console.error('Error al cargar los estados', error);
+    }
+  };
+
   useEffect(() => {
-    async function fetchProjects() {
+    fetchProjects();
+    fetchEstados();
+  }, []);
+
+  const handleOpenModal = (project?: Proyecto) => {
+    setEditingProject(project || null);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingProject(null);
+  };
+
+  const onSubmit = async (data: any) => {
+    try {
+      setLoading(true);
+      if (data.FechaInicio) {
+        data.FechaInicio = dayjs(data.FechaInicio, 'DD/MM/YYYY').format(
+          'DD/MM/YYYY'
+        );
+      }
+      if (data.FechaFin) {
+        data.FechaFin = dayjs(data.FechaFin, 'DD/MM/YYYY').format('DD/MM/YYYY');
+      } else {
+        data.FechaFin = null;
+      }
+      if (editingProject) {
+        await updateProyecto({
+          idProyecto: editingProject.idProyecto,
+          ...data,
+        });
+      } else {
+        await createProyecto({ ...data, Status: 'Pendiente' });
+      }
+      await fetchProjects();
+      handleCloseModal();
+    } catch (err: any) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteClick = (idProyecto: number) => {
+    setProjectToDelete(idProyecto);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeleteProject = async () => {
+    if (projectToDelete !== null) {
       try {
         setLoading(true);
-        const response = await getAllProyectos();
-        setProjects(response.data.data);
+        await deleteProyecto(projectToDelete);
+        await fetchProjects();
       } catch (err: any) {
-        setError(err.message || 'Error al cargar proyectos.');
+        console.log(err);
       } finally {
         setLoading(false);
       }
     }
-    fetchProjects();
-  }, [setLoading]);
-
-  const handleRowClick = async (projectId: number) => {
-    try {
-      const response = await getProyectoById(projectId);
-      navigate(`/proyecto/${projectId}`, { state: response.data.data });
-    } catch (err: any) {
-      setError(err.message || 'Error al obtener detalles del proyecto.');
-    }
+    setShowDeleteConfirm(false);
+    setProjectToDelete(null);
   };
 
-  if (error) {
-    return <Alert variant="danger">{error}</Alert>;
-  }
+  const cancelDeleteProject = () => {
+    setShowDeleteConfirm(false);
+    setProjectToDelete(null);
+  };
 
   return (
     <PrivateLayout>
-      {' '}
       <div className="p-3">
-        {projects && projects.length === 0 ? (
+        <h2>Gestión de Proyectos</h2>
+        <Button
+          variant="primary"
+          className="mb-3"
+          onClick={() => handleOpenModal()}
+        >
+          Agregar Proyecto
+        </Button>
+        {projects.length === 0 ? (
           <Alert variant="info">No hay proyectos disponibles.</Alert>
         ) : (
-          <Table striped bordered hover responsive>
+          <Table
+            striped
+            bordered
+            hover
+            responsive
+            className="table-sm text-center align-middle"
+          >
             <thead>
               <tr>
                 <th>ID</th>
@@ -57,29 +162,141 @@ export const GestionProyectos = () => {
                 <th>Fecha Inicio</th>
                 <th>Fecha Fin</th>
                 <th>Presupuesto</th>
+                <th>Estado</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {projects &&
-                projects.map((project) => (
-                  <tr
-                    key={project.idProyecto}
-                    onClick={() => handleRowClick(project.idProyecto)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <td>{project.idProyecto}</td>
-                    <td>{project.Nombre}</td>
-                    <td>{project.Descripcion}</td>
-                    <td>{project.Objetivo}</td>
-                    <td>{project.FechaInicio}</td>
-                    <td>{project.FechaFin || '-'}</td>
-                    <td>{project.Presupuesto}</td>
-                  </tr>
-                ))}
+              {projects.map((project) => (
+                <>
+                  {project.Activo && (
+                    <tr key={project.idProyecto}>
+                      <td>{project.idProyecto}</td>
+                      <td>{project.Nombre}</td>
+                      <td>{project.Descripcion}</td>
+                      <td>{project.Objetivo}</td>
+                      <td>{dayjs(project.FechaInicio).format('DD/MM/YYYY')}</td>
+                      <td>
+                        {project.FechaFin
+                          ? dayjs(project.FechaFin).format('DD/MM/YYYY')
+                          : '-'}
+                      </td>
+                      <td>{project.Presupuesto}</td>
+                      <td>
+                        <EstadoBadges estadoId={project.idEstado} />
+                      </td>
+                      <td>
+                        <Button
+                          size="sm"
+                          variant="info"
+                          onClick={() => handleOpenModal(project)}
+                        >
+                          Editar
+                        </Button>{' '}
+                        <Button
+                          size="sm"
+                          variant="danger"
+                          onClick={() => handleDeleteClick(project.idProyecto)}
+                        >
+                          Eliminar
+                        </Button>
+                      </td>
+                    </tr>
+                  )}
+                </>
+              ))}
             </tbody>
           </Table>
         )}
       </div>
+
+      <Modal show={showModal} onHide={handleCloseModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {editingProject ? 'Editar Proyecto' : 'Crear Proyecto'}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form
+            schema={projectSchema}
+            onSubmit={onSubmit}
+            defaultValues={
+              editingProject || {
+                Nombre: '',
+                Descripcion: '',
+                Objetivo: '',
+                FechaInicio: '',
+                FechaFin: undefined,
+                Presupuesto: 0,
+                Status: 'Pendiente',
+              }
+            }
+            mode="onBlur"
+          >
+            <Input
+              name="Nombre"
+              label="Nombre"
+              placeholder="Nombre del proyecto"
+            />
+            <Input
+              name="Descripcion"
+              label="Descripción"
+              placeholder="Descripción del proyecto"
+            />
+            <Input
+              name="Objetivo"
+              label="Objetivo"
+              placeholder="Objetivo del proyecto"
+            />
+            <Input
+              name="FechaInicio"
+              type="date"
+              label="Fecha de Inicio"
+              placeholder="DD/MM/YYYY"
+            />
+            <Input
+              name="FechaFin"
+              label="Fecha de Fin"
+              type="date"
+              placeholder="DD/MM/YYYY (opcional)"
+            />
+            <Input
+              name="Presupuesto"
+              label="Presupuesto"
+              placeholder="Presupuesto"
+              type="number"
+            />
+
+            {editingProject && (
+              <SelectInput
+                name="Status"
+                label="Estado"
+                options={estados.map((estado) => ({
+                  value: estado.NombreEstado,
+                  label: estado.NombreEstado,
+                }))}
+              />
+            )}
+
+            <div className="d-flex justify-content-end mt-3">
+              <Button variant="secondary" onClick={handleCloseModal}>
+                Cancelar
+              </Button>
+              <SubmitButton variant="primary" className="ms-2">
+                {editingProject ? 'Actualizar' : 'Crear'}
+              </SubmitButton>
+            </div>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
+      <ConfirmModal
+        show={showDeleteConfirm}
+        title="Confirmar eliminación"
+        message="¿Está seguro de eliminar este proyecto?"
+        onConfirm={confirmDeleteProject}
+        onCancel={cancelDeleteProject}
+      />
     </PrivateLayout>
   );
 };

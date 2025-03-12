@@ -8,7 +8,7 @@ export const createProyecto = (data: {
   FechaInicio: string;
   FechaFin?: string;
   Presupuesto: number;
-  Status: string;
+  Estado: string;
 }) => {
   return api.post<ApiResponse<{ idProyecto: number }>>('proyectos/crear', data);
 };
