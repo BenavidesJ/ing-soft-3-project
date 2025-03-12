@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Alert, Button, Table, Modal } from 'react-bootstrap';
 import { PrivateLayout } from '../layouts/PrivateLayout';
-import { Form, Input, SubmitButton } from '../../components/Forms';
+import { Form, Input, SubmitButton, SelectInput } from '../../components/Forms';
 import { z } from 'zod';
 import {
   getAllTareas,
@@ -9,6 +9,7 @@ import {
   updateTarea,
   deleteTarea,
 } from '../../services/tarea';
+import { getAllEstados } from '../../services/estado';
 import { Tarea } from '../../services/types';
 import { useLoading } from '../../context/LoadingContext';
 import dayjs from 'dayjs';
@@ -24,6 +25,7 @@ const tareaSchema = z.object({
 
 export const GestionTareas = () => {
   const [tareas, setTareas] = useState<Tarea[]>([]);
+  const [estados, setEstados] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingTarea, setEditingTarea] = useState<Tarea | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -42,8 +44,18 @@ export const GestionTareas = () => {
     }
   };
 
+  const fetchEstados = async () => {
+    try {
+      const response = await getAllEstados();
+      setEstados(response.data.data || []);
+    } catch (error) {
+      console.error('Error al cargar los estados', error);
+    }
+  };
+
   useEffect(() => {
     fetchTareas();
+    fetchEstados();
   }, []);
 
   const handleOpenModal = (tarea?: Tarea) => {
@@ -62,16 +74,16 @@ export const GestionTareas = () => {
       if (data.FechaInicio) {
         data.FechaInicio = dayjs(data.FechaInicio).format('DD/MM/YYYY');
       }
-
       if (data.FechaFin) {
         data.FechaFin = dayjs(data.FechaFin).format('DD/MM/YYYY');
       } else {
         data.FechaFin = null;
       }
+
       if (editingTarea) {
         await updateTarea({ idTarea: editingTarea.idTarea, ...data });
       } else {
-        await createTarea(data);
+        await createTarea({ ...data, Status: 'Pendiente' });
       }
       await fetchTareas();
       handleCloseModal();
@@ -140,9 +152,9 @@ export const GestionTareas = () => {
               </tr>
             </thead>
             <tbody>
-              {tareas.map((tarea) => (
-                <>
-                  {tarea.Activo && (
+              {tareas.map(
+                (tarea) =>
+                  tarea.Activo && (
                     <tr key={tarea.idTarea}>
                       <td>{tarea.Nombre}</td>
                       <td>{tarea.Descripcion}</td>
@@ -172,9 +184,8 @@ export const GestionTareas = () => {
                         </Button>
                       </td>
                     </tr>
-                  )}
-                </>
-              ))}
+                  )
+              )}
             </tbody>
           </Table>
         )}
@@ -196,7 +207,7 @@ export const GestionTareas = () => {
                 Descripcion: '',
                 FechaInicio: '',
                 FechaFin: '',
-                Status: '',
+                Status: 'Pendiente',
               }
             }
             mode="onBlur"
@@ -223,7 +234,18 @@ export const GestionTareas = () => {
               type="date"
               placeholder="DD/MM/YYYY (opcional)"
             />
-            <Input name="Status" label="Estado" placeholder="Estado" />
+            {editingTarea ? (
+              <SelectInput
+                name="Status"
+                label="Estado"
+                options={estados.map((estado) => ({
+                  value: estado.NombreEstado,
+                  label: estado.NombreEstado,
+                }))}
+              />
+            ) : (
+              <Input name="Status" type="hidden" value="Pendiente" />
+            )}
             <div className="d-flex justify-content-end mt-3">
               <Button variant="danger" onClick={handleCloseModal}>
                 Cancelar
@@ -235,6 +257,7 @@ export const GestionTareas = () => {
           </Form>
         </Modal.Body>
       </Modal>
+
       <ConfirmModal
         show={showDeleteConfirm}
         title="Confirmar eliminación"

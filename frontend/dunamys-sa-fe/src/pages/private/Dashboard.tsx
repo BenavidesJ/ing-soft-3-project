@@ -1,14 +1,18 @@
 import { Card, Col, Row } from 'react-bootstrap';
 import { PrivateLayout } from '../layouts/PrivateLayout';
+import { BrandName } from '../../utils/strings';
 
 export const Dashboard = () => {
   return (
     <PrivateLayout>
       <Row className="mb-4">
+        <h3 className="mb-3">
+          Bienvenido al sistema de gestion de proyectos de {BrandName}
+        </h3>
         <Col md={3}>
           <Card className="mb-3">
             <Card.Body>
-              <Card.Title>Robots Online</Card.Title>
+              <Card.Title>Proyectos activos</Card.Title>
               <h3>2</h3>
             </Card.Body>
           </Card>
@@ -16,7 +20,7 @@ export const Dashboard = () => {
         <Col md={3}>
           <Card className="mb-3">
             <Card.Body>
-              <Card.Title>Procesos Completados</Card.Title>
+              <Card.Title>Proyectos Completados</Card.Title>
               <h3>8053</h3>
             </Card.Body>
           </Card>
@@ -24,7 +28,7 @@ export const Dashboard = () => {
         <Col md={3}>
           <Card className="mb-3">
             <Card.Body>
-              <Card.Title>Planificaciones Activas</Card.Title>
+              <Card.Title>Tareas Activas</Card.Title>
               <h3>0</h3>
             </Card.Body>
           </Card>

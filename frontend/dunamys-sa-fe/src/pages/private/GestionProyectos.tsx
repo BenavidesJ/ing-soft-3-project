@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Alert, Button, Table, Modal } from 'react-bootstrap';
 import { PrivateLayout } from '../layouts/PrivateLayout';
-import { Form, Input, SubmitButton, SelectInput } from '../../components/Forms';
+import {
+  Form,
+  Input,
+  SubmitButton,
+  SelectInput,
+  MoneyInput,
+} from '../../components/Forms';
 import { ConfirmModal, EstadoBadges } from '../../components';
 import { z } from 'zod';
 import {
@@ -14,6 +20,7 @@ import { getAllEstados } from '../../services/estado';
 import { Proyecto } from '../../services/types';
 import { useLoading } from '../../context/LoadingContext';
 import dayjs from 'dayjs';
+import { formatCurrency } from '../../utils/formatCurrency';
 
 const projectSchema = z.object({
   Nombre: z.string().min(1, 'El nombre es obligatorio'),
@@ -181,7 +188,7 @@ export const GestionProyectos = () => {
                           ? dayjs(project.FechaFin).format('DD/MM/YYYY')
                           : '-'}
                       </td>
-                      <td>{project.Presupuesto}</td>
+                      <td>{formatCurrency(project.Presupuesto)}</td>
                       <td>
                         <EstadoBadges estadoId={project.idEstado} />
                       </td>
@@ -260,7 +267,7 @@ export const GestionProyectos = () => {
               type="date"
               placeholder="DD/MM/YYYY (opcional)"
             />
-            <Input
+            <MoneyInput
               name="Presupuesto"
               label="Presupuesto"
               placeholder="Presupuesto"

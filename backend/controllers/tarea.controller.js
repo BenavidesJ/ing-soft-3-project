@@ -45,17 +45,40 @@ export const createTask = async (req, res) => {
 
 export const updateTask = async (req, res) => {
   try {
-    const { idTarea, FechaInicio, FechaFin, ...updates } = req.body;
+    const { idTarea, FechaInicio, FechaFin, Status, ...updates } = req.body;
     if (!idTarea) throw new Error('ID de la tarea es requerido.');
 
     const task = await Tarea.findByPk(idTarea);
     if (!task) throw new Error('Tarea no encontrada.');
 
-    if (FechaInicio || FechaFin) {
-      const effectiveStart = FechaInicio || task.FechaInicio;
-      validateDates(effectiveStart, FechaFin);
-      if (FechaInicio) updates.FechaInicio = FechaInicio;
-      if (FechaFin) updates.FechaFin = FechaFin;
+    const effectiveStart = FechaInicio || task.FechaInicio;
+    const effectiveEnd =
+      typeof FechaFin !== 'undefined' ? FechaFin : task.FechaFin;
+
+    validateDates(effectiveStart, effectiveEnd);
+
+    if (FechaInicio) {
+      updates.FechaInicio = dayjs(FechaInicio, 'DD/MM/YYYY').format(
+        'YYYY-MM-DD'
+      );
+    }
+
+    if (typeof FechaFin !== 'undefined') {
+      updates.FechaFin = FechaFin
+        ? dayjs(FechaFin, 'DD/MM/YYYY').format('YYYY-MM-DD')
+        : null;
+    }
+
+    if (Status) {
+      const nombreEstado =
+        String(Status).charAt(0).toUpperCase() + Status.slice(1);
+      const estado = await Estado.findOne({
+        where: { NombreEstado: nombreEstado },
+      });
+      if (!estado) {
+        throw new Error('El estado ingresado no existe, por favor verifique.');
+      }
+      updates.idEstado = estado.idEstado;
     }
 
     await task.update(updates);
