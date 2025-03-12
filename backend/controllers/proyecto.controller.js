@@ -198,21 +198,32 @@ export const createCost = async (req, res) => {
 
 export const assignTaskToProject = async (req, res) => {
   try {
-    const { idProyecto, idTarea } = req.body;
-    if (!idProyecto || !idTarea)
-      throw new Error('Se requieren el ID del proyecto y el ID de la tarea.');
+    const { idProyecto, idTareas } = req.body;
+
+    if (!idProyecto || !idTareas || !Array.isArray(idTareas)) {
+      throw new Error(
+        'Se requieren el ID del proyecto y un array de IDs de tareas.'
+      );
+    }
 
     const project = await Proyecto.findByPk(idProyecto);
     if (!project) throw new Error('Proyecto no encontrado.');
 
-    const task = await Tarea.findByPk(idTarea);
-    if (!task) throw new Error('Tarea no encontrada.');
+    const tasks = await Tarea.findAll({
+      where: {
+        idTarea: idTareas,
+      },
+    });
 
-    await project.addTarea(task);
+    if (!tasks.length) {
+      throw new Error('No se encontraron las tareas especificadas.');
+    }
+
+    await project.addTareas(tasks);
 
     return res.status(200).json({
       success: true,
-      message: 'Tarea asignada al proyecto correctamente.',
+      message: 'Tareas asignadas al proyecto correctamente.',
     });
   } catch (error) {
     return res.status(400).json({ success: false, message: error.message });

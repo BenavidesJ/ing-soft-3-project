@@ -22,7 +22,7 @@ export const createCosto = (data: {
 
 export const assignTaskToProject = (data: {
   idProyecto: number;
-  idTarea: number;
+  idTareas: number[];
 }) => {
   return api.post<ApiResponse<null>>('proyectos/asignar-tarea', data);
 };
