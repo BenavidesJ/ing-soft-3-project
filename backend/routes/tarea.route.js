@@ -8,6 +8,7 @@ import {
   getTasksByMember,
   getTasksByProject,
   getTasksByStatus,
+  getUserByTask,
   updateTask,
 } from '../controllers/tarea.controller.js';
 
@@ -27,6 +28,8 @@ router.get('/estado/', getTasksByStatus);
 router.get('/proyecto/:id', getTasksByProject);
 // obtener tareas que han sido asignadas a un miembro del equipo
 router.get('/miembro/:id', getTasksByMember);
+// obtener el usuario asignado a una tarea
+router.get('/tarea/:id', getUserByTask);
 // obtener una tarea por su ID
 router.get('/:id', getTaskById);
 // eliminar una tarea (borrado lógico)

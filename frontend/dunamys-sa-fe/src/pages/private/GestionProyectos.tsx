@@ -1,12 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import {
-  Alert,
-  Button,
-  Table,
-  Modal,
-  Card,
-  Form as BSForm,
-} from 'react-bootstrap';
+import { useEffect, useState } from 'react';
+import { Alert, Button, Modal } from 'react-bootstrap';
 import { PrivateLayout } from '../layouts/PrivateLayout';
 import {
   Form as CustomForm,
@@ -15,14 +8,13 @@ import {
   SelectInput,
   MoneyInput,
 } from '../../components/Forms';
-import { ConfirmModal, EstadoBadges } from '../../components';
+import { ConfirmModal } from '../../components/ConfirmModal/ConfirmModal';
 import { z } from 'zod';
 import {
   getAllProyectos,
   createProyecto,
   updateProyecto,
   deleteProyecto,
-  assignTaskToProject,
 } from '../../services/proyecto';
 import { getAllEstados } from '../../services/estado';
 import { getAllTareas } from '../../services/tarea';
@@ -30,6 +22,8 @@ import { Proyecto, Tarea } from '../../services/types';
 import { useLoading } from '../../context/LoadingContext';
 import dayjs from 'dayjs';
 import { formatCurrency } from '../../utils/formatCurrency';
+import { CollapsibleTable, EstadoBadges } from '../../components';
+import { ProjectDetailsCard } from '../../components/ProjectDetailsCard/ProjectDetailsCard';
 
 const projectSchema = z.object({
   Nombre: z.string().min(1, 'El nombre es obligatorio'),
@@ -50,18 +44,11 @@ const projectSchema = z.object({
 export const GestionProyectos = () => {
   const [projects, setProjects] = useState<Proyecto[]>([]);
   const [estados, setEstados] = useState<any[]>([]);
-  const [tareas, setTareas] = useState<Tarea[]>([]);
+  const [_tareas, setTareas] = useState<Tarea[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingProject, setEditingProject] = useState<Proyecto | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<number | null>(null);
-
-  const [expandedProjectId, setExpandedProjectId] = useState<number | null>(
-    null
-  );
-
-  const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
-
   const { setLoading } = useLoading();
 
   const fetchProjects = async () => {
@@ -70,7 +57,7 @@ export const GestionProyectos = () => {
       const response = await getAllProyectos();
       setProjects(response.data.data || []);
     } catch (err: any) {
-      console.log(err);
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -100,12 +87,6 @@ export const GestionProyectos = () => {
     fetchTareas();
   }, []);
 
-  const toggleExpand = (id: number) => {
-    setExpandedProjectId((prev) => (prev === id ? null : id));
-
-    setSelectedTasks([]);
-  };
-
   const handleOpenModal = (project?: Proyecto) => {
     setEditingProject(project || null);
     setShowModal(true);
@@ -119,7 +100,6 @@ export const GestionProyectos = () => {
   const onSubmit = async (data: any) => {
     try {
       setLoading(true);
-
       if (data.FechaInicio) {
         data.FechaInicio = dayjs(data.FechaInicio, 'DD/MM/YYYY').format(
           'DD/MM/YYYY'
@@ -142,7 +122,7 @@ export const GestionProyectos = () => {
       await fetchProjects();
       handleCloseModal();
     } catch (err: any) {
-      console.log(err);
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -160,7 +140,7 @@ export const GestionProyectos = () => {
         await deleteProyecto(projectToDelete);
         await fetchProjects();
       } catch (err: any) {
-        console.log(err);
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -174,28 +154,65 @@ export const GestionProyectos = () => {
     setProjectToDelete(null);
   };
 
-  const handleTaskCheck = (taskId: number) => {
-    if (selectedTasks.includes(taskId)) {
-      setSelectedTasks(selectedTasks.filter((id) => id !== taskId));
-    } else {
-      setSelectedTasks([...selectedTasks, taskId]);
-    }
-  };
+  const tableHeader = (
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Descripción</th>
+      <th>Objetivo</th>
+      <th>Fecha Inicio</th>
+      <th>Fecha Fin</th>
+      <th>Presupuesto</th>
+      <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+  );
 
-  const handleAssignTasks = async (projectId: number) => {
-    try {
-      setLoading(true);
+  const renderMainRow = (project: Proyecto) => (
+    <>
+      <td>{project.idProyecto}</td>
+      <td>{project.Nombre}</td>
+      <td>{project.Descripcion}</td>
+      <td>{project.Objetivo}</td>
+      <td>{dayjs(project.FechaInicio).format('DD/MM/YYYY')}</td>
+      <td>
+        {project.FechaFin ? dayjs(project.FechaFin).format('DD/MM/YYYY') : '-'}
+      </td>
+      <td>{formatCurrency(project.Presupuesto)}</td>
+      <td>
+        <EstadoBadges estadoId={project.idEstado} />
+      </td>
+      <td>
+        <Button
+          size="sm"
+          variant="info"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleOpenModal(project);
+          }}
+        >
+          Editar
+        </Button>{' '}
+        <Button
+          size="sm"
+          variant="danger"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDeleteClick(project.idProyecto);
+          }}
+        >
+          Eliminar
+        </Button>
+      </td>
+    </>
+  );
 
-      await assignTaskToProject({
-        idProyecto: projectId,
-        idTareas: selectedTasks,
-      });
-    } catch (err: any) {
-      console.log(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const renderExpandedRow = (project: Proyecto) => (
+    <ProjectDetailsCard
+      key={`project-details-${project.idProyecto}`}
+      project={project}
+    />
+  );
 
   return (
     <PrivateLayout>
@@ -208,159 +225,21 @@ export const GestionProyectos = () => {
         >
           Agregar Proyecto
         </Button>
-
         {projects.length === 0 ? (
           <Alert variant="info">No hay proyectos disponibles.</Alert>
         ) : (
-          <Table
-            striped
-            bordered
-            hover
-            responsive
-            className="table-sm text-center align-middle"
-          >
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Objetivo</th>
-                <th>Fecha Inicio</th>
-                <th>Fecha Fin</th>
-                <th>Presupuesto</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {projects.map((project) =>
-                project.Activo ? (
-                  <React.Fragment key={project.idProyecto}>
-                    <tr
-                      onClick={() => toggleExpand(project.idProyecto)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <td>{project.idProyecto}</td>
-                      <td>{project.Nombre}</td>
-                      <td>{project.Descripcion}</td>
-                      <td>{project.Objetivo}</td>
-                      <td>{dayjs(project.FechaInicio).format('DD/MM/YYYY')}</td>
-                      <td>
-                        {project.FechaFin
-                          ? dayjs(project.FechaFin).format('DD/MM/YYYY')
-                          : '-'}
-                      </td>
-                      <td>{formatCurrency(project.Presupuesto)}</td>
-                      <td>
-                        <EstadoBadges estadoId={project.idEstado} />
-                      </td>
-                      <td>
-                        <Button
-                          size="sm"
-                          variant="info"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleOpenModal(project);
-                          }}
-                        >
-                          Editar
-                        </Button>{' '}
-                        <Button
-                          size="sm"
-                          variant="danger"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteClick(project.idProyecto);
-                          }}
-                        >
-                          Eliminar
-                        </Button>
-                      </td>
-                    </tr>
-
-                    {expandedProjectId === project.idProyecto && (
-                      <tr>
-                        <td colSpan={9}>
-                          <Card
-                            className="mb-3 shadow-sm"
-                            style={{
-                              backgroundColor: '#f0f0f0f0',
-                              borderRadius: '8px',
-                              border: 'none',
-                            }}
-                          >
-                            <Card.Body>
-                              <Card.Title>Detalles del Proyecto</Card.Title>
-                              <Card.Text>
-                                <strong>Objetivo:</strong> {project.Objetivo}
-                              </Card.Text>
-                              <Card.Text>
-                                <strong>Presupuesto:</strong>{' '}
-                                {formatCurrency(project.Presupuesto)}
-                              </Card.Text>
-
-                              <hr />
-                              <h6>Asignar Tareas a este Proyecto</h6>
-                              <p
-                                className="text-muted"
-                                style={{ fontSize: 14 }}
-                              >
-                                Selecciona las tareas que quieras asignar y haz
-                                clic en "Asignar".
-                              </p>
-
-                              <div
-                                style={{
-                                  maxHeight: '200px',
-                                  overflowY: 'auto',
-                                }}
-                              >
-                                {tareas.length === 0 ? (
-                                  <p>No hay tareas disponibles.</p>
-                                ) : (
-                                  tareas.map((task) => (
-                                    <BSForm.Check
-                                      key={task.idTarea}
-                                      type="checkbox"
-                                      id={`task-${task.idTarea}`}
-                                      label={task.Nombre}
-                                      checked={selectedTasks.includes(
-                                        task.idTarea
-                                      )}
-                                      onChange={() =>
-                                        handleTaskCheck(task.idTarea)
-                                      }
-                                      className="mb-2"
-                                    />
-                                  ))
-                                )}
-                              </div>
-
-                              <Button
-                                variant="primary"
-                                size="sm"
-                                className="mt-2"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleAssignTasks(project.idProyecto);
-                                }}
-                              >
-                                Asignar
-                              </Button>
-                            </Card.Body>
-                          </Card>
-                        </td>
-                      </tr>
-                    )}
-                  </React.Fragment>
-                ) : null
-              )}
-            </tbody>
-          </Table>
+          <CollapsibleTable
+            data={projects.filter((project) => project.Activo)}
+            header={tableHeader}
+            rowKey={(project: Proyecto) => project.idProyecto}
+            colSpan={9}
+            renderMainRow={renderMainRow}
+            renderExpandedRow={renderExpandedRow}
+          />
         )}
       </div>
 
-      {/* Modal Crear/Editar Proyecto */}
+      {/* Modal para crear/editar proyecto */}
       <Modal show={showModal} onHide={handleCloseModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>
@@ -417,7 +296,6 @@ export const GestionProyectos = () => {
               placeholder="Presupuesto"
               type="number"
             />
-
             {editingProject && (
               <SelectInput
                 name="Status"
@@ -428,7 +306,6 @@ export const GestionProyectos = () => {
                 }))}
               />
             )}
-
             <div className="d-flex justify-content-end mt-3">
               <Button variant="secondary" onClick={handleCloseModal}>
                 Cancelar

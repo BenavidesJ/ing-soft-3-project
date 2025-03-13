@@ -70,9 +70,22 @@ export const updateUser = async (req, res) => {
     if (!user) {
       throw new Error(`El usuario con ID ${idUsuario} no existe.`);
     }
+    if (!validPasswordRegex.test(Contrasena) && Contrasena.length <= 6) {
+      throw new Error(
+        'La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un símbolo (@#!.).'
+      );
+    }
+    const hashedPassword = await bcrypt.hash(Contrasena, 10);
 
     await Usuario.update(
-      { Activo, Nombre, Correo, Contrasena, Apellido1, Apellido2 },
+      {
+        Activo,
+        Nombre,
+        Correo,
+        Contrasena: hashedPassword,
+        Apellido1,
+        Apellido2,
+      },
       {
         where: {
           idUsuario,

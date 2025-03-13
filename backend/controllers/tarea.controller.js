@@ -112,7 +112,16 @@ export const assignTaskToMember = async (req, res) => {
 
 export const getAllTasks = async (req, res) => {
   try {
-    const tasks = await Tarea.findAll();
+    const tasks = await Tarea.findAll({
+      include: [
+        {
+          model: Proyecto,
+          attributes: ['idProyecto'],
+          through: { attributes: [] },
+        },
+      ],
+    });
+
     return res.status(200).json({
       success: true,
       message: 'Tareas obtenidas correctamente.',
@@ -167,7 +176,9 @@ export const getTasksByMember = async (req, res) => {
       data: user.Tareas,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    return res
+      .status(400)
+      .json({ success: false, message: error.message, data: [] });
   }
 };
 
@@ -199,5 +210,29 @@ export const deleteTask = async (req, res) => {
     });
   } catch (error) {
     return res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const getUserByTask = async (req, res) => {
+  try {
+    const taskId = req.params.id;
+    const task = await Tarea.findByPk(taskId, { include: Usuario });
+    if (!task) throw new Error('Tarea no encontrada.');
+
+    const transformedData = task.Usuarios.map((user) => ({
+      idTarea: task.idTarea,
+      userId: user.idUsuario,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      message: 'Usuario(s) asignado(s) a la tarea obtenidos correctamente.',
+      data: transformedData,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
   }
 };

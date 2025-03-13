@@ -1,5 +1,5 @@
 import api from './api';
-import { ApiResponse, Tarea } from './types';
+import { ApiResponse, Tarea, Usuario } from './types';
 
 export const createTarea = (data: {
   Nombre: string;
@@ -44,4 +44,8 @@ export const getTareaById = (idTarea: number) => {
 
 export const deleteTarea = (idTarea: number) => {
   return api.patch<ApiResponse<null>>(`tareas/eliminar/${idTarea}`);
+};
+
+export const getTaskByUser = (idTarea: number) => {
+  return api.get<ApiResponse<any>>(`tareas/tarea/${idTarea}`);
 };

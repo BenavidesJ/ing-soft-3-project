@@ -60,6 +60,10 @@ export interface Recurso {
   Nombre: string;
 }
 
+export interface ProyectoSummary {
+  idProyecto: number;
+}
+
 // Tarea
 export interface Tarea {
   idTarea: number;
@@ -72,7 +76,8 @@ export interface Tarea {
   Estado?: Estado;
   Recursos?: Recurso[];
   Usuarios?: Usuario[];
-  Proyectos?: Proyecto[];
+  Proyectos?: ProyectoSummary[];
+  Usuario_Tarea?: { Tarea_idTarea: number; Usuario_idUsuario: number };
 }
 
 // Rol
