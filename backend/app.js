@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import { db_connection } from './database.js';
 import { API_URL } from './common/strings.js';
+import { errorHandler } from './middlewares/handleErrors.js';
 import authRoutes from './routes/auth.route.js';
 import userRoutes from './routes/user.route.js';
 import statusRoutes from './routes/estado.route.js';
@@ -31,6 +32,8 @@ app.use(`${API_URL}/estados`, statusRoutes);
 app.use(`${API_URL}/proyectos`, projectRoutes);
 app.use(`${API_URL}/tareas`, taskRoutes);
 app.use(`${API_URL}/recursos`, resourcesRoutes);
+
+app.use(errorHandler);
 
 app.listen(port, () => {
   db_connection();

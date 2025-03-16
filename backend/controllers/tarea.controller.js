@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import { validateDates } from '../common/dateValidation.js';
 import { Tarea, Proyecto, Estado, Usuario } from '../models/index.js';
 
-export const createTask = async (req, res) => {
+export const createTask = async (req, res, next) => {
   try {
     const { Nombre, Descripcion, FechaInicio, FechaFin, Status } = req.body;
     if (!Nombre || !Descripcion || !FechaInicio || !Status)
@@ -39,11 +39,11 @@ export const createTask = async (req, res) => {
       data: task,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const updateTask = async (req, res) => {
+export const updateTask = async (req, res, next) => {
   try {
     const { idTarea, FechaInicio, FechaFin, Status, ...updates } = req.body;
     if (!idTarea) throw new Error('ID de la tarea es requerido.');
@@ -87,11 +87,11 @@ export const updateTask = async (req, res) => {
       message: 'Tarea actualizada correctamente.',
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const assignTaskToMember = async (req, res) => {
+export const assignTaskToMember = async (req, res, next) => {
   try {
     const { idTarea, idUsuario } = req.body;
     if (!idTarea || !idUsuario)
@@ -106,11 +106,11 @@ export const assignTaskToMember = async (req, res) => {
       message: 'Tarea asignada al miembro correctamente.',
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const getAllTasks = async (req, res) => {
+export const getAllTasks = async (req, res, next) => {
   try {
     const tasks = await Tarea.findAll({
       include: [
@@ -128,11 +128,11 @@ export const getAllTasks = async (req, res) => {
       data: tasks,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const getTasksByStatus = async (req, res) => {
+export const getTasksByStatus = async (req, res, next) => {
   try {
     const { NombreEstado } = req.body;
     const status = await Estado.findOne({
@@ -146,11 +146,11 @@ export const getTasksByStatus = async (req, res) => {
       data: tasks,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const getTasksByProject = async (req, res) => {
+export const getTasksByProject = async (req, res, next) => {
   try {
     const projectId = req.params.id;
     const project = await Proyecto.findByPk(projectId, { include: Tarea });
@@ -161,11 +161,11 @@ export const getTasksByProject = async (req, res) => {
       data: project.Tareas,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const getTasksByMember = async (req, res) => {
+export const getTasksByMember = async (req, res, next) => {
   try {
     const userId = req.params.id;
     const user = await Usuario.findByPk(userId, { include: Tarea });
@@ -176,13 +176,11 @@ export const getTasksByMember = async (req, res) => {
       data: user.Tareas,
     });
   } catch (error) {
-    return res
-      .status(400)
-      .json({ success: false, message: error.message, data: [] });
+    next(error); // **** Si en el FE falla tareas revisar aqui
   }
 };
 
-export const getTaskById = async (req, res) => {
+export const getTaskById = async (req, res, next) => {
   try {
     const id = req.params.id;
     const task = await Tarea.findByPk(id);
@@ -193,11 +191,11 @@ export const getTaskById = async (req, res) => {
       data: task,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const deleteTask = async (req, res) => {
+export const deleteTask = async (req, res, next) => {
   try {
     const id = req.params.id;
     const task = await Tarea.findByPk(id);
@@ -209,11 +207,11 @@ export const deleteTask = async (req, res) => {
       message: 'Tarea eliminada correctamente.',
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const getUserByTask = async (req, res) => {
+export const getUserByTask = async (req, res, next) => {
   try {
     const taskId = req.params.id;
     const task = await Tarea.findByPk(taskId, { include: Usuario });
@@ -230,9 +228,6 @@ export const getUserByTask = async (req, res) => {
       data: transformedData,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };

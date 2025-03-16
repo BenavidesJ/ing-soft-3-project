@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 
 dotenv.config();
 
-export const createProject = async (req, res) => {
+export const createProject = async (req, res, next) => {
   try {
     const {
       Nombre,
@@ -61,11 +61,11 @@ export const createProject = async (req, res) => {
       message: `Proyecto creado correctamente. ID: ${project.idProyecto}`,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const updateProject = async (req, res) => {
+export const updateProject = async (req, res, next) => {
   try {
     const { idProyecto, FechaInicio, FechaFin, Status, ...updates } = req.body;
     if (!idProyecto) throw new Error('ID del proyecto es requerido.');
@@ -108,11 +108,11 @@ export const updateProject = async (req, res) => {
       message: 'Proyecto actualizado correctamente.',
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const getAllProjects = async (req, res) => {
+export const getAllProjects = async (req, res, next) => {
   try {
     const projects = await Proyecto.findAll();
     return res.status(200).json({
@@ -121,11 +121,11 @@ export const getAllProjects = async (req, res) => {
       data: projects,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const getProjectsByStatus = async (req, res) => {
+export const getProjectsByStatus = async (req, res, next) => {
   try {
     const { NombreEstado } = req.body;
     const status = await Estado.findOne({
@@ -141,11 +141,11 @@ export const getProjectsByStatus = async (req, res) => {
       data: projects,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const getProjectById = async (req, res) => {
+export const getProjectById = async (req, res, next) => {
   try {
     const id = req.params.id;
     const project = await Proyecto.findByPk(id);
@@ -156,11 +156,11 @@ export const getProjectById = async (req, res) => {
       data: project,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const deleteProject = async (req, res) => {
+export const deleteProject = async (req, res, next) => {
   try {
     const id = req.params.id;
     const project = await Proyecto.findByPk(id);
@@ -172,11 +172,11 @@ export const deleteProject = async (req, res) => {
       message: 'Proyecto eliminado correctamente.',
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const createCost = async (req, res) => {
+export const createCost = async (req, res, next) => {
   try {
     const { idProyecto, CostoTotal } = req.body;
     if (!idProyecto || !CostoTotal) throw new Error('CostoTotal es requerido.');
@@ -192,11 +192,11 @@ export const createCost = async (req, res) => {
       data: cost,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const assignTaskToProject = async (req, res) => {
+export const assignTaskToProject = async (req, res, next) => {
   try {
     const { idProyecto, idTareas } = req.body;
 
@@ -226,6 +226,6 @@ export const assignTaskToProject = async (req, res) => {
       message: 'Tareas asignadas al proyecto correctamente.',
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };

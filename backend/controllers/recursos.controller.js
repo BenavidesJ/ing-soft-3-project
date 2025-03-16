@@ -1,6 +1,6 @@
 import { Recurso, Tarea, Proyecto } from '../models/index.js';
 
-export const createResource = async (req, res) => {
+export const createResource = async (req, res, next) => {
   try {
     const { Nombre } = req.body;
     if (!Nombre) throw new Error('El nombre del recurso es requerido.');
@@ -11,11 +11,11 @@ export const createResource = async (req, res) => {
       data: resource,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const updateResource = async (req, res) => {
+export const updateResource = async (req, res, next) => {
   try {
     const { idRecurso, Nombre } = req.body;
     if (!idRecurso || !Nombre)
@@ -29,11 +29,11 @@ export const updateResource = async (req, res) => {
       message: 'Recurso actualizado correctamente.',
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const assignResourceToTask = async (req, res) => {
+export const assignResourceToTask = async (req, res, next) => {
   try {
     const { idTarea, recursos } = req.body;
     if (!idTarea || !recursos)
@@ -46,11 +46,11 @@ export const assignResourceToTask = async (req, res) => {
       message: 'Recursos asignados a la tarea correctamente.',
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const getAllResources = async (req, res) => {
+export const getAllResources = async (req, res, next) => {
   try {
     const resources = await Recurso.findAll();
     return res.status(200).json({
@@ -59,11 +59,11 @@ export const getAllResources = async (req, res) => {
       data: resources,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const getResourcesByProject = async (req, res) => {
+export const getResourcesByProject = async (req, res, next) => {
   // ** revisar luego
   try {
     const projectId = req.params.id;
@@ -89,11 +89,11 @@ export const getResourcesByProject = async (req, res) => {
       data: uniqueResources,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const getResourcesByTask = async (req, res) => {
+export const getResourcesByTask = async (req, res, next) => {
   // ** revisar luego
   try {
     const taskId = req.params.id;
@@ -105,11 +105,11 @@ export const getResourcesByTask = async (req, res) => {
       data: task.Recursos,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const deleteResource = async (req, res) => {
+export const deleteResource = async (req, res, next) => {
   try {
     const id = req.params.id;
     const resource = await Recurso.findByPk(id);
@@ -122,6 +122,6 @@ export const deleteResource = async (req, res) => {
       message: 'Recurso eliminado correctamente.',
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };

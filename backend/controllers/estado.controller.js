@@ -5,7 +5,7 @@ import { Tarea } from '../models/Tarea.js';
 
 dotenv.config();
 
-export const createStatus = async (req, res) => {
+export const createStatus = async (req, res, next) => {
   try {
     const { NombreEstado } = req.body;
 
@@ -30,11 +30,11 @@ export const createStatus = async (req, res) => {
       message: `Estado: ${estado.NombreEstado} con ID: ${estado.idEstado} creado correctamente.`,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const updateStatus = async (req, res) => {
+export const updateStatus = async (req, res, next) => {
   try {
     const { idEstado, NombreEstado } = req.body;
     if (!idEstado || !NombreEstado)
@@ -50,11 +50,11 @@ export const updateStatus = async (req, res) => {
       message: 'Estado actualizado correctamente.',
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const assignStatus = async (req, res) => {
+export const assignStatus = async (req, res, next) => {
   try {
     const { tipo, id, idEstado } = req.body;
     if (!tipo || !id || !idEstado)
@@ -81,7 +81,7 @@ export const assignStatus = async (req, res) => {
       } asignado correctamente a ${String(tipo).toLowerCase()} con ID: ${id}.`,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
@@ -94,11 +94,11 @@ export const getAllStatuses = async (_req, res) => {
       data: statuses,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const getStatusById = async (req, res) => {
+export const getStatusById = async (req, res, next) => {
   try {
     const id = req.params.id;
     const status = await Estado.findByPk(id);
@@ -109,11 +109,11 @@ export const getStatusById = async (req, res) => {
       data: status,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const deleteStatus = async (req, res) => {
+export const deleteStatus = async (req, res, next) => {
   try {
     const idEstado = req.params.id;
     const status = await Estado.findByPk(idEstado);
@@ -127,6 +127,6 @@ export const deleteStatus = async (req, res) => {
       message: `Estado con id: ${idEstado} eliminado correctamente.`,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };

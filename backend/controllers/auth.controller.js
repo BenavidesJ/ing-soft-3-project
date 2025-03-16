@@ -9,7 +9,7 @@ import { generateTempPassword } from '../common/generateTempPassword.js';
 
 dotenv.config();
 
-export const registro = async (req, res) => {
+export const registro = async (req, res, next) => {
   const { Correo, Contrasena, Nombre, Apellido1, Apellido2 } = req.body;
   try {
     if (!Correo || !Contrasena || !Nombre || !Apellido1) {
@@ -67,11 +67,11 @@ export const registro = async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const login = async (req, res) => {
+export const login = async (req, res, next) => {
   const { Correo, Contrasena } = req.body;
   try {
     if (!Correo || !Contrasena) {
@@ -120,7 +120,7 @@ export const login = async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
@@ -164,7 +164,7 @@ export const resetearPassword = async (req, res) => {
   }
 };
 
-export const createRole = async (req, res) => {
+export const createRole = async (req, res, next) => {
   try {
     const { NombreRol } = req.body;
     if (!NombreRol) throw new Error('El nombre del rol es requerido.');
@@ -180,11 +180,11 @@ export const createRole = async (req, res) => {
       data: role,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const createPermission = async (req, res) => {
+export const createPermission = async (req, res, next) => {
   try {
     const { NombrePermiso } = req.body;
     if (!NombrePermiso) throw new Error('El nombre del permiso es requerido.');
@@ -201,11 +201,11 @@ export const createPermission = async (req, res) => {
       data: permission,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const assignRoleToUser = async (req, res) => {
+export const assignRoleToUser = async (req, res, next) => {
   try {
     const { idUsuario, idRol } = req.body;
     if (!idUsuario || !idRol)
@@ -220,11 +220,11 @@ export const assignRoleToUser = async (req, res) => {
       message: 'Rol asignado al usuario correctamente.',
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const assignPermissionToRole = async (req, res) => {
+export const assignPermissionToRole = async (req, res, next) => {
   try {
     const { idRol, idPermiso } = req.body;
     if (!idRol || !idPermiso)
@@ -239,11 +239,11 @@ export const assignPermissionToRole = async (req, res) => {
       message: 'Permiso asignado al rol correctamente.',
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const modifyUserRole = async (req, res) => {
+export const modifyUserRole = async (req, res, next) => {
   try {
     const { idUsuario, roles } = req.body; // roles: array de IDs de rol
     if (!idUsuario || !roles)
@@ -257,11 +257,11 @@ export const modifyUserRole = async (req, res) => {
       message: 'Roles del usuario modificados correctamente.',
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const modifyRolePermission = async (req, res) => {
+export const modifyRolePermission = async (req, res, next) => {
   try {
     const { idRol, permisos } = req.body; // permisos: array de IDs de permiso
     if (!idRol || !permisos)
@@ -274,6 +274,6 @@ export const modifyRolePermission = async (req, res) => {
       message: 'Permisos del rol modificados correctamente.',
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };

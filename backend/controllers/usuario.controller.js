@@ -6,7 +6,7 @@ import { validPasswordRegex } from '../common/strings.js';
 
 dotenv.config();
 
-export const createUser = async (req, res) => {
+export const createUser = async (req, res, next) => {
   const { Nombre, Correo, Contrasena, Apellido1, Apellido2 } = req.body;
   try {
     if (!Nombre || !Correo || !Contrasena || !Apellido1) {
@@ -46,11 +46,11 @@ export const createUser = async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const updateUser = async (req, res) => {
+export const updateUser = async (req, res, next) => {
   try {
     const {
       idUsuario,
@@ -96,11 +96,11 @@ export const updateUser = async (req, res) => {
       message: 'Usuario modificado correctamente.',
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const deleteUser = async (req, res) => {
+export const deleteUser = async (req, res, next) => {
   const idUsuario = req.params.id;
   try {
     const user = await Usuario.findOne({
@@ -127,11 +127,11 @@ export const deleteUser = async (req, res) => {
       message: 'Usuario eliminado correctamente.',
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const getUserById = async (req, res) => {
+export const getUserById = async (req, res, next) => {
   const userID = req.params.id;
   try {
     const user = await Usuario.findOne({
@@ -167,11 +167,11 @@ export const getUserById = async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const getUsers = async (_req, res) => {
+export const getUsers = async (_req, res, next) => {
   try {
     const users = await Usuario.findAll({
       attributes: [
@@ -195,6 +195,6 @@ export const getUsers = async (_req, res) => {
       data: activeUsers,
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
