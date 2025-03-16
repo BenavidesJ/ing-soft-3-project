@@ -6,16 +6,20 @@ import {
   restaurarPassword,
   RestorePasswordInputData,
 } from '../../services/auth';
+import { Link, useNavigate } from 'react-router';
 
 const restorePasswordSchema = z.object({
   Correo: z.string().email('Formato de correo incorrecto'),
 });
 
 export const RestorePassword = () => {
+  const nav = useNavigate();
   const onSubmit = async (data: RestorePasswordInputData) => {
     try {
       const response = await restaurarPassword(data);
-      console.log('Login exitoso:', response.data);
+      if (response.status) {
+        nav('/login', { replace: true });
+      }
     } catch (err: any) {
       console.log(err);
     }
@@ -49,6 +53,9 @@ export const RestorePassword = () => {
 
               <SubmitButton className="w-100">Enviar</SubmitButton>
             </Form>
+            <div className="text-center mt-3">
+              <Link to="/login">Volver a login</Link>
+            </div>
           </Card.Body>
         </Card>
       </div>

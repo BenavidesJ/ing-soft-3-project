@@ -61,37 +61,35 @@ export const updateUser = async (req, res) => {
       Apellido2,
       Activo,
     } = req.body;
+
     const user = await Usuario.findOne({
-      where: {
-        idUsuario,
-      },
+      where: { idUsuario },
     });
 
     if (!user) {
       throw new Error(`El usuario con ID ${idUsuario} no existe.`);
     }
-    if (!validPasswordRegex.test(Contrasena) && Contrasena.length <= 6) {
-      throw new Error(
-        'La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un símbolo (@#!.).'
-      );
-    }
-    const hashedPassword = await bcrypt.hash(Contrasena, 10);
 
-    await Usuario.update(
-      {
-        Activo,
-        Nombre,
-        Correo,
-        Contrasena: hashedPassword,
-        Apellido1,
-        Apellido2,
-      },
-      {
-        where: {
-          idUsuario,
-        },
+    const updateData = {
+      Activo,
+      Nombre,
+      Correo,
+      Apellido1,
+      Apellido2,
+    };
+
+    if (Contrasena) {
+      if (!validPasswordRegex.test(Contrasena) && Contrasena.length <= 6) {
+        throw new Error(
+          'La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un símbolo (@#!.).'
+        );
       }
-    );
+      updateData.Contrasena = await bcrypt.hash(Contrasena, 10);
+    }
+
+    await Usuario.update(updateData, {
+      where: { idUsuario },
+    });
 
     return res.status(200).json({
       success: true,

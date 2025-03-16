@@ -57,8 +57,10 @@ export const GestionUsuarios = () => {
     try {
       setLoading(true);
       if (editingUsuario) {
+        console.log('modif', { idUsuario: editingUsuario.idUsuario, ...data });
         await updateUser({ idUsuario: editingUsuario.idUsuario, ...data });
       } else {
+        console.log('crear', data);
         await createUser(data);
       }
       await fetchUsuarios();
