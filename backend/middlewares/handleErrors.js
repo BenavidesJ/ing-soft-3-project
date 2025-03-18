@@ -1,6 +1,14 @@
 import { ValidationError, UniqueConstraintError } from 'sequelize';
+import { BitacoraEventos } from '../models/index.js';
 
-export function errorHandler(err, _req, res, _next) {
+export function errorHandler(err, req, res, _next) {
+  BitacoraEventos.create({
+    Tabla_afectada: 'n/a',
+    Tipo_evento: 'ERROR',
+    Descripcion: `Se produjo el error ${err.message} al consultar el endpoint ${req.originalUrl}`,
+    idUsuario: req.user ? req.user.idUsuario : null,
+  });
+
   if (err instanceof ValidationError) {
     const mensajes = err.errors.map((e) => e.message).join(', ');
     return res.status(400).json({
