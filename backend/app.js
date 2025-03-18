@@ -33,6 +33,8 @@ app.use(`${API_URL}/proyectos`, projectRoutes);
 app.use(`${API_URL}/tareas`, taskRoutes);
 app.use(`${API_URL}/recursos`, resourcesRoutes);
 
+import('./hooks/eventTracker.js');
+
 app.use(errorHandler);
 
 app.listen(port, () => {

@@ -1,7 +1,6 @@
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
-import { Usuario } from '../models/Usuario.js';
-import { PerfilUsuario } from '../models/PerfilUsuario.js';
+import { Usuario, PerfilUsuario } from '../models/index.js';
 import { validPasswordRegex } from '../common/strings.js';
 
 dotenv.config();
@@ -18,20 +17,30 @@ export const createUser = async (req, res, next) => {
       );
     }
     const hashedPassword = await bcrypt.hash(Contrasena, 10);
-    const user = await Usuario.create({
-      Correo,
-      Contrasena: hashedPassword,
-      Apellido1,
-      Apellido2: Apellido2 ? Apellido2 : '',
-      Nombre,
-    });
-    const userProfile = await PerfilUsuario.create({
-      idUsuario: user.idUsuario,
-      nombreUsuario: `@${Nombre.toLowerCase().substring(
-        0,
-        1
-      )}${Apellido1.toLowerCase()}${user.idUsuario}`,
-    });
+    const user = await Usuario.create(
+      {
+        Correo,
+        Contrasena: hashedPassword,
+        Apellido1,
+        Apellido2: Apellido2 ? Apellido2 : '',
+        Nombre,
+      },
+      {
+        userId: req.user ? req.user.idUsuario : null,
+      }
+    );
+    const userProfile = await PerfilUsuario.create(
+      {
+        idUsuario: user.idUsuario,
+        nombreUsuario: `@${Nombre.toLowerCase().substring(
+          0,
+          1
+        )}${Apellido1.toLowerCase()}${user.idUsuario}`,
+      },
+      {
+        userId: req.user ? req.user.idUsuario : null,
+      }
+    );
     return res.status(201).json({
       success: true,
       message: 'Usuario creado correctamente.',
@@ -87,8 +96,8 @@ export const updateUser = async (req, res, next) => {
       updateData.Contrasena = await bcrypt.hash(Contrasena, 10);
     }
 
-    await Usuario.update(updateData, {
-      where: { idUsuario },
+    await user.update(updateData, {
+      userId: req.user ? req.user.idUsuario : null,
     });
 
     return res.status(200).json({
@@ -113,12 +122,10 @@ export const deleteUser = async (req, res, next) => {
       throw new Error(`El usuario con ID ${idUsuario} no existe.`);
     }
 
-    await Usuario.update(
+    await user.update(
       { Activo: false },
       {
-        where: {
-          idUsuario,
-        },
+        userId: req.user ? req.user.idUsuario : null,
       }
     );
 

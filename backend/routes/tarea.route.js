@@ -11,13 +11,14 @@ import {
   getUserByTask,
   updateTask,
 } from '../controllers/tarea.controller.js';
+import { authenticate } from '../middlewares/authorization.js';
 
 const router = express.Router();
 
 // crear una tarea
-router.post('/crear', createTask);
+router.post('/crear', authenticate, createTask);
 // modificar una tarea
-router.patch('/modificar', updateTask);
+router.patch('/modificar', authenticate, updateTask);
 // asignar tarea a miembro del equipo
 router.patch('/asignar-miembro', assignTaskToMember);
 // obtener todas las tareas
@@ -33,6 +34,6 @@ router.get('/tarea/:id', getUserByTask);
 // obtener una tarea por su ID
 router.get('/:id', getTaskById);
 // eliminar una tarea (borrado lógico)
-router.patch('/eliminar/:id', deleteTask);
+router.patch('/eliminar/:id', authenticate, deleteTask);
 
 export default router;

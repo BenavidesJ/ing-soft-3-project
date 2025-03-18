@@ -103,7 +103,7 @@ export const login = async (req, res, next) => {
       );
     }
 
-    const access_token = generateJWT(user.Correo);
+    const access_token = generateJWT(user);
 
     return res.status(200).json({
       success: true,
