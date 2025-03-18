@@ -46,15 +46,20 @@ export const createProject = async (req, res, next) => {
       ? dayjs(FechaFin, 'DD/MM/YYYY').format('YYYY-MM-DD')
       : null;
 
-    const project = await Proyecto.create({
-      Nombre,
-      Descripcion,
-      Objetivo,
-      FechaInicio: isoStart,
-      FechaFin: isoEnd,
-      Presupuesto,
-      idEstado: status.idEstado,
-    });
+    const project = await Proyecto.create(
+      {
+        Nombre,
+        Descripcion,
+        Objetivo,
+        FechaInicio: isoStart,
+        FechaFin: isoEnd,
+        Presupuesto,
+        idEstado: status.idEstado,
+      },
+      {
+        userId: req.user ? req.user.idUsuario : null,
+      }
+    );
 
     return res.status(200).json({
       success: true,
@@ -73,11 +78,24 @@ export const updateProject = async (req, res, next) => {
     const project = await Proyecto.findByPk(idProyecto);
     if (!project) throw new Error('Proyecto no encontrado.');
 
-    const effectiveStart = FechaInicio || project.FechaInicio;
-    const effectiveEnd =
-      typeof FechaFin !== 'undefined' ? FechaFin : project.FechaFin;
+    if (FechaInicio || typeof FechaFin !== 'undefined') {
+      const format = 'DD/MM/YYYY';
 
-    validateDates(effectiveStart, effectiveEnd);
+      const startDateString = FechaInicio
+        ? FechaInicio
+        : dayjs(project.FechaInicio).format(format);
+
+      const endDateString =
+        typeof FechaFin !== 'undefined'
+          ? FechaFin
+            ? FechaFin
+            : null
+          : project.FechaFin
+          ? dayjs(project.FechaFin).format(format)
+          : null;
+
+      validateDates(startDateString, endDateString);
+    }
 
     if (FechaInicio) {
       updates.FechaInicio = dayjs(FechaInicio, 'DD/MM/YYYY').format(
@@ -102,7 +120,9 @@ export const updateProject = async (req, res, next) => {
       updates.idEstado = estado.idEstado;
     }
 
-    await project.update(updates);
+    await project.update(updates, {
+      userId: req.user ? req.user.idUsuario : null,
+    });
     return res.status(200).json({
       success: true,
       message: 'Proyecto actualizado correctamente.',
@@ -166,7 +186,9 @@ export const deleteProject = async (req, res, next) => {
     const project = await Proyecto.findByPk(id);
     if (!project) throw new Error('Proyecto no encontrado.');
     project.Activo = false;
-    await project.save();
+    await project.save({
+      userId: req.user ? req.user.idUsuario : null,
+    });
     return res.status(200).json({
       success: true,
       message: 'Proyecto eliminado correctamente.',
@@ -182,10 +204,15 @@ export const createCost = async (req, res, next) => {
     if (!idProyecto || !CostoTotal) throw new Error('CostoTotal es requerido.');
     const project = await Proyecto.findByPk(idProyecto);
     if (!project) throw new Error('Proyecto no encontrado.');
-    const cost = await Costo.create({
-      CostoTotal,
-      idProyecto,
-    });
+    const cost = await Costo.create(
+      {
+        CostoTotal,
+        idProyecto,
+      },
+      {
+        userId: req.user ? req.user.idUsuario : null,
+      }
+    );
     return res.status(201).json({
       success: true,
       message: 'Costo creado y asignado al proyecto correctamente.',

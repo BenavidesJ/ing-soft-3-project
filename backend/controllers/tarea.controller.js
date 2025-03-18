@@ -11,9 +11,14 @@ export const createTask = async (req, res, next) => {
     const nombreEstado =
       String(Status).charAt(0).toUpperCase() + Status.slice(1);
 
-    const status = await Estado.findOne({
-      where: { NombreEstado: nombreEstado },
-    });
+    const status = await Estado.findOne(
+      {
+        where: { NombreEstado: nombreEstado },
+      },
+      {
+        userId: req.user ? req.user.idUsuario : null,
+      }
+    );
 
     if (!status) {
       throw new Error('El estado ingresado no existe, por favor verifique.');
@@ -26,13 +31,18 @@ export const createTask = async (req, res, next) => {
       ? dayjs(FechaFin, 'DD/MM/YYYY').format('YYYY-MM-DD')
       : null;
 
-    const task = await Tarea.create({
-      Nombre,
-      Descripcion,
-      FechaInicio: isoStart,
-      FechaFin: isoEnd,
-      idEstado: status.idEstado,
-    });
+    const task = await Tarea.create(
+      {
+        Nombre,
+        Descripcion,
+        FechaInicio: isoStart,
+        FechaFin: isoEnd,
+        idEstado: status.idEstado,
+      },
+      {
+        userId: req.user ? req.user.idUsuario : null,
+      }
+    );
     return res.status(201).json({
       success: true,
       message: `Tarea creada correctamente con el ID ${task.idTarea}.`,
@@ -51,37 +61,46 @@ export const updateTask = async (req, res, next) => {
     const task = await Tarea.findByPk(idTarea);
     if (!task) throw new Error('Tarea no encontrada.');
 
-    const effectiveStart = FechaInicio || task.FechaInicio;
-    const effectiveEnd =
-      typeof FechaFin !== 'undefined' ? FechaFin : task.FechaFin;
-
-    validateDates(effectiveStart, effectiveEnd);
+    if (FechaInicio || typeof FechaFin !== 'undefined') {
+      const format = 'DD/MM/YYYY';
+      const startDateString = FechaInicio
+        ? FechaInicio
+        : dayjs(task.FechaInicio).format(format);
+      const endDateString =
+        typeof FechaFin !== 'undefined'
+          ? FechaFin
+            ? FechaFin
+            : null
+          : task.FechaFin
+          ? dayjs(task.FechaFin).format(format)
+          : null;
+      validateDates(startDateString, endDateString);
+    }
 
     if (FechaInicio) {
       updates.FechaInicio = dayjs(FechaInicio, 'DD/MM/YYYY').format(
         'YYYY-MM-DD'
       );
     }
-
     if (typeof FechaFin !== 'undefined') {
       updates.FechaFin = FechaFin
         ? dayjs(FechaFin, 'DD/MM/YYYY').format('YYYY-MM-DD')
         : null;
     }
-
     if (Status) {
       const nombreEstado =
         String(Status).charAt(0).toUpperCase() + Status.slice(1);
       const estado = await Estado.findOne({
         where: { NombreEstado: nombreEstado },
       });
-      if (!estado) {
+      if (!estado)
         throw new Error('El estado ingresado no existe, por favor verifique.');
-      }
       updates.idEstado = estado.idEstado;
     }
 
-    await task.update(updates);
+    await task.update(updates, {
+      userId: req.user ? req.user.idUsuario : null,
+    });
     return res.status(200).json({
       success: true,
       message: 'Tarea actualizada correctamente.',
@@ -201,7 +220,9 @@ export const deleteTask = async (req, res, next) => {
     const task = await Tarea.findByPk(id);
     if (!task) throw new Error('Tarea no encontrada.');
     task.Activo = false;
-    await task.save();
+    await task.save({
+      userId: req.user ? req.user.idUsuario : null,
+    });
     return res.status(200).json({
       success: true,
       message: 'Tarea eliminada correctamente.',

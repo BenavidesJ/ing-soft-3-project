@@ -173,7 +173,12 @@ export const createRole = async (req, res, next) => {
     });
     if (existingRole) throw new Error(`El ${NombreRol} rol ya existe.`);
     const nuevoRol = String(NombreRol).toUpperCase();
-    const role = await Rol.create({ NombreRol: nuevoRol });
+    const role = await Rol.create(
+      { NombreRol: nuevoRol },
+      {
+        userId: req.user ? req.user.idUsuario : null,
+      }
+    );
     return res.status(201).json({
       success: true,
       message: 'Rol creado correctamente.',
@@ -194,7 +199,12 @@ export const createPermission = async (req, res, next) => {
     if (existingPermission)
       throw new Error(`El permiso ${NombrePermiso} ya existe.`);
     const nuevoPermiso = String(NombrePermiso).toUpperCase();
-    const permission = await Permiso.create({ NombrePermiso: nuevoPermiso });
+    const permission = await Permiso.create(
+      { NombrePermiso: nuevoPermiso },
+      {
+        userId: req.user ? req.user.idUsuario : null,
+      }
+    );
     return res.status(201).json({
       success: true,
       message: 'Permiso creado correctamente.',
@@ -251,7 +261,9 @@ export const modifyUserRole = async (req, res, next) => {
     const user = await Usuario.findByPk(idUsuario);
     if (!user) throw new Error('Usuario no encontrado.');
 
-    await user.setRols(roles);
+    await user.setRols(roles, {
+      userId: req.user ? req.user.idUsuario : null,
+    });
     return res.status(200).json({
       success: true,
       message: 'Roles del usuario modificados correctamente.',
@@ -268,7 +280,9 @@ export const modifyRolePermission = async (req, res, next) => {
       throw new Error('ID de rol y permisos son requeridos.');
     const role = await Rol.findByPk(idRol);
     if (!role) throw new Error('Rol no encontrado.');
-    await role.setPermisos(permisos);
+    await role.setPermisos(permisos, {
+      userId: req.user ? req.user.idUsuario : null,
+    });
     return res.status(200).json({
       success: true,
       message: 'Permisos del rol modificados correctamente.',

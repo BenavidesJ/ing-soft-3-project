@@ -38,3 +38,17 @@ sequelize.addHook('afterUpdate', async (instance, options) => {
     });
   }
 });
+
+sequelize.addHook('afterDestroy', async (instance, options) => {
+  if (instance.constructor.name === 'BitacoraEventos') return;
+
+  const pkAttribute = instance.constructor.primaryKeyAttributes[0];
+  const pkValue = instance.getDataValue(pkAttribute);
+
+  await BitacoraEventos.create({
+    Tabla_afectada: instance.constructor.name,
+    Tipo_evento: 'DELETE',
+    Descripcion: `Se elimino un registro con id ${pkValue} en ${instance.constructor.name}`,
+    idUsuario: options.userId || null,
+  });
+});

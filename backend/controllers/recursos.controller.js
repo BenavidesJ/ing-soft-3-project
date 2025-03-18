@@ -4,7 +4,12 @@ export const createResource = async (req, res, next) => {
   try {
     const { Nombre } = req.body;
     if (!Nombre) throw new Error('El nombre del recurso es requerido.');
-    const resource = await Recurso.create({ Nombre });
+    const resource = await Recurso.create(
+      { Nombre },
+      {
+        userId: req.user ? req.user.idUsuario : null,
+      }
+    );
     return res.status(201).json({
       success: true,
       message: 'Recurso creado correctamente.',
@@ -23,7 +28,9 @@ export const updateResource = async (req, res, next) => {
     const resource = await Recurso.findByPk(idRecurso);
     if (!resource) throw new Error('Recurso no encontrado.');
     resource.Nombre = Nombre;
-    await resource.save();
+    await resource.save({
+      userId: req.user ? req.user.idUsuario : null,
+    });
     return res.status(200).json({
       success: true,
       message: 'Recurso actualizado correctamente.',
@@ -116,6 +123,7 @@ export const deleteResource = async (req, res, next) => {
     if (!resource) throw new Error('Recurso no encontrado.');
     await Recurso.destroy({
       where: { idRecurso: id },
+      userId: req.user ? req.user.idUsuario : null,
     });
     return res.status(200).json({
       success: true,

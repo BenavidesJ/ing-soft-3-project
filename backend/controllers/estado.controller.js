@@ -21,9 +21,14 @@ export const createStatus = async (req, res, next) => {
       throw new Error('El estado ingresado ya fue creado previamente.');
     }
 
-    const estado = await Estado.create({
-      NombreEstado,
-    });
+    const estado = await Estado.create(
+      {
+        NombreEstado,
+      },
+      {
+        userId: req.user ? req.user.idUsuario : null,
+      }
+    );
 
     return res.status(200).json({
       success: true,
@@ -44,7 +49,9 @@ export const updateStatus = async (req, res, next) => {
     });
     if (!status) throw new Error('Estado no encontrado.');
     status.NombreEstado = NombreEstado;
-    await status.save();
+    await status.save({
+      userId: req.user ? req.user.idUsuario : null,
+    });
     return res.status(200).json({
       success: true,
       message: 'Estado actualizado correctamente.',
@@ -119,8 +126,9 @@ export const deleteStatus = async (req, res, next) => {
     const status = await Estado.findByPk(idEstado);
     if (!status) throw new Error('Estado no encontrado.');
 
-    await Estado.destroy({
+    await status.destroy({
       where: { idEstado },
+      userId: req.user ? req.user.idUsuario : null,
     });
     return res.status(200).json({
       success: true,
