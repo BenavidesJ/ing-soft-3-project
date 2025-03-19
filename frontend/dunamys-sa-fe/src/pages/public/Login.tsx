@@ -6,7 +6,6 @@ import { Link, useNavigate } from 'react-router';
 import { login } from '../../services/auth';
 import { useLoading } from '../../context/LoadingContext';
 import { useAuth } from '../../context';
-import { Avatar } from '../../components';
 import { useEffect } from 'react';
 
 const loginSchema = z.object({
@@ -52,39 +51,19 @@ export const Login = () => {
       >
         <Card style={{ maxWidth: '400px', width: '100%', padding: '1rem' }}>
           <Card.Body>
-            <div
-              className="mb-3"
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Avatar size={120} />
-            </div>
-
             <h3 className="text-center mb-4">Inicio de Sesión</h3>
 
-            <Form schema={loginSchema} onSubmit={onSubmit} mode="onBlur">
-              <Input
-                type="email"
-                name="Correo"
-                label=""
-                placeholder="Ingrese su correo"
-              />
-              <Input
-                name="Contrasena"
-                label=""
-                placeholder="Ingrese su contraseña"
-                type="password"
-              />
+            <Form schema={loginSchema} onSubmit={onSubmit} mode="onChange">
+              <Input type="email" name="Correo" label="Correo" />
+              <Input name="Contrasena" label="Contrasena" type="password" />
 
-              <div className="text-center mb-3">
+              <div className="text-start mb-4">
                 <Link to="/forgot-password">¿Olvidó su contraseña?</Link>
               </div>
 
-              <SubmitButton className="w-100">Ingresar</SubmitButton>
+              <SubmitButton className="w-100" variant="info">
+                Ingresar
+              </SubmitButton>
             </Form>
             <div className="text-center mt-3">
               <span>¿Aún no tiene cuenta? </span>

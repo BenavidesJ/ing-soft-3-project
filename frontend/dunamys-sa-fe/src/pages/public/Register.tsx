@@ -3,24 +3,33 @@ import { PublicLayout } from '../layouts/PublicLayout';
 import { Link, useNavigate } from 'react-router';
 import { z } from 'zod';
 import { Form, Input, SubmitButton } from '../../components/Forms';
-import { RegisterData, registro } from '../../services/auth';
+import { registro } from '../../services/auth';
 import { useAuth } from '../../context';
 import { useEffect } from 'react';
 
-const registerSchema = z.object({
-  Correo: z.string().email('Formato de correo incorrecto'),
-  Contrasena: z.string().min(1, 'La contraseña es obligatoria'),
-  Nombre: z.string().min(1, 'Este dato es obligatorio'),
-  Apellido1: z.string().min(1, 'Este dato es obligatorio'),
-  Apellido2: z.string(),
-});
+const registerSchema = z
+  .object({
+    Correo: z.string().email('Formato de correo incorrecto'),
+    Contrasena: z.string().min(1, 'La contraseña es obligatoria'),
+    RepetirContrasena: z.string().min(1, 'La contraseña es obligatoria'),
+    Nombre: z.string().min(1, 'Este dato es obligatorio'),
+    Apellido1: z.string().min(1, 'Este dato es obligatorio'),
+    Apellido2: z.string().optional(),
+  })
+  .refine((data) => data.Contrasena === data.RepetirContrasena, {
+    message: 'Ambas contraseñas deben coincidir',
+    path: ['RepetirContrasena'],
+  });
+
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 export const Register = () => {
   const { startSession, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const onSubmit = async (data: RegisterData) => {
+  const onSubmit = async (data: RegisterFormData) => {
+    const { RepetirContrasena, ...payload } = data;
     try {
-      const response = await registro(data);
+      const response = await registro(payload);
       const user = await response.data;
       startSession(response.data);
       if (user) {
@@ -61,6 +70,12 @@ export const Register = () => {
                 type="password"
               />
               <Input
+                name="RepetirContrasena"
+                label=""
+                placeholder="Repita su contraseña"
+                type="password"
+              />
+              <Input
                 name="Nombre"
                 label=""
                 placeholder="Ingrese su nombre"
@@ -79,7 +94,9 @@ export const Register = () => {
                 type="text"
               />
 
-              <SubmitButton className="w-100">Registrar</SubmitButton>
+              <SubmitButton className="w-100 btn btn-info">
+                Registrar
+              </SubmitButton>
             </Form>
             <div className="text-center mt-3">
               <span>¿Ya tiene cuenta? </span>

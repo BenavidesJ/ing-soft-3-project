@@ -18,11 +18,21 @@ export const PrivateLayout = ({ children }: PrivateLayoutProps) => {
           <h4>{BrandName}</h4>
         </div>
 
-        <Nav className="flex-column">
-          <Nav.Link as={Link} to="/dashboard" className="text-white">
+        <Nav className="flex-column" defaultActiveKey="/dashboard">
+          <Nav.Link
+            as={Link}
+            eventKey={'dashboard'}
+            to="/dashboard"
+            className="text-white"
+          >
             Dashboard
           </Nav.Link>
-          <Nav.Link as={Link} to="/gestion-proyectos" className="text-white">
+          <Nav.Link
+            as={Link}
+            eventKey={'gestion-proyectos'}
+            to="/gestion-proyectos"
+            className="text-white"
+          >
             Gestión de Proyectos
           </Nav.Link>
           <Nav.Link as={Link} to="/gestion-tareas" className="text-white">

@@ -1,13 +1,9 @@
+@use './colors.scss' as *;
 @use 'bootstrap' with (
-  $theme-colors: (
-    'brand': #1a5319,
-    'primary': #78f68f,
-    'secondary': #d6efd8,
-    'success': #02da8a,
-    'info': #11319c,
-    'warning': #d1e42f,
-    'danger': #fa1652,
-    'light': #f8f9fa,
-    'dark': #191919,
-  )
+  $theme-colors: $theme-colors
 );
+
+.form-control:focus {
+  border-color: var(--bs-info) !important;
+  box-shadow: 0 0 0 0.25rem rgba(var(--bs-info-rgb), 0.25) !important;
+}

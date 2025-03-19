@@ -1,3 +1,4 @@
+@use '../../../colors.scss' as colors;
 html,
 body {
   height: 100%;
@@ -12,12 +13,12 @@ body {
 
   main {
     flex: 1;
-    background-color: #d6efd8;
+    background-color: colors.$primary-d;
   }
 
   footer {
-    background-color: #1a5319;
-    color: #ffffff;
+    background-color: colors.$brand;
+    color: colors.$light;
     font-size: 1.15rem;
     text-align: center;
     padding: 1rem;

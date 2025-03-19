@@ -11,7 +11,7 @@ export const LoadingOverlay = () => {
     <div className="loading-overlay">
       <Spinner
         animation="border"
-        variant="primary"
+        variant="info"
         role="status"
         style={{ width: 100, height: 100, borderWidth: 20 }}
       >

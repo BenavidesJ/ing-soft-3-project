@@ -5,7 +5,6 @@ import {
   ReactNode,
   useEffect,
 } from 'react';
-import { getUserByID } from '../services/usuario';
 
 interface PerfilUsuario {
   NombreUsuario: string;
@@ -41,24 +40,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
   const [currentUser, setCurrentUser] = useState<UserData | undefined>();
 
-  // const loggedUserInfo = async () => {
-  //   const user = localStorage.getItem('user');
-  //   if (!user) {
-  //     setCurrentUser(undefined);
-  //     return;
-  //   }
-
-  //   const storedUser: UserData = await JSON.parse(user);
-  //   console.log('JBO debug usuario', { storedUser, id: storedUser.idUsuario });
-
-  //   const loggedUser = await getUserByID(storedUser && storedUser);
-  //   setCurrentUser(loggedUser.data as unknown as UserData);
-  // };
-
   const startSession = async (userData: UserData) => {
     localStorage.setItem('user', JSON.stringify(userData));
     setIsAuthenticated(true);
-    // await loggedUserInfo();
   };
 
   const endSession = () => {
@@ -72,7 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (user) {
       setCurrentUser(JSON.parse(user).data);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   return (
     <AuthContext.Provider

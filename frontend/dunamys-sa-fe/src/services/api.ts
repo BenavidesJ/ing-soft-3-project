@@ -8,10 +8,37 @@ const api = axios.create({
   },
 });
 
+api.interceptors.request.use((config) => {
+  const storedData = localStorage.getItem('user');
+  if (storedData) {
+    try {
+      const parsedData = JSON.parse(storedData);
+      const token = parsedData.data?.Access_token;
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error(
+        'Error al parsear los datos de autenticación almacenados:',
+        error
+      );
+    }
+  }
+  return config;
+});
+
 api.interceptors.response.use(
-  // Respuesta es exitosa
-  (response) => response,
-  // Error
+  (response) => {
+    const method = response.config.method?.toLowerCase();
+    if (method && method !== 'get') {
+      const message = response.data?.message;
+      if (message) {
+        showToast(message, 'success');
+      }
+    }
+    return response;
+  },
+
   (error) => {
     let errorMessage = '';
     if (error.response) {

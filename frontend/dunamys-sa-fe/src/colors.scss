@@ -1,0 +1,26 @@
+$brand: #2a9d7c;
+$primary: #8ee6a3;
+$primary-d: #60c7a8;
+$secondary: #d1ffdd;
+$tertiary: #80d6b1;
+$success: #299d42;
+$info: #42299d;
+$info-l: #412fe4;
+$warning: #d1e42f;
+$danger: #9d294a;
+$light: #e6e6e6;
+$dark: #191919;
+
+$theme-colors: (
+  'brand': $brand,
+  'primary': $primary,
+  'primary-d': $primary-d,
+  'secondary': $secondary,
+  'success': $success,
+  'info': $info,
+  'info-l': $info,
+  'warning': $warning,
+  'danger': $danger,
+  'light': $light,
+  'dark': $dark,
+);

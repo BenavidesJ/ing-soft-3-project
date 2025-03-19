@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Badge, Spinner } from 'react-bootstrap';
-import { getEstadoById, getAllEstados } from '../../services/estado';
+import { getEstadoById } from '../../services/estado';
 import { Estado } from '../../services/types';
 
 interface EstadoBadgesProps {
@@ -8,38 +8,28 @@ interface EstadoBadgesProps {
 }
 
 export const EstadoBadges: React.FC<EstadoBadgesProps> = ({ estadoId }) => {
-  const [allEstados, setAllEstados] = useState<Estado[]>([]);
   const [currentEstado, setCurrentEstado] = useState<Estado | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    const fetchEstados = async () => {
+    const fetchEstado = async () => {
       setLoading(true);
       try {
-        const resAll = await getAllEstados();
-        setAllEstados(resAll.data.data || []);
-
         const resCurrent = await getEstadoById(estadoId);
         setCurrentEstado(resCurrent.data.data || null);
-      } catch (err: any) {
       } finally {
         setLoading(false);
       }
     };
-
-    fetchEstados();
+    fetchEstado();
   }, [estadoId]);
 
-  const getBadgeVariant = (estado: Estado) => {
+  const getBadgeVariant = (index: number): string => {
     if (!currentEstado) return 'light';
-
-    if (currentEstado.idEstado === 1) {
-      return 'light';
-    } else if (currentEstado.idEstado === 2) {
-      return estado.idEstado === 2 ? 'warning' : 'light';
-    } else if (currentEstado.idEstado === 3) {
-      return 'success';
-    }
+    const estadoNombre = currentEstado.NombreEstado.toLowerCase();
+    if (estadoNombre === 'pendiente') return 'light';
+    if (estadoNombre === 'en progreso') return index < 2 ? 'warning' : 'light';
+    if (estadoNombre === 'finalizado') return 'success';
     return 'light';
   };
 
@@ -49,10 +39,10 @@ export const EstadoBadges: React.FC<EstadoBadgesProps> = ({ estadoId }) => {
   return (
     <div style={{ textAlign: 'center' }}>
       <div>
-        {allEstados.map((estado) => (
+        {[0, 1, 2].map((i) => (
           <Badge
-            key={estado.idEstado}
-            bg={getBadgeVariant(estado)}
+            key={i}
+            bg={getBadgeVariant(i)}
             pill
             style={{
               marginRight: '4px',

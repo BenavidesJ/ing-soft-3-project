@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Button, Modal } from 'react-bootstrap';
+import { Button, Modal } from 'react-bootstrap';
 import { PrivateLayout } from '../layouts/PrivateLayout';
 import {
   Form as CustomForm,
@@ -22,7 +22,11 @@ import { Proyecto, Tarea } from '../../services/types';
 import { useLoading } from '../../context/LoadingContext';
 import dayjs from 'dayjs';
 import { formatCurrency } from '../../utils/formatCurrency';
-import { CollapsibleTable, EstadoBadges } from '../../components';
+import {
+  CollapsibleTable,
+  EstadoBadges,
+  LoadingOverlay,
+} from '../../components';
 import { ProjectDetailsCard } from '../../components/ProjectDetailsCard/ProjectDetailsCard';
 
 const projectSchema = z.object({
@@ -226,7 +230,7 @@ export const GestionProyectos = () => {
           Agregar Proyecto
         </Button>
         {projects.length === 0 ? (
-          <Alert variant="info">No hay proyectos disponibles.</Alert>
+          <LoadingOverlay />
         ) : (
           <CollapsibleTable
             data={projects.filter((project) => project.Activo)}
