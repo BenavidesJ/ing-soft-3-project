@@ -1,5 +1,5 @@
 import api from './api';
-import { ApiResponse, Tarea, Usuario } from './types';
+import { ApiResponse, Tarea } from './types';
 
 export const createTarea = (data: {
   Nombre: string;

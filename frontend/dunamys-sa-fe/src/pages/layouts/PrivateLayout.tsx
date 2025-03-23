@@ -14,12 +14,12 @@ export const PrivateLayout = ({ children }: PrivateLayoutProps) => {
     <div className="wrapper" style={{ height: '100vh' }}>
       <Sidebar />
 
-      <main className="flex-grow-1">
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <NavigationBar />
-        <Container fluid className="p-3">
+        <Container fluid className="p-3" style={{ flex: 1 }}>
           {children}
         </Container>
-        <footer>
+        <footer style={{ marginTop: 'auto' }}>
           &copy; {new Date().getFullYear()} {BrandName} | Todos los derechos
           reservados.
         </footer>

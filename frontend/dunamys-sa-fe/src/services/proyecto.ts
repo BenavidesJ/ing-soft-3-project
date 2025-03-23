@@ -45,6 +45,10 @@ export const getProyectoById = (id: number) => {
   return api.get<ApiResponse<Proyecto>>(`proyectos/${id}`);
 };
 
+export const getProyectoByUser = (id: number) => {
+  return api.get<ApiResponse<Proyecto>>(`proyectos/usuario/${id}`);
+};
+
 export const deleteProyecto = (id: number) => {
   return api.patch<ApiResponse<null>>(`proyectos/eliminar/${id}`);
 };

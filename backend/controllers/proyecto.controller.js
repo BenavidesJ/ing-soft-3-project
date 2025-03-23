@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { Tarea, Proyecto, Estado, Costo } from '../models/index.js';
+import { Tarea, Proyecto, Estado, Costo, Usuario } from '../models/index.js';
 import { validateDates } from '../common/dateValidation.js';
 import dayjs from 'dayjs';
 
@@ -251,6 +251,37 @@ export const assignTaskToProject = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       message: 'Tareas asignadas al proyecto correctamente.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getProjectsByUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    console.log('JBO  => ', id);
+    const projects = await Proyecto.findAll({
+      include: [
+        {
+          model: Tarea,
+          required: true,
+          include: [
+            {
+              model: Usuario,
+              where: { idUsuario: Number(id) },
+              attributes: [],
+            },
+          ],
+          through: { attributes: [] },
+        },
+      ],
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Proyectos asignados al usuario encontrados',
+      data: projects,
     });
   } catch (error) {
     next(error);

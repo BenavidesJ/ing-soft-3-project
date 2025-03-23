@@ -7,6 +7,7 @@ import {
   getAllProjects,
   getProjectById,
   getProjectsByStatus,
+  getProjectsByUser,
   updateProject,
 } from '../controllers/proyecto.controller.js';
 import { authenticate } from '../middlewares/authorization.js';
@@ -27,6 +28,8 @@ router.get('/', getAllProjects);
 router.get('/estado/', getProjectsByStatus);
 // obtener un proyecto por su ID
 router.get('/:id', getProjectById);
+// obtener los proyectos por usuario
+router.get('/usuario/:id', getProjectsByUser);
 // eliminar un proyecto (borrado lógico)
 router.patch('/eliminar/:id', authenticate, deleteProject);
 
