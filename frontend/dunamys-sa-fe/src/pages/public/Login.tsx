@@ -53,7 +53,7 @@ export const Login = () => {
           <Card.Body>
             <h3 className="text-center mb-4">Inicio de Sesión</h3>
 
-            <Form schema={loginSchema} onSubmit={onSubmit} mode="onChange">
+            <Form schema={loginSchema} onSubmit={onSubmit} mode="onBlur">
               <Input type="email" name="Correo" label="Correo" />
               <Input name="Contrasena" label="Contrasena" type="password" />
 

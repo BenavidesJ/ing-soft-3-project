@@ -48,7 +48,7 @@ export function UserProfile() {
   }
 
   return (
-    <div>
+    <div className="card p-1">
       <Dropdown>
         <Dropdown.Toggle
           variant="link"
