@@ -23,11 +23,11 @@ import { useLoading } from '../../context/LoadingContext';
 import dayjs from 'dayjs';
 import { formatCurrency } from '../../utils/formatCurrency';
 import {
-  CollapsibleTable,
+  ActionTable,
+  ActionTableColumn,
   EstadoBadges,
   LoadingOverlay,
 } from '../../components';
-import { ProjectDetailsCard } from '../../components/ProjectDetailsCard/ProjectDetailsCard';
 
 const projectSchema = z.object({
   Nombre: z.string().min(1, 'El nombre es obligatorio'),
@@ -158,73 +158,75 @@ export const GestionProyectos = () => {
     setProjectToDelete(null);
   };
 
-  const tableHeader = (
-    <tr>
-      <th>ID</th>
-      <th>Nombre</th>
-      <th>Descripción</th>
-      <th>Objetivo</th>
-      <th>Fecha Inicio</th>
-      <th>Fecha Fin</th>
-      <th>Presupuesto</th>
-      <th>Estado</th>
-      <th>Acciones</th>
-    </tr>
-  );
-
-  const renderMainRow = (project: Proyecto) => (
-    <>
-      <td>{project.idProyecto}</td>
-      <td>{project.Nombre}</td>
-      <td>{project.Descripcion}</td>
-      <td>{project.Objetivo}</td>
-      <td>{dayjs(project.FechaInicio).format('DD/MM/YYYY')}</td>
-      <td>
-        {project.FechaFin ? dayjs(project.FechaFin).format('DD/MM/YYYY') : '-'}
-      </td>
-      <td>{formatCurrency(project.Presupuesto)}</td>
-      <td>
+  const columns: ActionTableColumn<Proyecto>[] = [
+    {
+      header: 'Nombre',
+      accessor: 'Nombre',
+    },
+    {
+      header: 'Descripción',
+      accessor: 'Descripcion',
+    },
+    {
+      header: 'Objetivo',
+      accessor: 'Objetivo',
+    },
+    {
+      header: 'Fecha Inicio',
+      accessor: (project: Proyecto) =>
+        dayjs(project.FechaInicio).format('DD/MM/YYYY'),
+    },
+    {
+      header: 'Fecha Fin',
+      accessor: (project: Proyecto) =>
+        project.FechaFin ? dayjs(project.FechaFin).format('DD/MM/YYYY') : '-',
+    },
+    {
+      header: 'Presupuesto',
+      accessor: (project: Proyecto) => formatCurrency(project.Presupuesto),
+    },
+    {
+      header: 'Estado',
+      accessor: (project: Proyecto) => (
         <EstadoBadges estadoId={project.idEstado} />
-      </td>
-      <td>
-        <Button
-          size="sm"
-          variant="info"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleOpenModal(project);
-          }}
-        >
-          Editar
-        </Button>{' '}
-        <Button
-          size="sm"
-          variant="danger"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleDeleteClick(project.idProyecto);
-          }}
-        >
-          Eliminar
-        </Button>
-      </td>
-    </>
-  );
-
-  const renderExpandedRow = (project: Proyecto) => (
-    <ProjectDetailsCard
-      key={`project-details-${project.idProyecto}`}
-      project={project}
-    />
-  );
+      ),
+    },
+    {
+      header: 'Acciones',
+      accessor: (project: Proyecto) => (
+        <>
+          <Button
+            size="sm"
+            variant="info"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOpenModal(project);
+            }}
+          >
+            Editar
+          </Button>{' '}
+          <Button
+            size="sm"
+            variant="danger"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteClick(project.idProyecto);
+            }}
+          >
+            Eliminar
+          </Button>
+        </>
+      ),
+    },
+  ];
 
   return (
     <PrivateLayout>
       <div className="p-3">
         <h2>Gestión de Proyectos</h2>
         <Button
-          variant="primary"
-          className="mb-3"
+          variant="info"
+          className="mb-3 text-primary"
           onClick={() => handleOpenModal()}
         >
           Agregar Proyecto
@@ -232,13 +234,9 @@ export const GestionProyectos = () => {
         {projects.length === 0 ? (
           <LoadingOverlay />
         ) : (
-          <CollapsibleTable
+          <ActionTable
             data={projects.filter((project) => project.Activo)}
-            header={tableHeader}
-            rowKey={(project: Proyecto) => project.idProyecto}
-            colSpan={9}
-            renderMainRow={renderMainRow}
-            renderExpandedRow={renderExpandedRow}
+            columns={columns}
           />
         )}
       </div>

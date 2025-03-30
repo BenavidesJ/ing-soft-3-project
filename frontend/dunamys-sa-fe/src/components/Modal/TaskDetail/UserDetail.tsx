@@ -34,7 +34,7 @@ const mapUsuarioToUserData = (usuario: Usuario) => ({
   imagenPerfil: usuario.Perfil?.urlImagenPerfil,
 });
 
-export const TaskDetail = ({ data }: DetailsContentProps) => {
+export const UserDetail = ({ data }: DetailsContentProps) => {
   const [recursos, setRecursos] = useState<any[]>([]);
   const [members, setMembers] = useState<Usuario[]>([]);
   const [allUsers, setAllUsers] = useState<Usuario[]>([]);
@@ -92,7 +92,7 @@ export const TaskDetail = ({ data }: DetailsContentProps) => {
       <Row>
         <Col md={8}>
           <h5>Descripción</h5>
-          <p>{data?.descripcion}</p>
+          <p>{data?.descripcion || 'Texto de ejemplo de la descripción...'}</p>
 
           <Card className="mb-3">
             <Card.Header>Personas</Card.Header>

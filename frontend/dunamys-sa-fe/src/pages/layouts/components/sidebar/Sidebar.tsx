@@ -14,8 +14,8 @@ export const Sidebar = () => {
   const [toggleSideBar, setToggleSideBar] = useState(false);
 
   const handleToggle = useCallback(() => {
-    setToggleSideBar(!toggleSideBar);
-  }, [toggleSideBar]);
+    setToggleSideBar((prev) => !prev);
+  }, []);
 
   return (
     <aside id="sidebar" className={toggleSideBar ? 'expand' : ''}>
@@ -39,78 +39,118 @@ export const Sidebar = () => {
       </div>
       <Nav className="sidebar-nav" defaultActiveKey="/dashboard">
         <Nav.Link as={Link} to="/dashboard" className="sidebar-item">
-          <OverlayTrigger
-            placement="top"
-            overlay={!toggleSideBar ? <Tooltip>Dashboard</Tooltip> : <></>}
-          >
+          {!toggleSideBar ? (
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip id="tooltip-dashboard">Dashboard</Tooltip>}
+            >
+              <div className="sidebar-link">
+                <MdOutlineSpaceDashboard className="icon" />
+                <span>Dashboard</span>
+              </div>
+            </OverlayTrigger>
+          ) : (
             <div className="sidebar-link">
               <MdOutlineSpaceDashboard className="icon" />
               <span>Dashboard</span>
             </div>
-          </OverlayTrigger>
+          )}
         </Nav.Link>
         <Nav.Link as={Link} to="/gestion-proyectos" className="sidebar-item">
-          <OverlayTrigger
-            placement="top"
-            overlay={
-              !toggleSideBar ? <Tooltip>Gestión de Proyectos</Tooltip> : <></>
-            }
-          >
+          {!toggleSideBar ? (
+            <OverlayTrigger
+              placement="top"
+              overlay={
+                <Tooltip id="tooltip-proyectos">Gestión de Proyectos</Tooltip>
+              }
+            >
+              <div className="sidebar-link">
+                <GoProjectSymlink className="icon" />
+                <span>Gestión de Proyectos</span>
+              </div>
+            </OverlayTrigger>
+          ) : (
             <div className="sidebar-link">
               <GoProjectSymlink className="icon" />
               <span>Gestión de Proyectos</span>
             </div>
-          </OverlayTrigger>
+          )}
         </Nav.Link>
         <Nav.Link as={Link} to="/gestion-tareas" className="sidebar-item">
-          <OverlayTrigger
-            placement="top"
-            overlay={
-              !toggleSideBar ? <Tooltip>Gestión de Tareas</Tooltip> : <></>
-            }
-          >
+          {!toggleSideBar ? (
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip id="tooltip-tareas">Gestión de Tareas</Tooltip>}
+            >
+              <div className="sidebar-link">
+                <FaTasks className="icon" />
+                <span>Gestión de Tareas</span>
+              </div>
+            </OverlayTrigger>
+          ) : (
             <div className="sidebar-link">
               <FaTasks className="icon" />
               <span>Gestión de Tareas</span>
             </div>
-          </OverlayTrigger>
+          )}
         </Nav.Link>
         <Nav.Link as={Link} to="/gestion-recursos" className="sidebar-item">
-          <OverlayTrigger
-            placement="top"
-            overlay={
-              !toggleSideBar ? <Tooltip>Gestión de Recursos</Tooltip> : <></>
-            }
-          >
+          {!toggleSideBar ? (
+            <OverlayTrigger
+              placement="top"
+              overlay={
+                <Tooltip id="tooltip-recursos">Gestión de Recursos</Tooltip>
+              }
+            >
+              <div className="sidebar-link">
+                <GrResources className="icon" />
+                <span>Gestión de Recursos</span>
+              </div>
+            </OverlayTrigger>
+          ) : (
             <div className="sidebar-link">
               <GrResources className="icon" />
               <span>Gestión de Recursos</span>
             </div>
-          </OverlayTrigger>
+          )}
         </Nav.Link>
         <Nav.Link as={Link} to="/gestion-usuarios" className="sidebar-item">
-          <OverlayTrigger
-            placement="top"
-            overlay={
-              !toggleSideBar ? <Tooltip>Gestión de Usuarios</Tooltip> : <></>
-            }
-          >
+          {!toggleSideBar ? (
+            <OverlayTrigger
+              placement="top"
+              overlay={
+                <Tooltip id="tooltip-usuarios">Gestión de Usuarios</Tooltip>
+              }
+            >
+              <div className="sidebar-link">
+                <FaUsersCog className="icon" />
+                <span>Gestión de Usuarios</span>
+              </div>
+            </OverlayTrigger>
+          ) : (
             <div className="sidebar-link">
               <FaUsersCog className="icon" />
               <span>Gestión de Usuarios</span>
             </div>
-          </OverlayTrigger>
+          )}
         </Nav.Link>
         <Nav.Link as={Link} to="/reportes" className="sidebar-item">
-          <OverlayTrigger
-            placement="top"
-            overlay={!toggleSideBar ? <Tooltip>Reportes</Tooltip> : <></>}
-          >
+          {!toggleSideBar ? (
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip id="tooltip-reportes">Reportes</Tooltip>}
+            >
+              <div className="sidebar-link">
+                <TbReportAnalytics className="icon" />
+                <span>Reportes</span>
+              </div>
+            </OverlayTrigger>
+          ) : (
             <div className="sidebar-link">
               <TbReportAnalytics className="icon" />
               <span>Reportes</span>
             </div>
-          </OverlayTrigger>
+          )}
         </Nav.Link>
       </Nav>
     </aside>
