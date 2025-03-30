@@ -43,7 +43,13 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
           autohide
           bg={toastData.variant}
         >
-          <Toast.Body className="text-white">{toastData.message}</Toast.Body>
+          <Toast.Body
+            className={
+              toastData.variant === 'warning' ? 'text-dark' : 'text-white'
+            }
+          >
+            {toastData.message}
+          </Toast.Body>
         </Toast>
       </ToastContainer>
     </>

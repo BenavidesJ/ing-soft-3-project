@@ -92,7 +92,7 @@ export const TaskDetail = ({ data }: DetailsContentProps) => {
       <Row>
         <Col md={8}>
           <h5>Descripción</h5>
-          <p>{data?.descripcion}</p>
+          <p>{data?.Descripcion}</p>
 
           <Card className="mb-3">
             <Card.Header>Personas</Card.Header>

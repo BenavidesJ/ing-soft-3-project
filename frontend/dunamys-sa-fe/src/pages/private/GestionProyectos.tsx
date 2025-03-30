@@ -226,7 +226,7 @@ export const GestionProyectos = () => {
         <h2>Gestión de Proyectos</h2>
         <Button
           variant="info"
-          className="mb-3 text-primary"
+          className="mb-3 text-white"
           onClick={() => handleOpenModal()}
         >
           Agregar Proyecto

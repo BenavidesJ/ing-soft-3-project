@@ -92,8 +92,8 @@ export const GestionUsuarios = () => {
         <h2>Gestión de Usuarios</h2>
         {error && <Alert variant="danger">{error}</Alert>}
         <Button
-          variant="primary"
-          className="mb-3"
+          variant="info"
+          className="mb-3 text-white"
           onClick={() => handleOpenModal()}
         >
           Agregar Usuario

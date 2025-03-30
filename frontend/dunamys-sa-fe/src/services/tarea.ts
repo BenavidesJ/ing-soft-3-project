@@ -26,6 +26,10 @@ export const getAllTareas = () => {
   return api.get<ApiResponse<Tarea[]>>('tareas/');
 };
 
+export const getAllTareasWithResources = () => {
+  return api.get<ApiResponse<Tarea[]>>('tareas/resources/');
+};
+
 export const getTareasByStatus = (data: { NombreEstado: string }) => {
   return api.get<ApiResponse<Tarea[]>>('tareas/estado/', { data });
 };

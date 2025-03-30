@@ -1,9 +1,9 @@
 import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { useLocation } from 'react-router';
-import { ProjectDetail } from './TaskDetail/ProjectDetail';
-import { TaskDetail } from './TaskDetail/TaskDetail';
-import { UserDetail } from './TaskDetail/UserDetail';
+import { ProjectDetail } from './TableDetailModals/ProjectDetail';
+import { TaskDetail } from './TableDetailModals/TaskDetail';
+import { UserDetail } from './TableDetailModals/UserDetail';
 
 interface DetailsModalProps<T = any> {
   title?: React.ReactNode | string;
@@ -28,7 +28,7 @@ export const DetailsModal = <T,>({
   } else if (location.pathname.includes('gestion-usuarios')) {
     ContentComponent = UserDetail;
   }
-  console.log(data);
+
   return (
     <Modal show={show} onHide={hide} size="lg" centered>
       <Modal.Header closeButton>

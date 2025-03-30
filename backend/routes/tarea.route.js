@@ -4,6 +4,7 @@ import {
   createTask,
   deleteTask,
   getAllTasks,
+  getAllTasksWithResources,
   getTaskById,
   getTasksByMember,
   getTasksByProject,
@@ -23,6 +24,8 @@ router.patch('/modificar', authenticate, updateTask);
 router.patch('/asignar-miembro', assignTaskToMember);
 // obtener todas las tareas
 router.get('/', getAllTasks);
+// obtener todas las tareas con recursos
+router.get('/resources/', getAllTasksWithResources);
 // obtener tareas por estado
 router.get('/estado/', getTasksByStatus);
 // obtener tareas de un proyecto

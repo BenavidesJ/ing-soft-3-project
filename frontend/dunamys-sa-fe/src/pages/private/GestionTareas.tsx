@@ -182,7 +182,7 @@ export const GestionTareas = () => {
         <h2>Gestión de Tareas</h2>
         <Button
           variant="info"
-          className="mb-3 text-primary"
+          className="mb-3 text-white"
           onClick={() => handleOpenModal()}
         >
           Agregar Tarea

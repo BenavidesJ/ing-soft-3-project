@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { validateDates } from '../common/dateValidation.js';
-import { Tarea, Proyecto, Estado, Usuario } from '../models/index.js';
+import { Tarea, Proyecto, Estado, Usuario, Recurso } from '../models/index.js';
 
 export const createTask = async (req, res, next) => {
   try {
@@ -247,6 +247,31 @@ export const getUserByTask = async (req, res, next) => {
       success: true,
       message: 'Usuario(s) asignado(s) a la tarea obtenidos correctamente.',
       data: transformedData,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAllTasksWithResources = async (req, res, next) => {
+  try {
+    const tasks = await Tarea.findAll({
+      include: [
+        {
+          model: Proyecto,
+          attributes: ['idProyecto'],
+          through: { attributes: [] },
+        },
+        {
+          model: Recurso,
+        },
+      ],
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Tareas obtenidas correctamente.',
+      data: tasks,
     });
   } catch (error) {
     next(error);
