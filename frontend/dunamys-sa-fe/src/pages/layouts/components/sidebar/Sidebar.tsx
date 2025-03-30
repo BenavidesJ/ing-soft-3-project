@@ -8,6 +8,7 @@ import { MdOutlineSpaceDashboard } from 'react-icons/md';
 import { GoProjectSymlink } from 'react-icons/go';
 import { TbReportAnalytics } from 'react-icons/tb';
 import { FaTasks, FaUsersCog } from 'react-icons/fa';
+import { GrResources } from 'react-icons/gr';
 
 export const Sidebar = () => {
   const [toggleSideBar, setToggleSideBar] = useState(false);
@@ -71,6 +72,19 @@ export const Sidebar = () => {
             <div className="sidebar-link">
               <FaTasks className="icon" />
               <span>Gestión de Tareas</span>
+            </div>
+          </OverlayTrigger>
+        </Nav.Link>
+        <Nav.Link as={Link} to="/gestion-recursos" className="sidebar-item">
+          <OverlayTrigger
+            placement="top"
+            overlay={
+              !toggleSideBar ? <Tooltip>Gestión de Recursos</Tooltip> : <></>
+            }
+          >
+            <div className="sidebar-link">
+              <GrResources className="icon" />
+              <span>Gestión de Recursos</span>
             </div>
           </OverlayTrigger>
         </Nav.Link>

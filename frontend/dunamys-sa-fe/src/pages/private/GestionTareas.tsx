@@ -171,15 +171,6 @@ export const GestionTareas = () => {
           >
             Eliminar
           </Button>{' '}
-          <Button
-            size="sm"
-            variant="info"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-          >
-            Asignar
-          </Button>
         </>
       ),
     },
@@ -190,8 +181,8 @@ export const GestionTareas = () => {
       <div className="p-3">
         <h2>Gestión de Tareas</h2>
         <Button
-          variant="primary"
-          className="mb-3"
+          variant="info"
+          className="mb-3 text-primary"
           onClick={() => handleOpenModal()}
         >
           Agregar Tarea
@@ -199,7 +190,10 @@ export const GestionTareas = () => {
         {tareas.length === 0 ? (
           <Alert variant="info">No hay tareas disponibles.</Alert>
         ) : (
-          <ActionTable columns={columns} data={tareas} />
+          <ActionTable
+            columns={columns}
+            data={tareas.filter((tarea) => tarea.Activo)}
+          />
         )}
       </div>
 

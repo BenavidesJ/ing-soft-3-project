@@ -49,6 +49,11 @@ const Reportes = lazy(() =>
     default: module.Reportes,
   }))
 );
+const GestionRecursos = lazy(() =>
+  import('./pages/private/GestionRecursos').then((module) => ({
+    default: module.GestionRecursos,
+  }))
+);
 
 function App() {
   return (
@@ -99,6 +104,14 @@ function App() {
           element={
             <PrivateRoute>
               <GestionUsuarios />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/gestion-recursos"
+          element={
+            <PrivateRoute>
+              <GestionRecursos />
             </PrivateRoute>
           }
         />
