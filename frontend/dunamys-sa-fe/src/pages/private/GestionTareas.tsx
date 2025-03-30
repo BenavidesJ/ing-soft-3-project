@@ -13,7 +13,12 @@ import { getAllEstados } from '../../services/estado';
 import { Tarea } from '../../services/types';
 import { useLoading } from '../../context/LoadingContext';
 import dayjs from 'dayjs';
-import { CollapsibleTable, ConfirmModal, EstadoBadges } from '../../components';
+import {
+  ActionTable,
+  ActionTableColumn,
+  ConfirmModal,
+  EstadoBadges,
+} from '../../components';
 
 const tareaSchema = z.object({
   Nombre: z.string().min(1, 'El nombre es obligatorio'),
@@ -120,63 +125,65 @@ export const GestionTareas = () => {
     setTaskToDelete(null);
   };
 
-  const tableHeader = (
-    <tr>
-      <th>Nombre</th>
-      <th>Descripción</th>
-      <th>Fecha Inicio</th>
-      <th>Fecha Fin</th>
-      <th>Estado</th>
-      <th>Acciones</th>
-    </tr>
-  );
-
-  const renderMainRow = (tarea: Tarea) => (
-    <>
-      <td>{tarea.Nombre}</td>
-      <td>{tarea.Descripcion}</td>
-      <td>{dayjs(tarea.FechaInicio).format('DD/MM/YYYY')}</td>
-      <td>
-        {tarea.FechaFin ? dayjs(tarea.FechaFin).format('DD/MM/YYYY') : '-'}
-      </td>
-      <td>
-        <EstadoBadges estadoId={tarea.idEstado} />
-      </td>
-      <td>
-        <Button
-          size="sm"
-          variant="warning"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleOpenModal(tarea);
-          }}
-        >
-          Editar
-        </Button>{' '}
-        <Button
-          size="sm"
-          variant="danger"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleDeleteClick(tarea.idTarea);
-          }}
-        >
-          Eliminar
-        </Button>{' '}
-        <Button
-          size="sm"
-          variant="info"
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-        >
-          Asignar
-        </Button>
-      </td>
-    </>
-  );
-
-  const renderExpandedRow = (_tarea: Tarea) => <></>;
+  const columns: ActionTableColumn<Tarea>[] = [
+    {
+      header: 'Nombre',
+      accessor: 'Nombre',
+    },
+    {
+      header: 'Descripción',
+      accessor: 'Descripcion',
+    },
+    {
+      header: 'Fecha Inicio',
+      accessor: (tarea: Tarea) => dayjs(tarea.FechaInicio).format('DD/MM/YYYY'),
+    },
+    {
+      header: 'Fecha Fin',
+      accessor: (tarea: Tarea) =>
+        tarea.FechaFin ? dayjs(tarea.FechaFin).format('DD/MM/YYYY') : '-',
+    },
+    {
+      header: 'Estado',
+      accessor: (tarea: Tarea) => <EstadoBadges estadoId={tarea.idEstado} />,
+    },
+    {
+      header: 'Acciones',
+      accessor: (tarea: Tarea) => (
+        <>
+          <Button
+            size="sm"
+            variant="warning"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOpenModal(tarea);
+            }}
+          >
+            Editar
+          </Button>{' '}
+          <Button
+            size="sm"
+            variant="danger"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteClick(tarea.idTarea);
+            }}
+          >
+            Eliminar
+          </Button>{' '}
+          <Button
+            size="sm"
+            variant="info"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            Asignar
+          </Button>
+        </>
+      ),
+    },
+  ];
 
   return (
     <PrivateLayout>
@@ -192,14 +199,7 @@ export const GestionTareas = () => {
         {tareas.length === 0 ? (
           <Alert variant="info">No hay tareas disponibles.</Alert>
         ) : (
-          <CollapsibleTable
-            data={tareas.filter((tarea) => tarea.Activo)}
-            header={tableHeader}
-            rowKey={(tarea: Tarea) => tarea.idTarea}
-            colSpan={6}
-            renderMainRow={renderMainRow}
-            renderExpandedRow={renderExpandedRow}
-          />
+          <ActionTable columns={columns} data={tareas} />
         )}
       </div>
 

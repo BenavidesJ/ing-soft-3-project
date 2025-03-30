@@ -1,37 +1,40 @@
+import dayjs from 'dayjs';
 import { Col, Container, Modal, Row } from 'react-bootstrap';
 
 interface DetailsModalProps {
   title?: React.ReactNode | string;
   show: boolean;
   hide: () => void;
+  data?: any;
 }
 
-export const DetailsModal = ({ title, show, hide }: DetailsModalProps) => {
+export const DetailsModal = ({ show, hide, data }: DetailsModalProps) => {
+  console.log('debug data', data);
   return (
     <Modal centered show={show} onHide={hide}>
       <Modal.Header closeButton>
-        <Modal.Title>{title}</Modal.Title>
+        <Modal.Title>{data?.Nombre}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Container>
           <Row>
-            <Col xs={12} md={8}>
-              .col-xs-12 .col-md-8
+            <Col xs={12} md={8} style={{ border: '1px solid red' }}>
+              Descripcion: {data?.Descripcion}
             </Col>
-            <Col xs={6} md={4}>
-              .col-xs-6 .col-md-4
+            <Col xs={6} md={4} style={{ border: '1px solid red' }}>
+              Fecha de Inicio: {dayjs(data?.FechaInicio).format('DD/MM/YYYY')}
             </Col>
           </Row>
 
           <Row>
-            <Col xs={6} md={4}>
-              .col-xs-6 .col-md-4
+            <Col xs={6} md={4} style={{ border: '1px solid red' }}>
+              Fecha de Finalizacion:{' '}
+              {data?.FechaFin
+                ? dayjs(data?.FechaFin).format('DD/MM/YYYY')
+                : 'No definida'}
             </Col>
-            <Col xs={6} md={4}>
-              .col-xs-6 .col-md-4
-            </Col>
-            <Col xs={6} md={4}>
-              .col-xs-6 .col-md-4
+            <Col xs={12} md={8} style={{ border: '1px solid red' }}>
+              Estado: {data?.Descripcion}
             </Col>
           </Row>
         </Container>
