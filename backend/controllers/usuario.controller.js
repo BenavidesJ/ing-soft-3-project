@@ -179,6 +179,9 @@ export const getUserById = async (req, res, next) => {
       data: {
         idUsuario: user.idUsuario,
         Nombre: `${user.Nombre} ${user.Apellido1} ${user.Apellido2 || ''}`,
+        NombrePila: user.Nombre,
+        Apellido1: user.Apellido1,
+        Apellido2: user.Apellido2,
         Correo: user.Correo,
         Activo: user.Activo,
         Perfil: {
@@ -237,6 +240,9 @@ export const getUsers = async (_req, res, next) => {
       return {
         idUsuario: user.idUsuario,
         Nombre: `${user.Nombre} ${user.Apellido1} ${user.Apellido2 || ''}`,
+        NombrePila: user.Nombre,
+        Apellido1: user.Apellido1,
+        Apellido2: user.Apellido2,
         Correo: user.Correo,
         Activo: user.Activo,
         Perfil: {

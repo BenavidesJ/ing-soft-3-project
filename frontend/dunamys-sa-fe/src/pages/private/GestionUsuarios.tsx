@@ -12,6 +12,7 @@ import {
 import { Usuario } from '../../services/types';
 import { useLoading } from '../../context/LoadingContext';
 import { ActionTable, ActionTableColumn } from '../../components';
+import { ConfirmModal } from '../../components/ConfirmModal/ConfirmModal';
 
 const userSchema = z.object({
   Nombre: z.string().min(1, 'El nombre es obligatorio'),
@@ -26,6 +27,9 @@ export const GestionUsuarios = () => {
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [editingUsuario, setEditingUsuario] = useState<Usuario | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<number | null>(null);
+
   const { setLoading } = useLoading();
 
   const fetchUsuarios = async () => {
@@ -54,14 +58,37 @@ export const GestionUsuarios = () => {
     setEditingUsuario(null);
   };
 
+  const handleDelete = (idUsuario: number) => {
+    setUserToDelete(idUsuario);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (userToDelete === null) return;
+    try {
+      setLoading(true);
+      await deleteUser(userToDelete);
+      await fetchUsuarios();
+    } catch (err: any) {
+      setError(err.message || 'Error al eliminar el usuario.');
+    } finally {
+      setLoading(false);
+      setShowDeleteConfirm(false);
+      setUserToDelete(null);
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteConfirm(false);
+    setUserToDelete(null);
+  };
+
   const onSubmit = async (data: any) => {
     try {
       setLoading(true);
       if (editingUsuario) {
-        console.log('modif', { idUsuario: editingUsuario.idUsuario, ...data });
         await updateUser({ idUsuario: editingUsuario.idUsuario, ...data });
       } else {
-        console.log('crear', data);
         await createUser(data);
       }
       await fetchUsuarios();
@@ -70,20 +97,6 @@ export const GestionUsuarios = () => {
       setError(err.message || 'Error al guardar el usuario.');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleDelete = async (idUsuario: number) => {
-    if (window.confirm('¿Está seguro de eliminar este usuario?')) {
-      try {
-        setLoading(true);
-        await deleteUser(idUsuario);
-        await fetchUsuarios();
-      } catch (err: any) {
-        setError(err.message || 'Error al eliminar el usuario.');
-      } finally {
-        setLoading(false);
-      }
     }
   };
 
@@ -158,13 +171,21 @@ export const GestionUsuarios = () => {
             schema={userSchema}
             onSubmit={onSubmit}
             defaultValues={
-              editingUsuario || {
-                Nombre: '',
-                Apellido1: '',
-                Apellido2: '',
-                Correo: '',
-                Contrasena: '',
-              }
+              editingUsuario
+                ? {
+                    Nombre: editingUsuario.NombrePila,
+                    Apellido1: editingUsuario.Apellido1,
+                    Apellido2: editingUsuario.Apellido2,
+                    Correo: editingUsuario.Correo,
+                    Contrasena: '',
+                  }
+                : {
+                    Nombre: '',
+                    Apellido1: '',
+                    Apellido2: '',
+                    Correo: '',
+                    Contrasena: '',
+                  }
             }
             mode="onBlur"
           >
@@ -198,16 +219,28 @@ export const GestionUsuarios = () => {
               />
             )}
             <div className="d-flex justify-content-end mt-3">
-              <Button variant="secondary" onClick={handleCloseModal}>
+              <Button
+                variant="danger"
+                className="text-white"
+                onClick={handleCloseModal}
+              >
                 Cancelar
               </Button>
-              <SubmitButton variant="primary" className="ms-2">
+              <SubmitButton variant="success" className="ms-2 text-white">
                 {editingUsuario ? 'Actualizar' : 'Crear'}
               </SubmitButton>
             </div>
           </Form>
         </Modal.Body>
       </Modal>
+
+      <ConfirmModal
+        show={showDeleteConfirm}
+        title="Confirmar eliminación"
+        message="¿Está seguro de eliminar este usuario?"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
     </PrivateLayout>
   );
 };

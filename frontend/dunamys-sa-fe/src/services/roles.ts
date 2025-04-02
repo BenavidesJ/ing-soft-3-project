@@ -4,6 +4,13 @@ import { ApiResponse, Rol, Permiso } from './types';
 export const createRol = (data: { NombreRol: string }) => {
   return api.post<ApiResponse<Rol>>('auth/rol', data);
 };
+export const getRoles = () => {
+  return api.get<ApiResponse<Rol>>('auth/roles');
+};
+
+export const getPermisos = () => {
+  return api.get<ApiResponse<Permiso>>('auth/permisos');
+};
 
 export const createPermiso = (data: { NombrePermiso: string }) => {
   return api.post<ApiResponse<Permiso>>('auth/permiso', data);

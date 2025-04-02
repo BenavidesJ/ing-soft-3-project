@@ -1,32 +1,27 @@
 import { useEffect, useState } from 'react';
-import dayjs from 'dayjs';
 import {
-  Col,
   Container,
   Row,
-  ListGroup,
-  Button,
+  Col,
   Card,
   Badge,
-  OverlayTrigger,
-  Tooltip,
-  Dropdown,
+  Button,
+  Modal,
 } from 'react-bootstrap';
-import { EstadoBadges } from '../../StatusProgress/EstadoBadges';
-import { useNavigate } from 'react-router';
-import { getRecursosByTask } from '../../../services/recurso';
-import { getTaskByUser, assignTareaToMember } from '../../../services/tarea';
-import { getUserByID, getUsers } from '../../../services/usuario';
+import dayjs from 'dayjs';
 import { Avatar } from '../../Avatar/Avatar';
-import { Usuario } from '../../../services/types';
-import { FaPlus } from 'react-icons/fa';
-import '../../../specialClasses.scss';
+import { getTareasByMember } from '../../../services/tarea';
+import { SimpleTable } from '../../Tables/SimpleTable';
+import { useLoading } from '../../../context/LoadingContext';
+import { Form, SubmitButton, SelectInput } from '../../Forms';
+import { z } from 'zod';
+import { assignRolToUser, getRoles } from '../../../services/roles';
 
 interface DetailsContentProps {
   data: any;
 }
 
-const mapUsuarioToUserData = (usuario: Usuario) => ({
+const mapUsuarioToUserData = (usuario: any) => ({
   nombre: `${usuario.Nombre} ${usuario.Apellido1}${
     usuario.Apellido2 ? ' ' + usuario.Apellido2 : ''
   }`,
@@ -36,208 +31,256 @@ const mapUsuarioToUserData = (usuario: Usuario) => ({
 });
 
 export const UserDetail = ({ data }: DetailsContentProps) => {
-  const navigate = useNavigate();
+  const [tareas, setTareas] = useState<any[]>([]);
+  const { setLoading } = useLoading();
 
-  // Si la data tiene idUsuario, asumimos que es un objeto de usuario
-  if (data?.idUsuario) {
-    return (
-      <Container fluid>
-        <Row>
-          <Col md={12}>
-            <Card className="mb-3">
-              <Card.Header>Detalles del Usuario</Card.Header>
-              <Card.Body>
-                <p>
-                  <strong>ID:</strong> {data.idUsuario}
-                </p>
-                <p>
-                  <strong>Nombre:</strong> {data.Nombre} {data.Apellido1}{' '}
-                  {data.Apellido2 || ''}
-                </p>
-                <p>
-                  <strong>Correo:</strong> {data.Correo}
-                </p>
-                <p>
-                  <strong>Estado:</strong> {data.Activo ? 'Activo' : 'Inactivo'}
-                </p>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
-    );
-  }
+  const [userDetail, setUserDetail] = useState<any>(data);
+  const [showAddRoleModal, setShowAddRoleModal] = useState(false);
+  const [availableRoles, setAvailableRoles] = useState<any[]>([]);
 
-  // Si la data tiene idTarea, asumimos que es el detalle de una tarea
-  if (data?.idTarea) {
-    const [recursos, setRecursos] = useState<any[]>([]);
-    const [members, setMembers] = useState<Usuario[]>([]);
-    const [allUsers, setAllUsers] = useState<Usuario[]>([]);
+  useEffect(() => {
+    setUserDetail(data);
+  }, [data]);
 
-    const fetchMembers = () => {
-      getTaskByUser(data.idTarea).then((response: any) => {
-        const mapping = response.data.data;
-        Promise.all(
-          mapping.map(async (item: any) => {
-            if (item.userId) {
-              const userResponse = await getUserByID(item.userId);
-              return userResponse.data.data;
-            }
-            return null;
-          })
-        ).then((users) => {
-          const filteredUsers = users.filter((u) => u !== null);
-          setMembers(filteredUsers);
+  useEffect(() => {
+    if (data?.idUsuario) {
+      getTareasByMember(data.idUsuario)
+        .then((response: any) => {
+          setTareas(response.data.data || []);
+        })
+        .catch((error: any) => {
+          console.error('Error al obtener las tareas:', error);
         });
+    }
+  }, [data?.idUsuario]);
+
+  const tareasColumns = [
+    { header: 'Nombre', accessor: 'Nombre' },
+    {
+      header: 'Fecha Inicio',
+      accessor: (tarea: any) =>
+        tarea.FechaInicio
+          ? dayjs(tarea.FechaInicio).format('DD/MM/YYYY')
+          : 'N/A',
+    },
+    {
+      header: 'Fecha Fin',
+      accessor: (tarea: any) =>
+        tarea.FechaFin ? dayjs(tarea.FechaFin).format('DD/MM/YYYY') : 'N/A',
+    },
+  ];
+
+  const openAddRoleModal = async () => {
+    try {
+      const response = await getRoles();
+      setAvailableRoles(
+        Array.isArray(response.data.data) ? response.data.data : []
+      );
+      setShowAddRoleModal(true);
+    } catch (error) {
+      console.error('Error al obtener los roles:', error);
+    }
+  };
+
+  const roleAssignSchema = z.object({
+    rolId: z.string().min(1, 'Seleccione un rol'),
+  });
+
+  const onSubmitRole = async (formData: any) => {
+    try {
+      setLoading(true);
+      const rolIdNum = parseInt(formData.rolId, 10);
+      await assignRolToUser({
+        idUsuario: userDetail.idUsuario,
+        idRol: rolIdNum,
       });
-    };
 
-    useEffect(() => {
-      if (data?.idTarea) {
-        getRecursosByTask(data.idTarea).then((response: any) => {
-          setRecursos(response.data?.data);
+      const selectedRole = availableRoles.find(
+        (rol: any) => rol.idRol === rolIdNum
+      );
+
+      if (selectedRole) {
+        setUserDetail((prev: any) => {
+          const newRoles = prev.Roles
+            ? [...prev.Roles, selectedRole.NombreRol]
+            : [selectedRole.NombreRol];
+
+          const newPermisos =
+            selectedRole.Permisos?.map(
+              (permiso: any) => permiso.NombrePermiso
+            ) || [];
+
+          const mergedPermisos = prev.Permisos
+            ? Array.from(new Set([...prev.Permisos, ...newPermisos]))
+            : newPermisos;
+
+          return {
+            ...prev,
+            Roles: newRoles,
+            Permisos: mergedPermisos,
+          };
         });
-        fetchMembers();
       }
-    }, [data]);
+      setShowAddRoleModal(false);
+    } catch (error) {
+      console.error('Error al asignar rol:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    useEffect(() => {
-      getUsers().then((response: any) => {
-        setAllUsers(response.data.data || []);
-      });
-    }, []);
+  return (
+    <Container fluid className="py-4">
+      <Row className="justify-content-center">
+        <Col md={8}>
+          <Card className="shadow-sm">
+            <Card.Body>
+              <div className="d-flex justify-content-between align-items-start">
+                <div style={{ position: 'relative' }}>
+                  <Avatar
+                    user={mapUsuarioToUserData(userDetail)}
+                    size={80}
+                    backgroundColor="#eee"
+                    color="#555"
+                  />
+                </div>
+              </div>
 
-    const handleAssignMember = (user: Usuario) => {
-      assignTareaToMember({
-        idTarea: data.idTarea,
-        idUsuario: user.idUsuario,
-      }).then(() => {
-        fetchMembers();
-      });
-    };
-
-    return (
-      <Container fluid>
-        <Row>
-          <Col md={8}>
-            <h5>Descripción</h5>
-            <p>
-              {data?.descripcion || 'Texto de ejemplo de la descripción...'}
-            </p>
-
-            <Card className="mb-3">
-              <Card.Header>Personas</Card.Header>
-              <Card.Body>
-                <div className="d-flex align-items-center">
-                  {members.length > 0 ? (
-                    members.slice(0, 4).map((member, index) => (
-                      <OverlayTrigger
-                        key={`member-${member.idUsuario}-${index}`}
-                        placement="top"
-                        overlay={
-                          <Tooltip id={`tooltip-${member.idUsuario}`}>
-                            {member.Nombre} {member.Apellido1}
-                            {member.Apellido2 ? ' ' + member.Apellido2 : ''}
-                          </Tooltip>
-                        }
-                      >
-                        <div style={{ display: 'inline-block' }}>
-                          <Avatar
-                            user={mapUsuarioToUserData(member)}
-                            size={35}
-                            className="me-1"
-                          />
-                        </div>
-                      </OverlayTrigger>
-                    ))
+              <div className="mt-3">
+                <h4 className="mb-0">{userDetail.Nombre}</h4>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                  }}
+                >
+                  <small>Roles del Usuario</small>
+                  {userDetail.Roles && userDetail.Roles.length > 0 ? (
+                    <div style={{ display: 'flex', gap: '5px' }}>
+                      {userDetail.Roles.map((rol: any, index: number) => (
+                        <Badge key={index} bg="info" className="text-primary">
+                          {rol}
+                        </Badge>
+                      ))}
+                    </div>
                   ) : (
-                    <Badge bg="info" className="me-1">
-                      Sin asignar
+                    <Badge bg="warning" className="text-dark">
+                      Sin roles asignados
                     </Badge>
                   )}
-
-                  <Dropdown>
-                    <Dropdown.Toggle
-                      variant="success"
-                      size="sm"
-                      className="no-caret rounded-circle d-flex align-items-center justify-content-center text-white"
-                      style={{ width: '35px', height: '35px', padding: 0 }}
-                    >
-                      <FaPlus size={10} />
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu>
-                      {allUsers.map((user) => (
-                        <Dropdown.Item
-                          key={user.idUsuario}
-                          onClick={() => handleAssignMember(user)}
-                        >
-                          {user.Nombre} {user.Apellido1}
-                          {user.Apellido2 ? ' ' + user.Apellido2 : ''}
-                        </Dropdown.Item>
-                      ))}
-                    </Dropdown.Menu>
-                  </Dropdown>
-                </div>
-              </Card.Body>
-            </Card>
-
-            <Card className="mb-3">
-              <Card.Header>Recursos</Card.Header>
-              <Card.Body>
-                {recursos.length > 0 ? (
-                  <div
-                    style={{
-                      maxHeight: recursos.length > 3 ? '150px' : 'auto',
-                      overflowY: recursos.length > 3 ? 'scroll' : 'visible',
-                    }}
+                  <Button
+                    size="sm"
+                    variant="success"
+                    className="text-white"
+                    onClick={openAddRoleModal}
                   >
-                    <ListGroup variant="flush">
-                      {recursos.map((recurso, idx) => (
-                        <ListGroup.Item
-                          key={idx}
-                          className="bg-info text-primary"
-                        >
-                          {recurso.Nombre}
-                        </ListGroup.Item>
-                      ))}
-                    </ListGroup>
-                  </div>
-                ) : (
-                  <p>No hay recursos asignados.</p>
-                )}
+                    Agregar rol
+                  </Button>
+                </div>
+              </div>
 
-                <Button
-                  variant="info"
-                  onClick={() => navigate('/gestion-recursos')}
-                  className="mt-2"
-                >
-                  Asignar
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
+              <hr />
 
-          <Col md={4}>
-            <h6>Fechas</h6>
-            <p>
-              Inicio:{' '}
-              {data?.FechaInicio
-                ? dayjs(data.FechaInicio).format('DD/MM/YYYY')
-                : 'N/A'}
-            </p>
-            <p>Actualizado: {data?.fechaActualizacion || 'N/A'}</p>
+              <Row>
+                <Col md={6}>
+                  <p className="mb-1">
+                    <strong>Correo:</strong>
+                  </p>
+                  <p className="text-muted">{userDetail.Correo}</p>
+                  <p className="mb-1">
+                    <strong>Nombre de Usuario:</strong>
+                  </p>
+                  <p className="text-muted">
+                    {userDetail.Perfil?.NombreUsuario || 'N/A'}
+                  </p>
+                  <p className="mb-1">
+                    <strong>Estado:</strong>
+                  </p>
+                  <Badge bg={userDetail.Activo ? 'success' : 'danger'}>
+                    {userDetail.Activo ? 'Activo' : 'Desactivado'}
+                  </Badge>
+                </Col>
+                <Col md={6}>
+                  <p className="mb-1">
+                    <strong>Permisos:</strong>
+                  </p>
+                  {userDetail.Permisos && userDetail.Permisos.length > 0 ? (
+                    <div
+                      style={{
+                        display: 'flex',
+                        gap: '5px',
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      {userDetail.Permisos.map(
+                        (permiso: any, index: number) => (
+                          <Badge key={index} bg="primary" className="text-info">
+                            {permiso}
+                          </Badge>
+                        )
+                      )}
+                    </div>
+                  ) : (
+                    <Badge bg="warning" className="text-dark">
+                      Sin permisos asignados
+                    </Badge>
+                  )}
+                </Col>
+              </Row>
 
-            <h6>Estado</h6>
-            {data?.idEstado ? (
-              <EstadoBadges estadoId={data.idEstado} />
-            ) : (
-              <p>Sin definir</p>
-            )}
-          </Col>
-        </Row>
-      </Container>
-    );
-  }
+              <hr />
 
-  return null;
+              <h5>Actividad</h5>
+              {tareas.length > 0 ? (
+                <SimpleTable columns={tareasColumns} data={tareas} />
+              ) : (
+                <Card className="mt-3">
+                  <Card.Body>Aún no tiene tareas asignadas</Card.Body>
+                </Card>
+              )}
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+
+      <Modal
+        show={showAddRoleModal}
+        onHide={() => setShowAddRoleModal(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Agregar rol</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form
+            schema={roleAssignSchema}
+            onSubmit={onSubmitRole}
+            defaultValues={{ rolId: '' }}
+            mode="onBlur"
+          >
+            <SelectInput
+              name="rolId"
+              label="Seleccione un rol"
+              options={availableRoles.map((rol: any) => ({
+                value: rol.idRol.toString(),
+                label: rol.NombreRol,
+              }))}
+            />
+            <div className="d-flex justify-content-end mt-3">
+              <Button
+                variant="secondary"
+                onClick={() => setShowAddRoleModal(false)}
+              >
+                Cancelar
+              </Button>
+              <SubmitButton variant="success" className="ms-2">
+                Asignar rol
+              </SubmitButton>
+            </div>
+          </Form>
+        </Modal.Body>
+      </Modal>
+    </Container>
+  );
 };
