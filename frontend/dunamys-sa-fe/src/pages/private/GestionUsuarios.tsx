@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Button, Table, Modal } from 'react-bootstrap';
+import { Alert, Button, Modal } from 'react-bootstrap';
 import { PrivateLayout } from '../layouts/PrivateLayout';
 import { Form, Input, SubmitButton } from '../../components/Forms';
 import { z } from 'zod';
@@ -11,6 +11,7 @@ import {
 } from '../../services/usuario';
 import { Usuario } from '../../services/types';
 import { useLoading } from '../../context/LoadingContext';
+import { ActionTable, ActionTableColumn } from '../../components';
 
 const userSchema = z.object({
   Nombre: z.string().min(1, 'El nombre es obligatorio'),
@@ -86,6 +87,47 @@ export const GestionUsuarios = () => {
     }
   };
 
+  const columns: ActionTableColumn<Usuario>[] = [
+    { header: 'ID', accessor: 'idUsuario' },
+    {
+      header: 'Nombre Completo',
+      accessor: (usuario: Usuario) => `${usuario.Nombre}`,
+    },
+    { header: 'Correo', accessor: 'Correo' },
+    {
+      header: 'Estado',
+      accessor: (usuario: Usuario) => (usuario.Activo ? 'Activo' : 'Inactivo'),
+    },
+    {
+      header: 'Acciones',
+      accessor: (usuario: Usuario) => (
+        <>
+          <Button
+            size="sm"
+            variant="info"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOpenModal(usuario);
+            }}
+            className="me-2"
+          >
+            Editar
+          </Button>
+          <Button
+            size="sm"
+            variant="danger"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(usuario.idUsuario);
+            }}
+          >
+            Eliminar
+          </Button>
+        </>
+      ),
+    },
+  ];
+
   return (
     <PrivateLayout>
       <div className="p-3">
@@ -101,46 +143,7 @@ export const GestionUsuarios = () => {
         {usuarios.length === 0 ? (
           <Alert variant="info">No hay usuarios disponibles.</Alert>
         ) : (
-          <Table striped bordered hover responsive>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Nombre Completo</th>
-                <th>Correo</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {usuarios.map((usuario) => (
-                <tr key={usuario.idUsuario}>
-                  <td>{usuario.idUsuario}</td>
-                  <td>
-                    {usuario.Nombre} {usuario.Apellido1}{' '}
-                    {usuario.Apellido2 || ''}
-                  </td>
-                  <td>{usuario.Correo}</td>
-                  <td>{usuario.Activo ? 'Activo' : 'Inactivo'}</td>
-                  <td>
-                    <Button
-                      size="sm"
-                      variant="info"
-                      onClick={() => handleOpenModal(usuario)}
-                    >
-                      Editar
-                    </Button>{' '}
-                    <Button
-                      size="sm"
-                      variant="danger"
-                      onClick={() => handleDelete(usuario.idUsuario)}
-                    >
-                      Eliminar
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+          <ActionTable columns={columns} data={usuarios} />
         )}
       </div>
 

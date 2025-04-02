@@ -11,17 +11,18 @@ import {
   updateProject,
 } from '../controllers/proyecto.controller.js';
 import { authenticate } from '../middlewares/authorization.js';
+import { checkWritePermission } from '../middlewares/checkWritePermission.js';
 
 const router = express.Router();
 
 // crear un proyecto
-router.post('/crear', authenticate, createProject);
+router.post('/crear', authenticate, checkWritePermission, createProject);
 // crear un costo y asignarlo a un proyecto
-router.post('/costo', authenticate, createCost);
+router.post('/costo', authenticate, checkWritePermission, createCost);
 // asignar una tarea a un proyecto
 router.post('/asignar-tarea', assignTaskToProject);
 // modificar un proyecto
-router.patch('/modificar', authenticate, updateProject);
+router.patch('/modificar', authenticate, checkWritePermission, updateProject);
 // obtener todos los proyectos
 router.get('/', getAllProjects);
 // obtener proyecto por estado
@@ -31,6 +32,11 @@ router.get('/:id', getProjectById);
 // obtener los proyectos por usuario
 router.get('/usuario/:id', getProjectsByUser);
 // eliminar un proyecto (borrado lógico)
-router.patch('/eliminar/:id', authenticate, deleteProject);
+router.patch(
+  '/eliminar/:id',
+  authenticate,
+  checkWritePermission,
+  deleteProject
+);
 
 export default router;

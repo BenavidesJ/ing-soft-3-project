@@ -4,6 +4,8 @@ import {
   assignRoleToUser,
   createPermission,
   createRole,
+  getAllPermissions,
+  getAllRoles,
   login,
   modifyRolePermission,
   modifyUserRole,
@@ -23,6 +25,10 @@ router.post('/resetearPassword', resetearPassword);
 router.post('/rol', authenticate, createRole);
 // crear permiso
 router.post('/permiso', authenticate, createPermission);
+// obtener roles
+router.get('/roles', getAllRoles);
+// obtener permisos
+router.get('/permisos', getAllPermissions);
 // asignar rol a usuario
 router.post('/asignar-rol', authenticate, assignRoleToUser);
 // asignar permiso a rol

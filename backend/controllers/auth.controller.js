@@ -79,9 +79,13 @@ export const login = async (req, res, next) => {
     }
 
     const user = await Usuario.findOne({
-      where: {
-        Correo,
-      },
+      where: { Correo },
+      include: [
+        {
+          model: Rol,
+          include: [Permiso],
+        },
+      ],
     });
 
     if (!user) {
@@ -91,32 +95,45 @@ export const login = async (req, res, next) => {
     }
 
     const userProfile = await PerfilUsuario.findOne({
-      where: {
-        idUsuario: user.idUsuario,
-      },
+      where: { idUsuario: user.idUsuario },
     });
 
     const isPasswordValid = await bcrypt.compare(Contrasena, user.Contrasena);
     if (!isPasswordValid) {
       throw new Error(
-        'Contrasena incorrecta, por favor verifique e ingrese de nuevo sus datos.'
+        'Contraseña incorrecta, por favor verifique e ingrese de nuevo sus datos.'
       );
     }
+
+    const roles = user.Rols.map((rol) => rol.NombreRol);
+
+    const allPermissions = user.Rols.reduce((acc, rol) => {
+      if (rol.Permisos && Array.isArray(rol.Permisos)) {
+        rol.Permisos.forEach((permiso) => {
+          if (!acc.includes(permiso.NombrePermiso)) {
+            acc.push(permiso.NombrePermiso);
+          }
+        });
+      }
+      return acc;
+    }, []);
 
     const access_token = generateJWT(user);
 
     return res.status(200).json({
       success: true,
-      message: 'Sesion iniciada correctamente.',
+      message: 'Sesión iniciada correctamente.',
       data: {
         idUsuario: user.idUsuario,
-        Nombre: `${user.Nombre} ${user.Apellido1} ${user?.Apellido2}`,
+        Nombre: `${user.Nombre} ${user.Apellido1} ${user?.Apellido2 || ''}`,
         Correo: user.Correo,
         Access_token: access_token,
         Perfil: {
           idPerfilUsuario: userProfile.idPerfilUsuario,
           NombreUsuario: userProfile.nombreUsuario,
         },
+        Roles: roles,
+        Permisos: allPermissions,
       },
     });
   } catch (error) {
@@ -286,6 +303,34 @@ export const modifyRolePermission = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       message: 'Permisos del rol modificados correctamente.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAllPermissions = async (_req, res, next) => {
+  try {
+    const permissions = await Permiso.findAll();
+    return res.status(200).json({
+      success: true,
+      message: 'Permisos encontrados correctamente.',
+      data: permissions,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAllRoles = async (_req, res, next) => {
+  try {
+    const roles = await Rol.findAll({
+      include: [Permiso],
+    });
+    return res.status(200).json({
+      success: true,
+      message: 'Roles encontrados correctamente.',
+      data: roles,
     });
   } catch (error) {
     next(error);

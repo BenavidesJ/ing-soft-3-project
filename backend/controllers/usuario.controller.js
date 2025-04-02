@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
-import { Usuario, PerfilUsuario } from '../models/index.js';
+import { Usuario, PerfilUsuario, Rol, Permiso } from '../models/index.js';
 import { validPasswordRegex } from '../common/strings.js';
 
 dotenv.config();
@@ -142,19 +142,36 @@ export const getUserById = async (req, res, next) => {
   const userID = req.params.id;
   try {
     const user = await Usuario.findOne({
-      where: {
-        idUsuario: userID,
-      },
+      where: { idUsuario: userID },
+      include: [
+        { model: PerfilUsuario },
+        {
+          model: Rol,
+          include: [Permiso],
+        },
+      ],
     });
 
-    const userProfile = await PerfilUsuario.findOne({
-      where: {
-        idUsuario: userID,
-      },
-    });
     if (!user) {
       throw new Error(`El usuario con ID ${userID} no existe.`);
     }
+
+    const profile = user.PerfilUsuario;
+
+    const roles = user.Rols ? user.Rols.map((rol) => rol.NombreRol) : [];
+
+    const permisos = user.Rols
+      ? user.Rols.reduce((acc, rol) => {
+          if (rol.Permisos && Array.isArray(rol.Permisos)) {
+            rol.Permisos.forEach((permiso) => {
+              if (!acc.includes(permiso.NombrePermiso)) {
+                acc.push(permiso.NombrePermiso);
+              }
+            });
+          }
+          return acc;
+        }, [])
+      : [];
 
     return res.status(200).json({
       success: true,
@@ -165,12 +182,12 @@ export const getUserById = async (req, res, next) => {
         Correo: user.Correo,
         Activo: user.Activo,
         Perfil: {
-          idPerfilUsuario: userProfile.idPerfilUsuario,
-          NombreUsuario: userProfile.nombreUsuario,
-          urlImagenPerfil: userProfile.urlImagenPerfil
-            ? userProfile.urlImagenPerfil
-            : null,
+          idPerfilUsuario: profile?.idPerfilUsuario,
+          NombreUsuario: profile?.nombreUsuario,
+          urlImagenPerfil: profile?.urlImagenPerfil || null,
         },
+        Roles: roles,
+        Permisos: permisos,
       },
     });
   } catch (error) {
@@ -189,17 +206,53 @@ export const getUsers = async (_req, res, next) => {
         'Correo',
         'Activo',
       ],
+      include: [
+        { model: PerfilUsuario },
+        {
+          model: Rol,
+          include: [Permiso],
+        },
+      ],
     });
     if (!users) {
       throw new Error('No se encontraron usuarios.');
     }
 
-    const activeUsers = users.filter((user) => user.Activo);
+    const transformedUsers = users.map((user) => {
+      const profile = user.PerfilUsuario;
+      const roles = user.Rols ? user.Rols.map((rol) => rol.NombreRol) : [];
+      const permisos = user.Rols
+        ? user.Rols.reduce((acc, rol) => {
+            if (rol.Permisos && Array.isArray(rol.Permisos)) {
+              rol.Permisos.forEach((permiso) => {
+                if (!acc.includes(permiso.NombrePermiso)) {
+                  acc.push(permiso.NombrePermiso);
+                }
+              });
+            }
+            return acc;
+          }, [])
+        : [];
+
+      return {
+        idUsuario: user.idUsuario,
+        Nombre: `${user.Nombre} ${user.Apellido1} ${user.Apellido2 || ''}`,
+        Correo: user.Correo,
+        Activo: user.Activo,
+        Perfil: {
+          idPerfilUsuario: profile?.idPerfilUsuario,
+          NombreUsuario: profile?.nombreUsuario,
+          urlImagenPerfil: profile?.urlImagenPerfil || null,
+        },
+        Roles: roles,
+        Permisos: permisos,
+      };
+    });
 
     return res.status(200).json({
       success: true,
       message: 'Usuarios encontrados',
-      data: activeUsers,
+      data: transformedUsers,
     });
   } catch (error) {
     next(error);
