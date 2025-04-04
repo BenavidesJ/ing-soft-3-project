@@ -10,6 +10,7 @@ import statusRoutes from './routes/estado.route.js';
 import projectRoutes from './routes/proyecto.route.js';
 import resourcesRoutes from './routes/recursos.route.js';
 import taskRoutes from './routes/tarea.route.js';
+import reportesRoutes from './routes/reportes.route.js';
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use(`${API_URL}/estados`, statusRoutes);
 app.use(`${API_URL}/proyectos`, projectRoutes);
 app.use(`${API_URL}/tareas`, taskRoutes);
 app.use(`${API_URL}/recursos`, resourcesRoutes);
+app.use(`${API_URL}/reportes`, reportesRoutes);
 
 import('./hooks/eventTracker.js');
 
