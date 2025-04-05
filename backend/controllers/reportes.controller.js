@@ -12,7 +12,8 @@ import {
 
 /**
  * 1. Reporte de Avance por Proyectos
- * Muestra el porcentaje de tareas completadas, en progreso y pendientes por proyecto.
+ * Muestra el porcentaje de tareas completadas, en progreso y pendientes por proyecto,
+ * junto con información adicional del proyecto.
  */
 export const reportAvancePorProyectos = async (req, res, next) => {
   try {
@@ -50,7 +51,7 @@ export const reportAvancePorProyectos = async (req, res, next) => {
 
       const projectState = project.Estado
         ? project.Estado.NombreEstado.toUpperCase()
-        : '';
+        : 'NO ASIGNADO';
 
       let porcentajeFinalizacion = 0;
       if (total > 0) {
@@ -66,6 +67,13 @@ export const reportAvancePorProyectos = async (req, res, next) => {
       return {
         idProyecto: project.idProyecto,
         Nombre: project.Nombre,
+        Descripcion: project.Descripcion,
+        Objetivo: project.Objetivo,
+        FechaInicio: dayjs(project.FechaInicio).format('DD/MM/YYYY'),
+        FechaFin: project.FechaFin
+          ? dayjs(project.FechaFin).format('DD/MM/YYYY')
+          : 'Sin definir',
+        EstadoProyecto: projectState,
         totalTareas: total,
         tareasCompletadas: completadas,
         tareasEnProgreso: enProgreso,
