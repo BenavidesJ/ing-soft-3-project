@@ -51,7 +51,9 @@ export const RestorePassword = () => {
                 placeholder="Ingrese su correo"
               />
 
-              <SubmitButton className="w-100">Enviar</SubmitButton>
+              <SubmitButton variant="info" className="w-100 text-white">
+                Enviar
+              </SubmitButton>
             </Form>
             <div className="text-center mt-3">
               <Link to="/login">Volver a login</Link>

@@ -103,42 +103,10 @@ export const Dashboard = () => {
 
   return (
     <PrivateLayout>
-      <Row className="mb-4">
+      <Row className="mb-4 align-items-center">
         <h3 className="mb-3">
           Bienvenido al sistema de gestion de proyectos de {BrandName}
         </h3>
-        <Col md={3}>
-          <Card className="mb-3">
-            <Card.Body>
-              <Card.Title>Proyectos activos</Card.Title>
-              <h3>2</h3>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={3}>
-          <Card className="mb-3">
-            <Card.Body>
-              <Card.Title>Proyectos Completados</Card.Title>
-              <h3>8053</h3>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={3}>
-          <Card className="mb-3">
-            <Card.Body>
-              <Card.Title>Tareas Activas</Card.Title>
-              <h3>0</h3>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={3}>
-          <Card className="mb-3">
-            <Card.Body>
-              <Card.Title>Problemas Técnicos</Card.Title>
-              <h3>1434</h3>
-            </Card.Body>
-          </Card>
-        </Col>
       </Row>
 
       <Row>

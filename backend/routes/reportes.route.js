@@ -6,7 +6,6 @@ import {
   reportCargaTrabajoPorMiembro,
   reportComparativoProyectos,
   reportTareasPendientesVencidas,
-  reportDesempenoIndividual,
   reportProyectosPorEstado,
   reportActividadSistema,
   reportTareasPorFechaVencimiento,
@@ -29,8 +28,6 @@ router.get('/carga-trabajo-por-miembro', reportCargaTrabajoPorMiembro);
 router.get('/comparativo-proyectos', reportComparativoProyectos);
 // Ruta 6: Reporte de Tareas Pendientes y Vencidas
 router.get('/tareas-pendientes-vencidas', reportTareasPendientesVencidas);
-// Ruta 7: Reporte de Desempeño Individual
-router.get('/desempeno-individual', reportDesempenoIndividual);
 // Ruta 8: Reporte de Proyectos por Estado
 router.get('/proyectos-por-estado', reportProyectosPorEstado);
 // Ruta 9: Reporte de Actividad en el Sistema

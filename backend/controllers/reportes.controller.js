@@ -17,7 +17,33 @@ import {
  */
 export const reportAvancePorProyectos = async (req, res, next) => {
   try {
+    const { fechaInicio: filterFechaInicio, fechaFin: filterFechaFin } =
+      req.query;
+    let where = {};
+    if (filterFechaInicio && filterFechaFin) {
+      where = {
+        FechaInicio: {
+          [Op.between]: [
+            dayjs(filterFechaInicio).format('YYYY-MM-DD'),
+            dayjs(filterFechaFin).format('YYYY-MM-DD'),
+          ],
+        },
+        [Op.or]: [
+          { FechaFin: null },
+          {
+            FechaFin: {
+              [Op.between]: [
+                dayjs(filterFechaInicio).format('YYYY-MM-DD'),
+                dayjs(filterFechaFin).format('YYYY-MM-DD'),
+              ],
+            },
+          },
+        ],
+      };
+    }
+
     const projects = await Proyecto.findAll({
+      where,
       include: [
         {
           model: Tarea,
@@ -188,7 +214,7 @@ export const reportCargaTrabajoPorMiembro = async (req, res, next) => {
           const estado = task.Estado
             ? task.Estado.NombreEstado.toUpperCase()
             : '';
-          if (estado === 'COMPLETADO') {
+          if (estado === 'FINALIZADO') {
             completadas++;
           } else if (estado === 'EN PROGRESO') {
             enProgreso++;
@@ -239,7 +265,7 @@ export const reportComparativoProyectos = async (req, res, next) => {
           const estado = task.Estado
             ? task.Estado.NombreEstado.toUpperCase()
             : '';
-          if (estado === 'COMPLETADO') {
+          if (estado === 'FINALIZADO') {
             completadas++;
           }
         });
@@ -271,6 +297,7 @@ export const reportComparativoProyectos = async (req, res, next) => {
 export const reportTareasPendientesVencidas = async (req, res, next) => {
   try {
     const today = dayjs().format('YYYY-MM-DD');
+
     const tasks = await Tarea.findAll({
       include: { model: Estado, attributes: ['NombreEstado'] },
       where: {
@@ -280,11 +307,17 @@ export const reportTareasPendientesVencidas = async (req, res, next) => {
       },
     });
 
-    // Filtramos las que NO estén en estado "COMPLETADO"
-    const pendientesVencidas = tasks.filter((task) => {
-      const estado = task.Estado ? task.Estado.NombreEstado.toUpperCase() : '';
-      return estado !== 'FINALIZADO';
-    });
+    const pendientesVencidas = tasks
+      .filter((task) => {
+        const estado = task.Estado
+          ? task.Estado.NombreEstado.toUpperCase()
+          : '';
+        return estado !== 'FINALIZADO';
+      })
+      .map((task) => ({
+        ...task.toJSON(),
+        vencida: true,
+      }));
 
     res.status(200).json({
       success: true,
@@ -298,76 +331,21 @@ export const reportTareasPendientesVencidas = async (req, res, next) => {
 };
 
 /**
- * 7. Reporte de Desempeño Individual
- * Genera un informe por colaborador con detalles de su desempeño.
- */
-export const reportDesempenoIndividual = async (req, res, next) => {
-  try {
-    const users = await Usuario.findAll({
-      include: {
-        model: Tarea,
-        include: { model: Estado, attributes: ['NombreEstado'] },
-      },
-    });
-
-    const today = dayjs().format('YYYY-MM-DD');
-
-    const data = users.map((user) => {
-      const total = user.Tareas ? user.Tareas.length : 0;
-      let completadas = 0,
-        enProgreso = 0,
-        pendientes = 0,
-        vencidas = 0;
-      if (user.Tareas) {
-        user.Tareas.forEach((task) => {
-          const estado = task.Estado
-            ? task.Estado.NombreEstado.toUpperCase()
-            : '';
-          if (estado === 'finalizado') {
-            completadas++;
-          } else if (estado === 'en progreso') {
-            enProgreso++;
-          } else {
-            pendientes++;
-          }
-          if (
-            task.FechaFin &&
-            dayjs(task.FechaFin).isBefore(today) &&
-            estado !== 'finalizado'
-          ) {
-            vencidas++;
-          }
-        });
-      }
-      return {
-        idUsuario: user.idUsuario,
-        Nombre: `${user.Nombre}`,
-        totalTareas: total,
-        tareasCompletadas: completadas,
-        tareasEnProgreso: enProgreso,
-        tareasPendientes: pendientes,
-        tareasVencidas: vencidas,
-      };
-    });
-
-    res.status(200).json({
-      success: true,
-      message: 'Reporte de desempeño individual obtenido correctamente.',
-      data,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
  * 8. Reporte de Proyectos por Estado
  * Agrupa los proyectos según su estado.
  */
 export const reportProyectosPorEstado = async (req, res, next) => {
   try {
+    const { estado } = req.body;
+
+    let includeOptions = { model: Estado, attributes: ['NombreEstado'] };
+
+    if (estado) {
+      includeOptions.where = { NombreEstado: estado };
+    }
+
     const projects = await Proyecto.findAll({
-      include: { model: Estado, attributes: ['NombreEstado'] },
+      include: includeOptions,
     });
 
     const grouped = {};
