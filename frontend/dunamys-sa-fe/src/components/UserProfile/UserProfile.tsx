@@ -9,6 +9,9 @@ export const userProfileSchema = z.object({
   Nombre: z.string().min(1, 'El nombre es obligatorio'),
   Username: z.string().min(1, 'El usuario es obligatorio'),
   Correo: z.string().email('Formato de correo inválido'),
+  Contrasena: z
+    .string()
+    .min(6, 'La contraseña debe tener al menos 6 caracteres'),
 });
 
 export function UserProfile() {
@@ -19,6 +22,7 @@ export function UserProfile() {
     Nombre: '',
     Username: '',
     Correo: '',
+    Contrasena: '',
   });
 
   useEffect(() => {
@@ -27,6 +31,7 @@ export function UserProfile() {
         Nombre: currentUser.Nombre,
         Username: currentUser.Perfil?.NombreUsuario || '',
         Correo: currentUser.Correo,
+        Contrasena: currentUser.Contrasena || '',
       });
     }
   }, [currentUser]);
@@ -35,10 +40,12 @@ export function UserProfile() {
   const handleCloseModal = () => setShowModal(false);
 
   const onSubmit = (data: any) => {
+    console.log('Datos del formulario:', data);
     setFormValues({
       Nombre: data.Nombre,
       Username: data.Username,
       Correo: data.Correo,
+      Contrasena: data.Contrasena,
     });
     handleCloseModal();
   };
@@ -108,6 +115,7 @@ export function UserProfile() {
             <Input name="Nombre" label="Nombre" />
             <Input name="Username" label="Usuario" />
             <Input name="Correo" label="Correo" type="email" />
+            <Input name="Contrasena" label="Contraseña" type="password" />
 
             <div className="d-flex justify-content-end mt-3">
               <Button

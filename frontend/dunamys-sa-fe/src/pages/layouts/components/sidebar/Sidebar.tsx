@@ -9,10 +9,11 @@ import { GoProjectSymlink } from 'react-icons/go';
 import { TbReportAnalytics } from 'react-icons/tb';
 import { FaTasks, FaUsersCog } from 'react-icons/fa';
 import { GrResources } from 'react-icons/gr';
+import { useAuth } from '../../../../context';
 
 export const Sidebar = () => {
   const [toggleSideBar, setToggleSideBar] = useState(false);
-
+  const { isAdmin } = useAuth();
   const handleToggle = useCallback(() => {
     setToggleSideBar((prev) => !prev);
   }, []);
@@ -114,44 +115,48 @@ export const Sidebar = () => {
             </div>
           )}
         </Nav.Link>
-        <Nav.Link as={Link} to="/gestion-usuarios" className="sidebar-item">
-          {!toggleSideBar ? (
-            <OverlayTrigger
-              placement="top"
-              overlay={
-                <Tooltip id="tooltip-usuarios">Gestión de Usuarios</Tooltip>
-              }
-            >
-              <div className="sidebar-link">
-                <FaUsersCog className="icon" />
-                <span>Gestión de Usuarios</span>
-              </div>
-            </OverlayTrigger>
-          ) : (
-            <div className="sidebar-link">
-              <FaUsersCog className="icon" />
-              <span>Gestión de Usuarios</span>
-            </div>
-          )}
-        </Nav.Link>
-        <Nav.Link as={Link} to="/reportes" className="sidebar-item">
-          {!toggleSideBar ? (
-            <OverlayTrigger
-              placement="top"
-              overlay={<Tooltip id="tooltip-reportes">Reportes</Tooltip>}
-            >
-              <div className="sidebar-link">
-                <TbReportAnalytics className="icon" />
-                <span>Reportes</span>
-              </div>
-            </OverlayTrigger>
-          ) : (
-            <div className="sidebar-link">
-              <TbReportAnalytics className="icon" />
-              <span>Reportes</span>
-            </div>
-          )}
-        </Nav.Link>
+        {isAdmin && (
+          <>
+            <Nav.Link as={Link} to="/gestion-usuarios" className="sidebar-item">
+              {!toggleSideBar ? (
+                <OverlayTrigger
+                  placement="top"
+                  overlay={
+                    <Tooltip id="tooltip-usuarios">Gestión de Usuarios</Tooltip>
+                  }
+                >
+                  <div className="sidebar-link">
+                    <FaUsersCog className="icon" />
+                    <span>Gestión de Usuarios</span>
+                  </div>
+                </OverlayTrigger>
+              ) : (
+                <div className="sidebar-link">
+                  <FaUsersCog className="icon" />
+                  <span>Gestión de Usuarios</span>
+                </div>
+              )}
+            </Nav.Link>
+            <Nav.Link as={Link} to="/reportes" className="sidebar-item">
+              {!toggleSideBar ? (
+                <OverlayTrigger
+                  placement="top"
+                  overlay={<Tooltip id="tooltip-reportes">Reportes</Tooltip>}
+                >
+                  <div className="sidebar-link">
+                    <TbReportAnalytics className="icon" />
+                    <span>Reportes</span>
+                  </div>
+                </OverlayTrigger>
+              ) : (
+                <div className="sidebar-link">
+                  <TbReportAnalytics className="icon" />
+                  <span>Reportes</span>
+                </div>
+              )}
+            </Nav.Link>
+          </>
+        )}
       </Nav>
     </aside>
   );

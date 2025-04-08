@@ -256,7 +256,7 @@ export const GestionTareas = () => {
               <Button variant="danger" onClick={handleCloseModal}>
                 Cancelar
               </Button>
-              <SubmitButton variant="success" className="ms-2">
+              <SubmitButton variant="success" className="ms-2 text-white">
                 {editingTarea ? 'Actualizar' : 'Crear'}
               </SubmitButton>
             </div>

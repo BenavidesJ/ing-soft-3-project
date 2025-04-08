@@ -24,6 +24,7 @@ export interface Usuario {
   Fecha_modificacion?: string;
   Perfil?: PerfilUsuario;
   Access_token?: string;
+  Roles?: Rol[];
 }
 
 // Estado

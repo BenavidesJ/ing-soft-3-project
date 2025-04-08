@@ -10,6 +10,7 @@ export * from './Loading/LoadingOverlay';
 export * from './Logo/Logo';
 export * from './Modal/CreateResourceModal';
 export * from './Modal/DetailsModal';
+export * from './Modal/ProjectCostModal';
 export * from './Modal/ReportModal';
 export * from './Modal/TableDetailModals/ProjectDetail';
 export * from './Modal/TableDetailModals/TaskDetail';

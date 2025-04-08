@@ -16,16 +16,19 @@ interface UserData {
   Apellido1: string;
   Apellido2?: string;
   Correo: string;
+  Contrasena?: string;
   Activo: boolean;
   Fecha_creacion?: string;
   Fecha_modificacion?: string;
   Perfil?: PerfilUsuario;
   Access_token?: string;
+  Roles?: any[];
 }
 
 interface AuthContextProps {
   currentUser: UserData | undefined;
   isAuthenticated: boolean;
+  isAdmin: boolean;
   startSession: (userData: UserData) => void;
   endSession: () => void;
   setCurrentUser: (value: React.SetStateAction<UserData | undefined>) => void;
@@ -39,6 +42,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     currentUserSession()
   );
   const [currentUser, setCurrentUser] = useState<UserData | undefined>();
+  const [hasAdminRights, setHasAdminRights] = useState<boolean>(false);
 
   const startSession = async (userData: UserData) => {
     localStorage.setItem('user', JSON.stringify(userData));
@@ -58,6 +62,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    if (currentUser) {
+      const isAdmin = currentUser.Roles?.some(
+        (role) => role === 'ADMINISTRADOR'
+      );
+      setHasAdminRights(isAdmin || false);
+    }
+  }, [currentUser]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -66,6 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         endSession,
         isAuthenticated,
         setCurrentUser,
+        isAdmin: hasAdminRights,
       }}
     >
       {children}

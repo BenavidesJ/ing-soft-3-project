@@ -15,6 +15,7 @@ import {
   createProyecto,
   updateProyecto,
   deleteProyecto,
+  createCosto,
 } from '../../services/proyecto';
 import { getAllEstados } from '../../services/estado';
 import { getAllTareas } from '../../services/tarea';
@@ -25,9 +26,11 @@ import { formatCurrency } from '../../utils/formatCurrency';
 import {
   ActionTable,
   ActionTableColumn,
+  CostModal,
   EstadoBadges,
   LoadingOverlay,
 } from '../../components';
+import { showToast } from '../../services/toastService';
 
 const projectSchema = z.object({
   Nombre: z.string().min(1, 'El nombre es obligatorio'),
@@ -35,9 +38,9 @@ const projectSchema = z.object({
   Objetivo: z.string().min(1, 'El objetivo es obligatorio'),
   FechaInicio: z.string().min(1, 'La fecha de inicio es obligatoria'),
   FechaFin: z
-    .string()
+    .union([z.string(), z.null()])
     .optional()
-    .transform((val) => (val === '' ? undefined : val)),
+    .transform((val) => (val === null || val === '' ? undefined : val)),
   Presupuesto: z.preprocess(
     (val) => Number(val),
     z.number({ invalid_type_error: 'El presupuesto debe ser un número' })
@@ -53,6 +56,9 @@ export const GestionProyectos = () => {
   const [editingProject, setEditingProject] = useState<Proyecto | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<number | null>(null);
+  const [showCostModal, setShowCostModal] = useState(false);
+  // Almacena la data pendiente para actualizar el proyecto a finalizado
+  const [pendingFinalizadoData, setPendingFinalizadoData] = useState<any>(null);
   const { setLoading } = useLoading();
 
   const fetchProjects = async () => {
@@ -101,6 +107,7 @@ export const GestionProyectos = () => {
     setEditingProject(null);
   };
 
+  // Función que se ejecuta al enviar el formulario de creación/edición de proyecto
   const onSubmit = async (data: any) => {
     try {
       setLoading(true);
@@ -116,10 +123,21 @@ export const GestionProyectos = () => {
       }
 
       if (editingProject) {
-        await updateProyecto({
-          idProyecto: editingProject.idProyecto,
-          ...data,
-        });
+        // Si se intenta cambiar a "finalizado", guardamos la data pendiente y mostramos el modal de costo
+        if (data.Status && data.Status.toLowerCase() === 'finalizado') {
+          setPendingFinalizadoData({
+            idProyecto: editingProject.idProyecto,
+            ...data,
+          });
+          setShowCostModal(true);
+          handleCloseModal();
+          return; // Salir para esperar el costo
+        } else {
+          await updateProyecto({
+            idProyecto: editingProject.idProyecto,
+            ...data,
+          });
+        }
       } else {
         await createProyecto({ ...data, Status: 'Pendiente' });
       }
@@ -156,6 +174,36 @@ export const GestionProyectos = () => {
   const cancelDeleteProject = () => {
     setShowDeleteConfirm(false);
     setProjectToDelete(null);
+  };
+
+  // Callback que se llama desde el CostModal cuando se ingresa el costo final
+  const handleCostSubmit = async (costData: { CostoTotal: number }) => {
+    try {
+      setLoading(true);
+      // Actualizamos el proyecto a finalizado (usando la data pendiente)
+      await updateProyecto(pendingFinalizadoData);
+      // Luego agregamos el costo final al proyecto
+      await createCosto({
+        idProyecto: pendingFinalizadoData.idProyecto,
+        CostoTotal: costData.CostoTotal,
+      });
+      await fetchProjects();
+      setPendingFinalizadoData(null);
+      setShowCostModal(false);
+    } catch (err: any) {
+      console.error('Error al agregar el costo final:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCostModalCancel = () => {
+    showToast(
+      'No se puede cambiar el estado a finalizado sin agregar un costo final'
+    );
+
+    setShowCostModal(false);
+    setPendingFinalizadoData(null);
   };
 
   const columns: ActionTableColumn<Proyecto>[] = [
@@ -241,7 +289,6 @@ export const GestionProyectos = () => {
         )}
       </div>
 
-      {/* Modal para crear/editar proyecto */}
       <Modal show={showModal} onHide={handleCloseModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>
@@ -309,10 +356,14 @@ export const GestionProyectos = () => {
               />
             )}
             <div className="d-flex justify-content-end mt-3">
-              <Button variant="secondary" onClick={handleCloseModal}>
+              <Button
+                variant="danger"
+                className="text-white"
+                onClick={handleCloseModal}
+              >
                 Cancelar
               </Button>
-              <SubmitButton variant="primary" className="ms-2">
+              <SubmitButton variant="success" className="ms-2 text-white">
                 {editingProject ? 'Actualizar' : 'Crear'}
               </SubmitButton>
             </div>
@@ -327,6 +378,15 @@ export const GestionProyectos = () => {
         onConfirm={confirmDeleteProject}
         onCancel={cancelDeleteProject}
       />
+
+      {showCostModal && pendingFinalizadoData && (
+        <CostModal
+          show={showCostModal}
+          onHide={handleCostModalCancel}
+          projectId={pendingFinalizadoData.idProyecto}
+          onCostSubmitted={handleCostSubmit}
+        />
+      )}
     </PrivateLayout>
   );
 };

@@ -8,11 +8,11 @@ import {
   DefaultValues,
 } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { ZodSchema } from 'zod';
+import type { ZodType, ZodTypeDef } from 'zod';
 
 export interface FormProps<T extends FieldValues> {
   children: ReactNode;
-  schema: ZodSchema<T>;
+  schema: ZodType<T, ZodTypeDef, any>;
   onSubmit: SubmitHandler<T>;
   defaultValues?: DefaultValues<T> | undefined;
   mode?: 'onSubmit' | 'onBlur' | 'onChange' | 'onTouched' | 'all';

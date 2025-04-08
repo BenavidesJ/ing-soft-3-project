@@ -130,20 +130,11 @@ export const Dashboard = () => {
               <Card.Title>
                 Tareas activas asignadas a {currentUser?.Nombre}
               </Card.Title>
-              <div
-                style={{
-                  height: '200px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <SimpleTable
-                  data={tareas}
-                  columns={tareasColumns}
-                  rowStyle={(row) => getRowStyle(row)}
-                />
-              </div>
+              <SimpleTable
+                data={tareas}
+                columns={tareasColumns}
+                rowStyle={(row) => getRowStyle(row)}
+              />
             </Card.Body>
           </Card>
         </Col>
