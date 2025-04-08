@@ -53,6 +53,10 @@ export const reportAvancePorProyectos = async (req, res, next) => {
           model: Estado,
           attributes: ['NombreEstado'],
         },
+        {
+          model: Costo,
+          attributes: ['CostoTotal'],
+        },
       ],
     });
 
@@ -90,6 +94,13 @@ export const reportAvancePorProyectos = async (req, res, next) => {
         }
       }
 
+      const costoFinal = project.Costos
+        ? project.Costos.reduce(
+            (sum, cost) => sum + parseFloat(cost.CostoTotal),
+            0
+          )
+        : 0;
+
       return {
         idProyecto: project.idProyecto,
         Nombre: project.Nombre,
@@ -105,6 +116,8 @@ export const reportAvancePorProyectos = async (req, res, next) => {
         tareasEnProgreso: enProgreso,
         tareasPendientes: pendientes,
         porcentajeFinalizacion,
+        presupuesto: project.Presupuesto,
+        costoFinal,
       };
     });
 
