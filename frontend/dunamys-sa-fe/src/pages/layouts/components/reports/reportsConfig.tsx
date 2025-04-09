@@ -17,514 +17,864 @@ import {
 import dayjs from 'dayjs';
 import { BrandName } from '../../../../utils/strings';
 import { useAuth } from '../../../../context';
+import { PaginatedPDFTemplate } from './PaginatedPDFTemplate';
 
-export const AvanceReportPDFTemplate: React.FC<{ data: any[] }> = ({
-  data,
-}) => {
+const getHeader = (title: string, length: number) => {
   const { currentUser } = useAuth();
-  const currentDateTime = dayjs().format('DD/MM/YYYY HH:mm:ss A ');
-
-  if (!data || data.length === 0) {
-    return (
-      <div
-        style={{
-          fontFamily: 'Arial, sans-serif',
-          color: '#333',
-          padding: '10px',
-        }}
-      >
-        <h2>{BrandName}</h2>
-        <p>No se encontraron proyectos para mostrar.</p>
-      </div>
-    );
-  }
-
+  const currentDateTime = dayjs().format('DD/MM/YYYY hh:mm:ss A');
   return (
     <div
       style={{
-        fontFamily: 'Arial, sans-serif',
-        color: '#000',
+        textAlign: 'center',
         padding: '10px',
+        background: '#0b5a5e',
+        color: '#fff',
       }}
     >
-      {/* ENCABEZADO */}
-      <div
-        style={{
-          textAlign: 'center',
-          padding: '20px',
-          background: '#0b5a5e',
-          marginBottom: '20px',
-          color: '#fff',
-        }}
-      >
-        <h3 style={{ margin: 0 }}>{BrandName}</h3>
-        <h4 style={{ textDecoration: 'underline', marginTop: '10px' }}>
-          REPORTE DE AVANCE POR PROYECTOS
-        </h4>
+      <h3 style={{ margin: 0 }}>{BrandName}</h3>
+      <h4 style={{ textDecoration: 'underline', marginTop: '5px' }}>{title}</h4>
+      <div style={{ marginTop: '10px' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <tbody>
+            <tr>
+              <td
+                style={{
+                  width: '33%',
+                  border: '1px solid #000',
+                  padding: '5px',
+                }}
+              >
+                Fecha del Reporte:
+              </td>
+              <td
+                style={{
+                  width: '33%',
+                  border: '1px solid #000',
+                  padding: '5px',
+                }}
+              >
+                Nombre Responsable:
+              </td>
+              <td
+                style={{
+                  width: '34%',
+                  border: '1px solid #000',
+                  padding: '5px',
+                }}
+              >
+                Total de Proyectos:
+              </td>
+            </tr>
+            <tr>
+              <td style={{ border: '1px solid #000', padding: '5px' }}>
+                {currentDateTime}
+              </td>
+              <td style={{ border: '1px solid #000', padding: '5px' }}>
+                {currentUser?.Nombre || 'Sin asignar'}
+              </td>
+              <td style={{ border: '1px solid #000', padding: '5px' }}>
+                {length}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-
-      {/* RESUMEN DEL REPORTE */}
-      <h5 style={{ background: '#0b5a5e', color: '#fff', padding: '5px' }}>
-        RESUMEN DEL REPORTE
-      </h5>
-      <table
-        style={{
-          width: '100%',
-          borderCollapse: 'collapse',
-          marginBottom: '20px',
-        }}
-      >
-        <tbody>
-          <tr>
-            <td
-              style={{ width: '33%', border: '1px solid #000', padding: '5px' }}
-            >
-              Fecha del Reporte:
-            </td>
-            <td
-              style={{ width: '33%', border: '1px solid #000', padding: '5px' }}
-            >
-              Nombre Responsable:
-            </td>
-            <td
-              style={{ width: '34%', border: '1px solid #000', padding: '5px' }}
-            >
-              Total de Proyectos:
-            </td>
-          </tr>
-          <tr>
-            <td style={{ border: '1px solid #000', padding: '5px' }}>
-              {currentDateTime}
-            </td>
-            <td style={{ border: '1px solid #000', padding: '5px' }}>
-              {currentUser?.Nombre || 'Sin asignar'}
-            </td>
-            <td style={{ border: '1px solid #000', padding: '5px' }}>
-              {data.length}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h5 style={{ background: '#0b5a5e', color: '#fff', padding: '5px' }}>
-        AVANCE
-      </h5>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th style={{ border: '1px solid #000', padding: '5px' }}>
-              ID Proyecto
-            </th>
-            <th style={{ border: '1px solid #000', padding: '5px' }}>
-              Fecha Inicio Planeada
-            </th>
-            <th style={{ border: '1px solid #000', padding: '5px' }}>
-              Fecha Fin Planeada
-            </th>
-            <th style={{ border: '1px solid #000', padding: '5px' }}>
-              Avance Real
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((proyecto, index) => {
-            const {
-              idProyecto,
-              FechaInicio = '',
-              FechaFin = '',
-              porcentajeFinalizacion = 0,
-            } = proyecto;
-
-            return (
-              <tr key={index}>
-                <td style={{ border: '1px solid #000', padding: '5px' }}>
-                  {idProyecto}
-                </td>
-                <td style={{ border: '1px solid #000', padding: '5px' }}>
-                  {FechaInicio}
-                </td>
-                <td style={{ border: '1px solid #000', padding: '5px' }}>
-                  {FechaFin || 'Sin definir'}
-                </td>
-                <td style={{ border: '1px solid #000', padding: '5px' }}>
-                  {porcentajeFinalizacion}%
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-
-      {/* Sección opcional: PRESUPUESTO Y GASTO */}
-      <h5
-        style={{
-          background: '#0b5a5e',
-          color: '#fff',
-          padding: '5px',
-          marginTop: '10px',
-        }}
-      >
-        PRESUPUESTO Y GASTO
-      </h5>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th style={{ border: '1px solid #000', padding: '5px' }}>
-              ID Proyecto
-            </th>
-            <th style={{ border: '1px solid #000', padding: '5px' }}>
-              Presupuesto
-            </th>
-            <th style={{ border: '1px solid #000', padding: '5px' }}>Costo</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((proyecto, index) => {
-            const { idProyecto, presupuesto = 0, costoTotal = 0 } = proyecto;
-
-            return (
-              <tr key={index}>
-                <td style={{ border: '1px solid #000', padding: '5px' }}>
-                  {idProyecto}
-                </td>
-                <td style={{ border: '1px solid #000', padding: '5px' }}>
-                  {presupuesto}
-                </td>
-                <td style={{ border: '1px solid #000', padding: '5px' }}>
-                  {costoTotal}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
     </div>
   );
 };
 
+export const AvanceReportPDFTemplate: React.FC<any> = ({ data }) => {
+  const itemsPerPage = 4;
+
+  // Función para renderizar el contenido (tabla) para cada página
+  const renderPageContent = (pageData: any[]) => {
+    return (
+      <>
+        <div style={{ marginTop: '10mm' }}>
+          <h5 style={{ background: '#0b5a5e', color: '#fff', padding: '5px' }}>
+            AVANCE
+          </h5>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                <th style={{ border: '1px solid #000', padding: '5px' }}>
+                  ID Proyecto
+                </th>
+                <th style={{ border: '1px solid #000', padding: '5px' }}>
+                  Fecha Inicio Planeada
+                </th>
+                <th style={{ border: '1px solid #000', padding: '5px' }}>
+                  Fecha Fin Planeada
+                </th>
+                <th style={{ border: '1px solid #000', padding: '5px' }}>
+                  Avance Real
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {pageData.map((proyecto, index) => {
+                const {
+                  idProyecto,
+                  FechaInicio = '',
+                  FechaFin = '',
+                  porcentajeFinalizacion = 0,
+                } = proyecto;
+                return (
+                  <tr key={index}>
+                    <td style={{ border: '1px solid #000', padding: '5px' }}>
+                      {idProyecto}
+                    </td>
+                    <td style={{ border: '1px solid #000', padding: '5px' }}>
+                      {FechaInicio}
+                    </td>
+                    <td style={{ border: '1px solid #000', padding: '5px' }}>
+                      {FechaFin || 'Sin definir'}
+                    </td>
+                    <td style={{ border: '1px solid #000', padding: '5px' }}>
+                      {porcentajeFinalizacion}%
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        <div style={{ marginTop: '10mm' }}>
+          <h5 style={{ background: '#0b5a5e', color: '#fff', padding: '5px' }}>
+            PRESUPUESTO Y GASTO
+          </h5>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                <th style={{ border: '1px solid #000', padding: '5px' }}>
+                  ID Proyecto
+                </th>
+                <th style={{ border: '1px solid #000', padding: '5px' }}>
+                  Presupuesto
+                </th>
+                <th style={{ border: '1px solid #000', padding: '5px' }}>
+                  Costo
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {pageData.map((proyecto, index) => {
+                const {
+                  idProyecto,
+                  presupuesto = 0,
+                  costoTotal = 0,
+                } = proyecto;
+                return (
+                  <tr key={index}>
+                    <td style={{ border: '1px solid #000', padding: '5px' }}>
+                      {idProyecto}
+                    </td>
+                    <td style={{ border: '1px solid #000', padding: '5px' }}>
+                      {presupuesto}
+                    </td>
+                    <td style={{ border: '1px solid #000', padding: '5px' }}>
+                      {costoTotal}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </>
+    );
+  };
+
+  // Footer se define en el componente PDFPage (se usa su default o se puede pasar mediante prop)
+  const footer = (pageNumber: number, totalPages: number) => (
+    <div>
+      Pag {pageNumber}/{totalPages}
+    </div>
+  );
+
+  return (
+    <PaginatedPDFTemplate
+      data={data}
+      itemsPerPage={itemsPerPage}
+      renderPageContent={renderPageContent}
+      header={getHeader('REPORTE DE AVANCE POR PROYECTOS', data.length)}
+      footer={footer}
+    />
+  );
+};
+
 /** Plantilla PDF para Reporte Financiero de Proyectos */
-export const FinancieroReportPDFTemplate: React.FC<{ data: any[] }> = ({
-  data,
-}) => (
-  <div>
-    <h2>Reporte Financiero de Proyectos</h2>
-    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-      <thead>
-        <tr>
-          <th style={{ border: '1px solid #000' }}>ID Proyecto</th>
-          <th style={{ border: '1px solid #000' }}>Nombre</th>
-          <th style={{ border: '1px solid #000' }}>Presupuesto</th>
-          <th style={{ border: '1px solid #000' }}>Costo Total</th>
-          <th style={{ border: '1px solid #000' }}>Ajuste</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((row, i) => (
-          <tr key={i}>
-            <td style={{ border: '1px solid #000' }}>{row.idProyecto}</td>
-            <td style={{ border: '1px solid #000' }}>{row.Nombre}</td>
-            <td style={{ border: '1px solid #000' }}>{row.presupuesto}</td>
-            <td style={{ border: '1px solid #000' }}>{row.costoTotal}</td>
-            <td style={{ border: '1px solid #000' }}>
-              {row.ajustePresupuesto}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-);
+export const FinancieroReportPDFTemplate: React.FC<any> = ({ data }) => {
+  const itemsPerPage = 4;
+
+  // La función que renderiza el contenido de cada página (tabla con 4 registros)
+  const renderPageContent = (pageData: any[]) => {
+    return (
+      <div>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>
+                ID Proyecto
+              </th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>
+                Nombre
+              </th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>
+                Presupuesto
+              </th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>
+                Costo Total
+              </th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>
+                Ajuste
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {pageData.map((row, index) => (
+              <tr key={index}>
+                <td style={{ border: '1px solid #000', padding: '5px' }}>
+                  {row.idProyecto}
+                </td>
+                <td style={{ border: '1px solid #000', padding: '5px' }}>
+                  {row.Nombre}
+                </td>
+                <td style={{ border: '1px solid #000', padding: '5px' }}>
+                  {row.presupuesto}
+                </td>
+                <td style={{ border: '1px solid #000', padding: '5px' }}>
+                  {row.costoTotal}
+                </td>
+                <td style={{ border: '1px solid #000', padding: '5px' }}>
+                  {row.ajustePresupuesto}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  // Footer puede definirse de forma simple
+  const footer = (pageNumber: number, totalPages: number) => (
+    <div style={{ textAlign: 'right' }}>
+      Pag {pageNumber}/{totalPages}
+    </div>
+  );
+
+  return (
+    <PaginatedPDFTemplate
+      data={data}
+      itemsPerPage={itemsPerPage}
+      renderPageContent={renderPageContent}
+      header={getHeader('REPORTE FINANCIERO', data.length)}
+      footer={footer}
+    />
+  );
+};
 
 /** Plantilla PDF para Reporte de Asignación de Recursos */
-export const AsignacionRecursosPDFTemplate: React.FC<{ data: any[] }> = ({
-  data,
-}) => (
-  <div>
-    <h2>Reporte de Asignación de Recursos</h2>
-    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-      <thead>
-        <tr>
-          <th style={{ border: '1px solid #000' }}>ID Tarea</th>
-          <th style={{ border: '1px solid #000' }}>Nombre Tarea</th>
-          <th style={{ border: '1px solid #000' }}>Recursos</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((row, i) => (
-          <tr key={i}>
-            <td style={{ border: '1px solid #000' }}>{row.idTarea}</td>
-            <td style={{ border: '1px solid #000' }}>{row.NombreTarea}</td>
-            <td style={{ border: '1px solid #000' }}>
-              {row.Recursos &&
-                row.Recursos.map((r: any) => r.Nombre).join(', ')}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-);
+export const AsignacionRecursosPDFTemplate: React.FC<any> = ({ data }) => {
+  const itemsPerPage = 4;
+  const header = getHeader('REPORTE DE ASIGNACIÓN DE RECURSOS', data.length);
 
-/** Plantilla PDF para Reporte de Carga de Trabajo por Miembro */
-export const CargaTrabajoPDFTemplate: React.FC<{ data: any[] }> = ({
-  data,
-}) => (
-  <div>
-    <h2>Reporte de Carga de Trabajo por Miembro</h2>
-    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-      <thead>
-        <tr>
-          <th style={{ border: '1px solid #000' }}>ID Usuario</th>
-          <th style={{ border: '1px solid #000' }}>Nombre</th>
-          <th style={{ border: '1px solid #000' }}>Total Tareas</th>
-          <th style={{ border: '1px solid #000' }}>Completadas</th>
-          <th style={{ border: '1px solid #000' }}>En Progreso</th>
-          <th style={{ border: '1px solid #000' }}>Pendientes</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((row, i) => (
-          <tr key={i}>
-            <td style={{ border: '1px solid #000' }}>{row.idUsuario}</td>
-            <td style={{ border: '1px solid #000' }}>{row.Nombre}</td>
-            <td style={{ border: '1px solid #000' }}>{row.totalTareas}</td>
-            <td style={{ border: '1px solid #000' }}>
-              {row.tareasCompletadas}
-            </td>
-            <td style={{ border: '1px solid #000' }}>{row.tareasEnProgreso}</td>
-            <td style={{ border: '1px solid #000' }}>{row.tareasPendientes}</td>
+  const renderPageContent = (pageData: any[]) => {
+    return (
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr>
+            <th style={{ border: '1px solid #000', padding: '5px' }}>
+              ID Tarea
+            </th>
+            <th style={{ border: '1px solid #000', padding: '5px' }}>
+              Nombre Tarea
+            </th>
+            <th style={{ border: '1px solid #000', padding: '5px' }}>
+              Recursos
+            </th>
           </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-);
+        </thead>
+        <tbody>
+          {pageData.map((row, i) => (
+            <tr key={i}>
+              <td style={{ border: '1px solid #000', padding: '5px' }}>
+                {row.idTarea}
+              </td>
+              <td style={{ border: '1px solid #000', padding: '5px' }}>
+                {row.NombreTarea}
+              </td>
+              <td style={{ border: '1px solid #000', padding: '5px' }}>
+                {row.Recursos
+                  ? row.Recursos.map((r: any) => r.Nombre).join(', ')
+                  : '-'}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  };
+
+  const footer = (pageNumber: number, totalPages: number) => (
+    <div style={{ textAlign: 'right' }}>
+      Pag {pageNumber}/{totalPages}
+    </div>
+  );
+
+  return (
+    <PaginatedPDFTemplate
+      data={data}
+      itemsPerPage={itemsPerPage}
+      renderPageContent={renderPageContent}
+      header={header}
+      footer={footer}
+    />
+  );
+};
+/** Plantilla PDF para Reporte de Carga de Trabajo por Miembro */
+export const CargaTrabajoPDFTemplate: React.FC<any> = ({ data }) => {
+  const itemsPerPage = 4;
+  const header = getHeader(
+    'REPORTE DE CARGA DE TRABAJO POR MIEMBRO',
+    data.length
+  );
+
+  const renderPageContent = (pageData: any[]) => {
+    return (
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr>
+            <th style={{ border: '1px solid #000', padding: '5px' }}>
+              ID Usuario
+            </th>
+            <th style={{ border: '1px solid #000', padding: '5px' }}>Nombre</th>
+            <th style={{ border: '1px solid #000', padding: '5px' }}>
+              Total Tareas
+            </th>
+            <th style={{ border: '1px solid #000', padding: '5px' }}>
+              Completadas
+            </th>
+            <th style={{ border: '1px solid #000', padding: '5px' }}>
+              En Progreso
+            </th>
+            <th style={{ border: '1px solid #000', padding: '5px' }}>
+              Pendientes
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {pageData.map((row, i) => (
+            <tr key={i}>
+              <td style={{ border: '1px solid #000', padding: '5px' }}>
+                {row.idUsuario}
+              </td>
+              <td style={{ border: '1px solid #000', padding: '5px' }}>
+                {row.Nombre}
+              </td>
+              <td style={{ border: '1px solid #000', padding: '5px' }}>
+                {row.totalTareas}
+              </td>
+              <td style={{ border: '1px solid #000', padding: '5px' }}>
+                {row.tareasCompletadas}
+              </td>
+              <td style={{ border: '1px solid #000', padding: '5px' }}>
+                {row.tareasEnProgreso}
+              </td>
+              <td style={{ border: '1px solid #000', padding: '5px' }}>
+                {row.tareasPendientes}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  };
+
+  const footer = (pageNumber: number, totalPages: number) => (
+    <div style={{ textAlign: 'right' }}>
+      Pag {pageNumber}/{totalPages}
+    </div>
+  );
+
+  return (
+    <PaginatedPDFTemplate
+      data={data}
+      itemsPerPage={itemsPerPage}
+      renderPageContent={renderPageContent}
+      header={header}
+      footer={footer}
+    />
+  );
+};
 
 /** Plantilla PDF para Reporte Comparativo de Proyectos */
-export const ComparativoPDFTemplate: React.FC<{ data: any[] }> = ({ data }) => (
-  <div>
-    <h2>Reporte Comparativo: Proyectos Planificados vs. Ejecutados</h2>
-    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-      <thead>
-        <tr>
-          <th style={{ border: '1px solid #000' }}>ID Proyecto</th>
-          <th style={{ border: '1px solid #000' }}>Nombre</th>
-          <th style={{ border: '1px solid #000' }}>Total Tareas</th>
-          <th style={{ border: '1px solid #000' }}>Ejecutadas</th>
-          <th style={{ border: '1px solid #000' }}>Pendientes</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((row, i) => (
-          <tr key={i}>
-            <td style={{ border: '1px solid #000' }}>{row.idProyecto}</td>
-            <td style={{ border: '1px solid #000' }}>{row.Nombre}</td>
-            <td style={{ border: '1px solid #000' }}>
-              {row.totalTareasPlanificadas}
-            </td>
-            <td style={{ border: '1px solid #000' }}>{row.tareasEjecutadas}</td>
-            <td style={{ border: '1px solid #000' }}>{row.tareasPendientes}</td>
+export const ComparativoPDFTemplate: React.FC<any> = ({ data }) => {
+  const itemsPerPage = 4;
+
+  // Genera el header reutilizable usando la función getHeader
+  const header = getHeader(
+    'REPORTE COMPARATIVO: PROYECTOS PLANIFICADOS VS. EJECUTADOS',
+    data.length
+  );
+
+  // Función que renderiza la tabla con los registros de cada página
+  const renderPageContent = (pageData: any[]) => {
+    return (
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr>
+            <th style={{ border: '1px solid #000', padding: '5px' }}>
+              ID Proyecto
+            </th>
+            <th style={{ border: '1px solid #000', padding: '5px' }}>Nombre</th>
+            <th style={{ border: '1px solid #000', padding: '5px' }}>
+              Total Tareas
+            </th>
+            <th style={{ border: '1px solid #000', padding: '5px' }}>
+              Ejecutadas
+            </th>
+            <th style={{ border: '1px solid #000', padding: '5px' }}>
+              Pendientes
+            </th>
           </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-);
+        </thead>
+        <tbody>
+          {pageData.map((row, i) => (
+            <tr key={i}>
+              <td style={{ border: '1px solid #000', padding: '5px' }}>
+                {row.idProyecto}
+              </td>
+              <td style={{ border: '1px solid #000', padding: '5px' }}>
+                {row.Nombre}
+              </td>
+              <td style={{ border: '1px solid #000', padding: '5px' }}>
+                {row.totalTareasPlanificadas}
+              </td>
+              <td style={{ border: '1px solid #000', padding: '5px' }}>
+                {row.tareasEjecutadas}
+              </td>
+              <td style={{ border: '1px solid #000', padding: '5px' }}>
+                {row.tareasPendientes}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  };
+
+  // Definición sencilla del footer
+  const footer = (pageNumber: number, totalPages: number) => (
+    <div style={{ textAlign: 'right' }}>
+      Pag {pageNumber}/{totalPages}
+    </div>
+  );
+
+  return (
+    <PaginatedPDFTemplate
+      data={data}
+      itemsPerPage={itemsPerPage}
+      renderPageContent={renderPageContent}
+      header={header}
+      footer={footer}
+    />
+  );
+};
 
 /** Plantilla PDF para Reporte de Tareas Pendientes y Vencidas */
-export const TareasPendientesPDFTemplate: React.FC<{ data: any[] }> = ({
-  data,
-}) => (
-  <div>
-    <h2>Reporte de Tareas Pendientes y Vencidas</h2>
+export const TareasPendientesPDFTemplate: React.FC<any> = ({ data }) => {
+  const itemsPerPage = 4;
+  const header = getHeader(
+    'REPORTE DE TAREAS PENDIENTES Y VENCIDAS',
+    data.length
+  );
+
+  const renderPageContent = (pageData: any[]) => (
     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
       <thead>
         <tr>
-          <th style={{ border: '1px solid #000' }}>ID Tarea</th>
-          <th style={{ border: '1px solid #000' }}>Nombre</th>
-          <th style={{ border: '1px solid #000' }}>Fecha Fin</th>
-          <th style={{ border: '1px solid #000' }}>Vencida</th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>ID Tarea</th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>Nombre</th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>
+            Fecha Fin
+          </th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>Vencida</th>
         </tr>
       </thead>
       <tbody>
-        {data.map((row, i) => (
+        {pageData.map((row, i) => (
           <tr key={i}>
-            <td style={{ border: '1px solid #000' }}>{row.idTarea}</td>
-            <td style={{ border: '1px solid #000' }}>{row.Nombre}</td>
-            <td style={{ border: '1px solid #000' }}>{row.FechaFin}</td>
-            <td style={{ border: '1px solid #000' }}>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
+              {row.idTarea}
+            </td>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
+              {row.Nombre}
+            </td>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
+              {row.FechaFin}
+            </td>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
               {row.vencida ? 'Sí' : 'No'}
             </td>
           </tr>
         ))}
       </tbody>
     </table>
-  </div>
-);
+  );
+
+  const footer = (pageNumber: number, totalPages: number) => (
+    <div style={{ textAlign: 'right' }}>
+      Pag {pageNumber}/{totalPages}
+    </div>
+  );
+
+  return (
+    <PaginatedPDFTemplate
+      data={data}
+      itemsPerPage={itemsPerPage}
+      renderPageContent={renderPageContent}
+      header={header}
+      footer={footer}
+    />
+  );
+};
 
 /** Plantilla PDF para Reporte de Proyectos por Estado */
-export const ProyectosEstadoPDFTemplate: React.FC<{ data: any[] }> = ({
-  data,
-}) => (
-  <div>
-    <h2>Reporte de Proyectos por Estado</h2>
+export const ProyectosEstadoPDFTemplate: React.FC<any> = ({ data }) => {
+  const itemsPerPage = 4;
+  const header = getHeader('REPORTE DE PROYECTOS POR ESTADO', data.length);
+
+  const renderPageContent = (pageData: any[]) => (
     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
       <thead>
         <tr>
-          <th style={{ border: '1px solid #000' }}>Estado</th>
-          <th style={{ border: '1px solid #000' }}>Proyectos</th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>Estado</th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>
+            Proyectos
+          </th>
         </tr>
       </thead>
       <tbody>
-        {data.map((row, i) => (
+        {pageData.map((row, i) => (
           <tr key={i}>
-            <td style={{ border: '1px solid #000' }}>{row.estado}</td>
-            <td style={{ border: '1px solid #000' }}>{row.proyectos}</td>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
+              {row.estado}
+            </td>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
+              {row.proyectos}
+            </td>
           </tr>
         ))}
       </tbody>
     </table>
-  </div>
-);
+  );
+
+  const footer = (pageNumber: number, totalPages: number) => (
+    <div style={{ textAlign: 'right' }}>
+      Pag {pageNumber}/{totalPages}
+    </div>
+  );
+
+  return (
+    <PaginatedPDFTemplate
+      data={data}
+      itemsPerPage={itemsPerPage}
+      renderPageContent={renderPageContent}
+      header={header}
+      footer={footer}
+    />
+  );
+};
 
 /** Plantilla PDF para Reporte de Actividad en el Sistema */
-export const ActividadSistemaPDFTemplate: React.FC<{ data: any[] }> = ({
-  data,
-}) => (
-  <div>
-    <h2>Reporte de Actividad en el Sistema</h2>
+export const ActividadSistemaPDFTemplate: React.FC<any> = ({ data }) => {
+  const itemsPerPage = 4;
+
+  // Genera el header usando getHeader
+  const header = getHeader('REPORTE DE ACTIVIDAD EN EL SISTEMA', data.length);
+
+  // Función para renderizar la tabla con los datos de cada página
+  const renderPageContent = (pageData: any[]) => (
     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
       <thead>
         <tr>
-          <th style={{ border: '1px solid #000' }}>ID Evento</th>
-          <th style={{ border: '1px solid #000' }}>Tiempo</th>
-          <th style={{ border: '1px solid #000' }}>Tabla</th>
-          <th style={{ border: '1px solid #000' }}>Tipo</th>
-          <th style={{ border: '1px solid #000' }}>Descripción</th>
-          <th style={{ border: '1px solid #000' }}>ID Usuario</th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>
+            ID Evento
+          </th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>Tiempo</th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>Tabla</th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>Tipo</th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>
+            Descripción
+          </th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>
+            ID Usuario
+          </th>
         </tr>
       </thead>
       <tbody>
-        {data.map((row, i) => (
+        {pageData.map((row, i) => (
           <tr key={i}>
-            <td style={{ border: '1px solid #000' }}>{row.idEvento}</td>
-            <td style={{ border: '1px solid #000' }}>{row.Tiempo_evento}</td>
-            <td style={{ border: '1px solid #000' }}>{row.Tabla_afectada}</td>
-            <td style={{ border: '1px solid #000' }}>{row.Tipo_evento}</td>
-            <td style={{ border: '1px solid #000' }}>{row.Descripcion}</td>
-            <td style={{ border: '1px solid #000' }}>{row.idUsuario}</td>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
+              {row.idEvento}
+            </td>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
+              {row.Tiempo_evento}
+            </td>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
+              {row.Tabla_afectada}
+            </td>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
+              {row.Tipo_evento}
+            </td>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
+              {row.Descripcion}
+            </td>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
+              {row.idUsuario}
+            </td>
           </tr>
         ))}
       </tbody>
     </table>
-  </div>
-);
+  );
+
+  // Footer simple
+  const footer = (pageNumber: number, totalPages: number) => (
+    <div style={{ textAlign: 'right' }}>
+      Pag {pageNumber}/{totalPages}
+    </div>
+  );
+
+  return (
+    <PaginatedPDFTemplate
+      data={data}
+      itemsPerPage={itemsPerPage}
+      renderPageContent={renderPageContent}
+      header={header}
+      footer={footer}
+    />
+  );
+};
 
 /** Plantilla PDF para Reporte de Tareas por Fecha de Vencimiento */
-export const TareasFechaPDFTemplate: React.FC<{ data: any[] }> = ({ data }) => (
-  <div>
-    <h2>Reporte de Tareas por Fecha de Vencimiento</h2>
+export const TareasFechaPDFTemplate: React.FC<any> = ({ data }) => {
+  const itemsPerPage = 4;
+
+  const header = getHeader(
+    'REPORTE DE TAREAS POR FECHA DE VENCIMIENTO',
+    data.length
+  );
+
+  const renderPageContent = (pageData: any[]) => (
     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
       <thead>
         <tr>
-          <th style={{ border: '1px solid #000' }}>ID Tarea</th>
-          <th style={{ border: '1px solid #000' }}>Nombre</th>
-          <th style={{ border: '1px solid #000' }}>Fecha Fin</th>
-          <th style={{ border: '1px solid #000' }}>Estado</th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>ID Tarea</th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>Nombre</th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>
+            Fecha Fin
+          </th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>Estado</th>
         </tr>
       </thead>
       <tbody>
-        {data.map((row, i) => (
+        {pageData.map((row, i) => (
           <tr key={i}>
-            <td style={{ border: '1px solid #000' }}>{row.idTarea}</td>
-            <td style={{ border: '1px solid #000' }}>{row.Nombre}</td>
-            <td style={{ border: '1px solid #000' }}>{row.FechaFin}</td>
-            <td style={{ border: '1px solid #000' }}>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
+              {row.idTarea}
+            </td>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
+              {row.Nombre}
+            </td>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
+              {row.FechaFin}
+            </td>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
               {row.Estado ? row.Estado.NombreEstado : ''}
             </td>
           </tr>
         ))}
       </tbody>
     </table>
-  </div>
-);
+  );
+
+  const footer = (pageNumber: number, totalPages: number) => (
+    <div style={{ textAlign: 'right' }}>
+      Pag {pageNumber}/{totalPages}
+    </div>
+  );
+
+  return (
+    <PaginatedPDFTemplate
+      data={data}
+      itemsPerPage={itemsPerPage}
+      renderPageContent={renderPageContent}
+      header={header}
+      footer={footer}
+    />
+  );
+};
 
 /** Plantilla PDF para Reporte de Proyectos Activos vs Inactivos */
-export const ProyectosActivosPDFTemplate: React.FC<{ data: any[] }> = ({
-  data,
-}) => (
-  <div>
-    <h2>Reporte de Proyectos Activos vs Inactivos</h2>
+export const ProyectosActivosPDFTemplate: React.FC<any> = ({ data }) => {
+  const itemsPerPage = 4;
+  const header = getHeader(
+    'REPORTE DE PROYECTOS ACTIVOS VS INACTIVOS',
+    data.length
+  );
+
+  const renderPageContent = (pageData: any[]) => (
     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
       <thead>
         <tr>
-          <th style={{ border: '1px solid #000' }}>Proyectos Activos</th>
-          <th style={{ border: '1px solid #000' }}>Proyectos Inactivos</th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>
+            Proyectos Activos
+          </th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>
+            Proyectos Inactivos
+          </th>
         </tr>
       </thead>
       <tbody>
-        {data.map((row, i) => (
+        {pageData.map((row, i) => (
           <tr key={i}>
-            <td style={{ border: '1px solid #000' }}>{row.activos}</td>
-            <td style={{ border: '1px solid #000' }}>{row.inactivos}</td>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
+              {row.activos}
+            </td>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
+              {row.inactivos}
+            </td>
           </tr>
         ))}
       </tbody>
     </table>
-  </div>
-);
+  );
+
+  const footer = (pageNumber: number, totalPages: number) => (
+    <div style={{ textAlign: 'right' }}>
+      Pag {pageNumber}/{totalPages}
+    </div>
+  );
+
+  return (
+    <PaginatedPDFTemplate
+      data={data}
+      itemsPerPage={itemsPerPage}
+      renderPageContent={renderPageContent}
+      header={header}
+      footer={footer}
+    />
+  );
+};
 
 /** Plantilla PDF para Reporte de Tareas Activas vs Inactivas */
-export const TareasActivosPDFTemplate: React.FC<{ data: any[] }> = ({
-  data,
-}) => (
-  <div>
-    <h2>Reporte de Tareas Activas vs Inactivas</h2>
+export const TareasActivosPDFTemplate: React.FC<any> = ({ data }) => {
+  const itemsPerPage = 4;
+  const header = getHeader(
+    'REPORTE DE TAREAS ACTIVAS VS INACTIVAS',
+    data.length
+  );
+
+  const renderPageContent = (pageData: any[]) => (
     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
       <thead>
         <tr>
-          <th style={{ border: '1px solid #000' }}>Tareas Activas</th>
-          <th style={{ border: '1px solid #000' }}>Tareas Inactivas</th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>
+            Tareas Activas
+          </th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>
+            Tareas Inactivas
+          </th>
         </tr>
       </thead>
       <tbody>
-        {data.map((row, i) => (
+        {pageData.map((row, i) => (
           <tr key={i}>
-            <td style={{ border: '1px solid #000' }}>{row.activos}</td>
-            <td style={{ border: '1px solid #000' }}>{row.inactivos}</td>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
+              {row.activos}
+            </td>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
+              {row.inactivos}
+            </td>
           </tr>
         ))}
       </tbody>
     </table>
-  </div>
-);
+  );
+
+  const footer = (pageNumber: number, totalPages: number) => (
+    <div style={{ textAlign: 'right' }}>
+      Pag {pageNumber}/{totalPages}
+    </div>
+  );
+
+  return (
+    <PaginatedPDFTemplate
+      data={data}
+      itemsPerPage={itemsPerPage}
+      renderPageContent={renderPageContent}
+      header={header}
+      footer={footer}
+    />
+  );
+};
 
 /** Plantilla PDF para Reporte de Usuarios Activos vs Inactivos */
-export const UsuariosActivosPDFTemplate: React.FC<{ data: any[] }> = ({
-  data,
-}) => (
-  <div>
-    <h2>Reporte de Usuarios Activos vs Inactivos</h2>
+export const UsuariosActivosPDFTemplate: React.FC<any> = ({ data }) => {
+  const itemsPerPage = 4;
+  const header = getHeader(
+    'REPORTE DE USUARIOS ACTIVOS VS INACTIVOS',
+    data.length
+  );
+
+  const renderPageContent = (pageData: any[]) => (
     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
       <thead>
         <tr>
-          <th style={{ border: '1px solid #000' }}>Usuarios Activos</th>
-          <th style={{ border: '1px solid #000' }}>Usuarios Inactivos</th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>
+            Usuarios Activos
+          </th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>
+            Usuarios Inactivos
+          </th>
         </tr>
       </thead>
       <tbody>
-        {data.map((row, i) => (
+        {pageData.map((row, i) => (
           <tr key={i}>
-            <td style={{ border: '1px solid #000' }}>{row.activos}</td>
-            <td style={{ border: '1px solid #000' }}>{row.inactivos}</td>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
+              {row.activos}
+            </td>
+            <td style={{ border: '1px solid #000', padding: '5px' }}>
+              {row.inactivos}
+            </td>
           </tr>
         ))}
       </tbody>
     </table>
-  </div>
-);
+  );
 
-/** Arreglo de configuraciones para los reportes */
+  const footer = (pageNumber: number, totalPages: number) => (
+    <div style={{ textAlign: 'right' }}>
+      Pag {pageNumber}/{totalPages}
+    </div>
+  );
+
+  return (
+    <PaginatedPDFTemplate
+      data={data}
+      itemsPerPage={itemsPerPage}
+      renderPageContent={renderPageContent}
+      header={header}
+      footer={footer}
+    />
+  );
+};
+
 export const reportConfigurations: ReportConfig[] = [
   {
     id: 'avance',
@@ -637,9 +987,7 @@ export const reportConfigurations: ReportConfig[] = [
   {
     id: 'proyectosEstado',
     label: 'Proyectos por Estado',
-    filters: [
-      { name: 'estado', label: 'Estado', type: 'text' }, // Puedes ajustar a 'select' si tienes opciones predefinidas.
-    ],
+    filters: [],
     tableColumns: [
       { header: 'Estado', accessor: 'estado' },
       { header: 'Proyectos', accessor: 'proyectos' },
@@ -647,7 +995,7 @@ export const reportConfigurations: ReportConfig[] = [
     pdfTemplate: ProyectosEstadoPDFTemplate,
     fetchData: async (filters: any): Promise<any[]> => {
       const response = await getReportProyectosPorEstado(filters.estado);
-      // Si el endpoint retorna un objeto agrupado, lo transformamos en un array:
+
       const grouped = response.data.data;
       const arrayData = Object.entries(grouped).map(
         ([estado, proyectos]: [string, any]) => ({

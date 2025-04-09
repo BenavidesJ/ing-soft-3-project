@@ -64,17 +64,28 @@ export const Reportes: React.FC = () => {
     setShowPreview(true);
   };
 
-  const handleDownloadPDF = () => {
-    const input = document.getElementById('pdf-preview');
-    if (!input) return;
-    html2canvas(input).then((canvas) => {
+  const handleDownloadPDF = async () => {
+    const pageElements = document.querySelectorAll('.pdf-page');
+    if (!pageElements.length) return;
+
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+
+    for (let i = 0; i < pageElements.length; i++) {
+      const canvas = await html2canvas(pageElements[i] as HTMLElement, {
+        scale: 2,
+        useCORS: true,
+      });
       const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`${selectedReport?.label}.pdf`);
-    });
+      const imgProps = pdf.getImageProperties(imgData);
+      const imgWidth = pdfWidth;
+      const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      if (i > 0) pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+    }
+
+    pdf.save(`${selectedReport?.label || 'reporte'}.pdf`);
   };
 
   return (
@@ -134,14 +145,19 @@ export const Reportes: React.FC = () => {
                 </Form.Group>
               ))}
 
-            <Button type="submit" variant="primary" disabled={loading}>
+            <Button
+              type="submit"
+              variant="success"
+              className="text-white"
+              disabled={loading}
+            >
               {loading ? 'Cargando...' : 'Consultar'}
             </Button>
           </Form>
         </FormProvider>
 
         {error && (
-          <Alert variant="danger" className="mt-3">
+          <Alert variant="danger" className="mt-3 text-white">
             {error}
           </Alert>
         )}
@@ -149,34 +165,39 @@ export const Reportes: React.FC = () => {
         {reportData.length > 0 && (
           <div className="mt-4">
             <h4>Resultados:</h4>
-            <Table striped bordered hover responsive>
-              <thead>
-                <tr>
-                  {selectedReport?.tableColumns.map(
-                    (col: any, index: number) => (
-                      <th key={index}>{col.header}</th>
-                    )
-                  )}
-                </tr>
-              </thead>
-              <tbody>
-                {reportData.map((row, rowIndex) => (
-                  <tr key={rowIndex}>
+            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+              <Table striped bordered hover responsive>
+                <thead>
+                  <tr>
                     {selectedReport?.tableColumns.map(
-                      (col: any, colIndex: number) => (
-                        <td key={colIndex}>
-                          {typeof col.accessor === 'function'
-                            ? col.accessor(row)
-                            : row[col.accessor]}
-                        </td>
+                      (col: any, index: number) => (
+                        <th key={index}>{col.header}</th>
                       )
                     )}
                   </tr>
-                ))}
-              </tbody>
-            </Table>
-
-            <Button variant="secondary" onClick={handleGeneratePreview}>
+                </thead>
+                <tbody>
+                  {reportData.map((row, rowIndex) => (
+                    <tr key={rowIndex}>
+                      {selectedReport?.tableColumns.map(
+                        (col: any, colIndex: number) => (
+                          <td key={colIndex}>
+                            {typeof col.accessor === 'function'
+                              ? col.accessor(row)
+                              : row[col.accessor]}
+                          </td>
+                        )
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+            <Button
+              variant="success"
+              className="mt-3 text-white"
+              onClick={handleGeneratePreview}
+            >
               Generar Reporte
             </Button>
           </div>
@@ -187,6 +208,7 @@ export const Reportes: React.FC = () => {
           onHide={() => setShowPreview(false)}
           size="lg"
           centered
+          scrollable
         >
           <Modal.Header closeButton>
             <Modal.Title>{selectedReport?.label} - Vista Previa</Modal.Title>
@@ -199,8 +221,12 @@ export const Reportes: React.FC = () => {
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="primary" onClick={handleDownloadPDF}>
-              Descargar PDF
+            <Button
+              variant="info"
+              className="text-white"
+              onClick={handleDownloadPDF}
+            >
+              {loading ? 'Cargando...' : 'Descargar PDF'}
             </Button>
           </Modal.Footer>
         </Modal>
