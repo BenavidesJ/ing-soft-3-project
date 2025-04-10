@@ -42,7 +42,7 @@ export const Sidebar = () => {
         <Nav.Link as={Link} to="/dashboard" className="sidebar-item">
           {!toggleSideBar ? (
             <OverlayTrigger
-              placement="top"
+              placement="right"
               overlay={<Tooltip id="tooltip-dashboard">Dashboard</Tooltip>}
             >
               <div className="sidebar-link">
@@ -60,7 +60,7 @@ export const Sidebar = () => {
         <Nav.Link as={Link} to="/gestion-proyectos" className="sidebar-item">
           {!toggleSideBar ? (
             <OverlayTrigger
-              placement="top"
+              placement="right"
               overlay={
                 <Tooltip id="tooltip-proyectos">Gestión de Proyectos</Tooltip>
               }
@@ -80,7 +80,7 @@ export const Sidebar = () => {
         <Nav.Link as={Link} to="/gestion-tareas" className="sidebar-item">
           {!toggleSideBar ? (
             <OverlayTrigger
-              placement="top"
+              placement="right"
               overlay={<Tooltip id="tooltip-tareas">Gestión de Tareas</Tooltip>}
             >
               <div className="sidebar-link">
@@ -98,7 +98,7 @@ export const Sidebar = () => {
         <Nav.Link as={Link} to="/gestion-recursos" className="sidebar-item">
           {!toggleSideBar ? (
             <OverlayTrigger
-              placement="top"
+              placement="right"
               overlay={
                 <Tooltip id="tooltip-recursos">Gestión de Recursos</Tooltip>
               }
@@ -120,7 +120,7 @@ export const Sidebar = () => {
             <Nav.Link as={Link} to="/gestion-usuarios" className="sidebar-item">
               {!toggleSideBar ? (
                 <OverlayTrigger
-                  placement="top"
+                  placement="right"
                   overlay={
                     <Tooltip id="tooltip-usuarios">Gestión de Usuarios</Tooltip>
                   }
@@ -140,7 +140,7 @@ export const Sidebar = () => {
             <Nav.Link as={Link} to="/reportes" className="sidebar-item">
               {!toggleSideBar ? (
                 <OverlayTrigger
-                  placement="top"
+                  placement="right"
                   overlay={<Tooltip id="tooltip-reportes">Reportes</Tooltip>}
                 >
                   <div className="sidebar-link">

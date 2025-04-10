@@ -1005,7 +1005,6 @@ export const reportConfigurations: ReportConfig[] = [
     pdfTemplate: ProyectosEstadoPDFTemplate,
     fetchData: async (filters: any): Promise<any[]> => {
       const response = await getReportProyectosPorEstado(filters.estado);
-      console.log(response.data.data);
       const grouped = response.data.data;
 
       return grouped;

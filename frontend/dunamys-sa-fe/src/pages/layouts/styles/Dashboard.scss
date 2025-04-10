@@ -124,3 +124,20 @@ a.sidebar-item.nav-link:hover {
 .sidebar-item {
   position: relative;
 }
+
+.tooltip-inner {
+  background-color: colors.$info !important; /* Color de fondo deseado */
+  color: colors.$primary !important; /* Color de texto deseado */
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Si quieres cambiar el color de la flecha para tooltips a la derecha: */
+.tooltip.bs-tooltip-end .tooltip-arrow::before {
+  border-right-color: colors.$info !important;
+}
+
+.tooltip.bs-tooltip-end .tooltip-arrow::before {
+  border-left-color: colors.$info !important;
+}
