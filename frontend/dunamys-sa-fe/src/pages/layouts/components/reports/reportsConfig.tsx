@@ -62,7 +62,7 @@ const getHeader = (title: string, length: number) => {
                   padding: '5px',
                 }}
               >
-                Total de Proyectos:
+                Total de Registros:
               </td>
             </tr>
             <tr>
@@ -552,9 +552,7 @@ export const ProyectosEstadoPDFTemplate: React.FC<any> = ({ data }) => {
       <thead>
         <tr>
           <th style={{ border: '1px solid #000', padding: '5px' }}>Estado</th>
-          <th style={{ border: '1px solid #000', padding: '5px' }}>
-            Proyectos
-          </th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>Proyecto</th>
         </tr>
       </thead>
       <tbody>
@@ -564,7 +562,7 @@ export const ProyectosEstadoPDFTemplate: React.FC<any> = ({ data }) => {
               {row.estado}
             </td>
             <td style={{ border: '1px solid #000', padding: '5px' }}>
-              {row.proyectos}
+              {row.nombreProyecto}
             </td>
           </tr>
         ))}
@@ -900,7 +898,10 @@ export const reportConfigurations: ReportConfig[] = [
   {
     id: 'financiero',
     label: 'Financiero de Proyectos',
-    filters: [],
+    filters: [
+      { name: 'fechaInicio', label: 'Fecha de Inicio', type: 'date' },
+      { name: 'fechaFin', label: 'Fecha de Fin', type: 'date' },
+    ],
     tableColumns: [
       { header: 'ID Proyecto', accessor: 'idProyecto' },
       { header: 'Nombre', accessor: 'Nombre' },
@@ -909,15 +910,18 @@ export const reportConfigurations: ReportConfig[] = [
       { header: 'Ajuste', accessor: 'ajustePresupuesto' },
     ],
     pdfTemplate: FinancieroReportPDFTemplate,
-    fetchData: async (_filters: any): Promise<any[]> => {
-      const response = await getReportFinancieroProyectos();
+    fetchData: async (filters: any): Promise<any[]> => {
+      const response = await getReportFinancieroProyectos(filters);
       return response.data.data;
     },
   },
   {
     id: 'asignacionRecursos',
     label: 'Asignación de Recursos',
-    filters: [],
+    filters: [
+      { name: 'fechaInicio', label: 'Fecha de Inicio', type: 'date' },
+      { name: 'fechaFin', label: 'Fecha de Fin', type: 'date' },
+    ],
     tableColumns: [
       { header: 'ID Tarea', accessor: 'idTarea' },
       { header: 'Nombre Tarea', accessor: 'NombreTarea' },
@@ -928,15 +932,18 @@ export const reportConfigurations: ReportConfig[] = [
       },
     ],
     pdfTemplate: AsignacionRecursosPDFTemplate,
-    fetchData: async (_filters: any): Promise<any[]> => {
-      const response = await getReportAsignacionRecursos();
+    fetchData: async (filters: any): Promise<any[]> => {
+      const response = await getReportAsignacionRecursos(filters);
       return response.data.data;
     },
   },
   {
     id: 'cargaTrabajo',
     label: 'Carga de Trabajo por Miembro',
-    filters: [],
+    filters: [
+      { name: 'fechaInicio', label: 'Fecha de Inicio', type: 'date' },
+      { name: 'fechaFin', label: 'Fecha de Fin', type: 'date' },
+    ],
     tableColumns: [
       { header: 'ID Usuario', accessor: 'idUsuario' },
       { header: 'Nombre', accessor: 'Nombre' },
@@ -946,15 +953,18 @@ export const reportConfigurations: ReportConfig[] = [
       { header: 'Tareas Pendientes', accessor: 'tareasPendientes' },
     ],
     pdfTemplate: CargaTrabajoPDFTemplate,
-    fetchData: async (_filters: any): Promise<any[]> => {
-      const response = await getReportCargaTrabajoPorMiembro();
+    fetchData: async (filters: any): Promise<any[]> => {
+      const response = await getReportCargaTrabajoPorMiembro(filters);
       return response.data.data;
     },
   },
   {
     id: 'comparativo',
     label: 'Comparativo Proyectos',
-    filters: [],
+    filters: [
+      { name: 'fechaInicio', label: 'Fecha de Inicio', type: 'date' },
+      { name: 'fechaFin', label: 'Fecha de Fin', type: 'date' },
+    ],
     tableColumns: [
       { header: 'ID Proyecto', accessor: 'idProyecto' },
       { header: 'Nombre', accessor: 'Nombre' },
@@ -963,8 +973,8 @@ export const reportConfigurations: ReportConfig[] = [
       { header: 'Tareas Pendientes', accessor: 'tareasPendientes' },
     ],
     pdfTemplate: ComparativoPDFTemplate,
-    fetchData: async (_filters: any): Promise<any[]> => {
-      const response = await getReportComparativoProyectos();
+    fetchData: async (filters: any): Promise<any[]> => {
+      const response = await getReportComparativoProyectos(filters);
       return response.data.data;
     },
   },
@@ -987,31 +997,27 @@ export const reportConfigurations: ReportConfig[] = [
   {
     id: 'proyectosEstado',
     label: 'Proyectos por Estado',
-    filters: [],
+    filters: [{ name: 'estado', label: 'Estado', type: 'text' }],
     tableColumns: [
       { header: 'Estado', accessor: 'estado' },
-      { header: 'Proyectos', accessor: 'proyectos' },
+      { header: 'Proyecto', accessor: 'nombreProyecto' },
     ],
     pdfTemplate: ProyectosEstadoPDFTemplate,
     fetchData: async (filters: any): Promise<any[]> => {
       const response = await getReportProyectosPorEstado(filters.estado);
-
+      console.log(response.data.data);
       const grouped = response.data.data;
-      const arrayData = Object.entries(grouped).map(
-        ([estado, proyectos]: [string, any]) => ({
-          estado,
-          proyectos: Array.isArray(proyectos)
-            ? proyectos.map((p: any) => p.Nombre).join(', ')
-            : '',
-        })
-      );
-      return arrayData;
+
+      return grouped;
     },
   },
   {
     id: 'actividadSistema',
     label: 'Actividad en el Sistema',
-    filters: [],
+    filters: [
+      { name: 'fechaInicio', label: 'Fecha de Inicio', type: 'date' },
+      { name: 'fechaFin', label: 'Fecha de Fin', type: 'date' },
+    ],
     tableColumns: [
       { header: 'ID Evento', accessor: 'idEvento' },
       { header: 'Tiempo', accessor: 'Tiempo_evento' },
@@ -1021,8 +1027,8 @@ export const reportConfigurations: ReportConfig[] = [
       { header: 'ID Usuario', accessor: 'idUsuario' },
     ],
     pdfTemplate: ActividadSistemaPDFTemplate,
-    fetchData: async (_filters: any): Promise<any[]> => {
-      const response = await getReportActividadSistema();
+    fetchData: async (filters: any): Promise<any[]> => {
+      const response = await getReportActividadSistema(filters);
       return response.data.data;
     },
   },
@@ -1056,7 +1062,6 @@ export const reportConfigurations: ReportConfig[] = [
     pdfTemplate: ProyectosActivosPDFTemplate,
     fetchData: async (_filters: any): Promise<any[]> => {
       const response = await getReportProyectosActivosVsInactivos();
-      // Se espera que el endpoint retorne un objeto con { activos, inactivos }.
       return [response.data.data];
     },
   },

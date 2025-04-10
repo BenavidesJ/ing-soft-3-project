@@ -10,34 +10,64 @@ export const getReportAvancePorProyectos = (filters?: {
   });
 };
 
-export const getReportFinancieroProyectos = () => {
-  return api.get<ApiResponse<any>>('reportes/financiero-proyectos');
+export const getReportFinancieroProyectos = (filters?: {
+  fechaInicio?: string;
+  fechaFin?: string;
+}) => {
+  return api.get<ApiResponse<any>>('reportes/financiero-proyectos', {
+    params: filters,
+  });
 };
 
-export const getReportAsignacionRecursos = () => {
-  return api.get<ApiResponse<any>>('reportes/asignacion-recursos');
+export const getReportAsignacionRecursos = (filters?: {
+  fechaInicio?: string;
+  fechaFin?: string;
+}) => {
+  return api.get<ApiResponse<any>>('reportes/asignacion-recursos', {
+    params: filters,
+  });
 };
 
-export const getReportCargaTrabajoPorMiembro = () => {
-  return api.get<ApiResponse<any>>('reportes/carga-trabajo-por-miembro');
+export const getReportCargaTrabajoPorMiembro = (filters?: {
+  fechaInicio?: string;
+  fechaFin?: string;
+}) => {
+  return api.get<ApiResponse<any>>('reportes/carga-trabajo-por-miembro', {
+    params: filters,
+  });
 };
 
-export const getReportComparativoProyectos = () => {
-  return api.get<ApiResponse<any>>('reportes/comparativo-proyectos');
+export const getReportComparativoProyectos = (filters?: {
+  fechaInicio?: string;
+  fechaFin?: string;
+}) => {
+  return api.get<ApiResponse<any>>('reportes/comparativo-proyectos', {
+    params: filters,
+  });
 };
 
-export const getReportTareasPendientesVencidas = () => {
-  return api.get<ApiResponse<any>>('reportes/tareas-pendientes-vencidas');
+export const getReportTareasPendientesVencidas = (filters?: {
+  fechaInicio?: string;
+  fechaFin?: string;
+}) => {
+  return api.get<ApiResponse<any>>('reportes/tareas-pendientes-vencidas', {
+    params: filters,
+  });
 };
 
 export const getReportProyectosPorEstado = (estado?: string) => {
   return api.get<ApiResponse<any>>('reportes/proyectos-por-estado', {
-    data: { estado },
+    params: { estado },
   });
 };
 
-export const getReportActividadSistema = () => {
-  return api.get<ApiResponse<any>>('reportes/actividad-sistema');
+export const getReportActividadSistema = (filters?: {
+  fechaInicio?: string;
+  fechaFin?: string;
+}) => {
+  return api.get<ApiResponse<any>>('reportes/actividad-sistema', {
+    params: filters,
+  });
 };
 
 export const getReportTareasPorFechaVencimiento = () => {

@@ -3,7 +3,16 @@ import { reportConfigurations } from '../layouts/components/reports/reportsConfi
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button, Modal, Table, Form, Row, Col, Alert } from 'react-bootstrap';
+import {
+  Button,
+  Modal,
+  Table,
+  Form,
+  Row,
+  Col,
+  Alert,
+  Card,
+} from 'react-bootstrap';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { PrivateLayout } from '../layouts/PrivateLayout';
@@ -32,7 +41,6 @@ export const Reportes: React.FC = () => {
     defaultValues: { reportId: '', filters: {} },
     resolver: zodResolver(baseSchema),
   });
-
   const { register, handleSubmit, watch } = methods;
 
   const selectedReportId = watch('reportId');
@@ -40,6 +48,7 @@ export const Reportes: React.FC = () => {
     const report =
       reportConfigurations.find((r) => r.id === selectedReportId) || null;
     setSelectedReport(report);
+    setReportData([]);
   }, [selectedReportId]);
 
   const onSubmit = async (data: ReportFormValues) => {
@@ -67,10 +76,8 @@ export const Reportes: React.FC = () => {
   const handleDownloadPDF = async () => {
     const pageElements = document.querySelectorAll('.pdf-page');
     if (!pageElements.length) return;
-
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
-
     for (let i = 0; i < pageElements.length; i++) {
       const canvas = await html2canvas(pageElements[i] as HTMLElement, {
         scale: 2,
@@ -80,129 +87,160 @@ export const Reportes: React.FC = () => {
       const imgProps = pdf.getImageProperties(imgData);
       const imgWidth = pdfWidth;
       const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
       if (i > 0) pdf.addPage();
       pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
     }
-
     pdf.save(`${selectedReport?.label || 'reporte'}.pdf`);
   };
 
   return (
     <PrivateLayout>
-      <div className="container">
-        <h2 className="mt-4">Reportes</h2>
-        <FormProvider {...methods}>
-          <Form onSubmit={handleSubmit(onSubmit)}>
-            <Form.Group as={Row} className="mb-3">
-              <Form.Label column sm={2}>
-                Reporte:
-              </Form.Label>
-              <Col sm={10}>
-                <Form.Select {...register('reportId')}>
-                  <option value="">Selecciona un reporte</option>
-                  {reportConfigurations.map((report) => (
-                    <option key={report.id} value={report.id}>
-                      {report.label}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Col>
-            </Form.Group>
-
-            {selectedReport &&
-              selectedReport.filters.length > 0 &&
-              selectedReport.filters.map((filter: any) => (
-                <Form.Group as={Row} className="mb-3" key={filter.name}>
-                  <Form.Label column sm={2}>
-                    {filter.label}:
-                  </Form.Label>
-                  <Col sm={10}>
-                    {filter.type === 'date' && (
-                      <Form.Control
-                        type="date"
-                        {...register(`filters.${filter.name}`)}
-                      />
-                    )}
-                    {filter.type === 'text' && (
-                      <Form.Control
-                        type="text"
-                        {...register(`filters.${filter.name}`)}
-                      />
-                    )}
-                    {filter.type === 'select' && (
-                      <Form.Select {...register(`filters.${filter.name}`)}>
-                        <option value="">Seleccione</option>
-                        {filter.options &&
-                          filter.options.map((option: any) => (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
+      <div className="container my-4">
+        <h2 className="mb-4">Reportes</h2>
+        <Row>
+          {/* Filtros */}
+          <Col md={4}>
+            <Card className="mb-4 shadow-sm">
+              <Card.Header>Filtros</Card.Header>
+              <Card.Body>
+                <FormProvider {...methods}>
+                  <Form onSubmit={handleSubmit(onSubmit)}>
+                    <Form.Group as={Row} className="mb-3">
+                      <Form.Label column sm={4}>
+                        Reporte:
+                      </Form.Label>
+                      <Col sm={8}>
+                        <Form.Select {...register('reportId')}>
+                          <option value="">Selecciona un reporte</option>
+                          {reportConfigurations.map((report) => (
+                            <option key={report.id} value={report.id}>
+                              {report.label}
                             </option>
                           ))}
-                      </Form.Select>
-                    )}
-                  </Col>
-                </Form.Group>
-              ))}
+                        </Form.Select>
+                      </Col>
+                    </Form.Group>
 
-            <Button
-              type="submit"
-              variant="success"
-              className="text-white"
-              disabled={loading}
-            >
-              {loading ? 'Cargando...' : 'Consultar'}
-            </Button>
-          </Form>
-        </FormProvider>
+                    {selectedReport &&
+                      selectedReport.filters.length > 0 &&
+                      selectedReport.filters.map((filter: any) => (
+                        <Form.Group as={Row} className="mb-3" key={filter.name}>
+                          <Form.Label column sm={4}>
+                            {filter.label}:
+                          </Form.Label>
+                          <Col sm={8}>
+                            {filter.type === 'date' && (
+                              <Form.Control
+                                type="date"
+                                {...register(`filters.${filter.name}`)}
+                              />
+                            )}
+                            {filter.type === 'text' && (
+                              <Form.Control
+                                type="text"
+                                {...register(`filters.${filter.name}`)}
+                              />
+                            )}
+                            {filter.type === 'select' && (
+                              <Form.Select
+                                {...register(`filters.${filter.name}`)}
+                              >
+                                <option value="">Seleccione</option>
+                                {filter.options &&
+                                  filter.options.map((option: any) => (
+                                    <option
+                                      key={option.value}
+                                      value={option.value}
+                                    >
+                                      {option.label}
+                                    </option>
+                                  ))}
+                              </Form.Select>
+                            )}
+                          </Col>
+                        </Form.Group>
+                      ))}
 
-        {error && (
-          <Alert variant="danger" className="mt-3 text-white">
-            {error}
-          </Alert>
-        )}
+                    <div className="d-grid">
+                      <Button
+                        type="submit"
+                        variant="success"
+                        className="text-white"
+                        disabled={loading}
+                      >
+                        {loading ? 'Cargando...' : 'Consultar'}
+                      </Button>
+                    </div>
+                  </Form>
+                </FormProvider>
+              </Card.Body>
+            </Card>
+          </Col>
 
-        {reportData.length > 0 && (
-          <div className="mt-4">
-            <h4>Resultados:</h4>
-            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-              <Table striped bordered hover responsive>
-                <thead>
-                  <tr>
-                    {selectedReport?.tableColumns.map(
-                      (col: any, index: number) => (
-                        <th key={index}>{col.header}</th>
-                      )
-                    )}
-                  </tr>
-                </thead>
-                <tbody>
-                  {reportData.map((row, rowIndex) => (
-                    <tr key={rowIndex}>
-                      {selectedReport?.tableColumns.map(
-                        (col: any, colIndex: number) => (
-                          <td key={colIndex}>
-                            {typeof col.accessor === 'function'
-                              ? col.accessor(row)
-                              : row[col.accessor]}
-                          </td>
-                        )
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
-            <Button
-              variant="success"
-              className="mt-3 text-white"
-              onClick={handleGeneratePreview}
-            >
-              Generar Reporte
-            </Button>
-          </div>
-        )}
+          {/* Resultados */}
+          <Col md={8}>
+            <Card className="mb-4 shadow-sm">
+              <Card.Header>Resultados</Card.Header>
+              <Card.Body>
+                {error && (
+                  <Alert variant="danger" className="text-white">
+                    {error}
+                  </Alert>
+                )}
 
+                {reportData.length > 0 ? (
+                  <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                    <Table striped bordered hover responsive>
+                      <thead>
+                        <tr>
+                          {selectedReport?.tableColumns.map(
+                            (col: any, index: number) => (
+                              <th key={index}>{col.header}</th>
+                            )
+                          )}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {reportData.map((row, rowIndex) => (
+                          <tr key={rowIndex}>
+                            {selectedReport?.tableColumns.map(
+                              (col: any, colIndex: number) => (
+                                <td key={colIndex}>
+                                  {typeof col.accessor === 'function'
+                                    ? col.accessor(row)
+                                    : row[col.accessor]}
+                                </td>
+                              )
+                            )}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                  </div>
+                ) : (
+                  !loading && (
+                    <Alert variant="primary">
+                      <strong>Sin resultados</strong>
+                    </Alert>
+                  )
+                )}
+              </Card.Body>
+              {reportData.length > 0 && (
+                <Card.Footer>
+                  <Button
+                    variant="success"
+                    className="text-white"
+                    onClick={handleGeneratePreview}
+                  >
+                    Generar Reporte
+                  </Button>
+                </Card.Footer>
+              )}
+            </Card>
+          </Col>
+        </Row>
+
+        {/* Modal de vista previa y descarga de PDF */}
         <Modal
           show={showPreview}
           onHide={() => setShowPreview(false)}

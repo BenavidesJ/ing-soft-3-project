@@ -137,7 +137,28 @@ export const reportAvancePorProyectos = async (req, res, next) => {
  */
 export const reportFinancieroProyectos = async (req, res, next) => {
   try {
+    const { fechaInicio: filterFechaInicio, fechaFin: filterFechaFin } =
+      req.query;
+    let where = {};
+    if (filterFechaInicio && filterFechaFin) {
+      where = {
+        FechaInicio: {
+          [Op.between]: [
+            dayjs(filterFechaInicio).format('YYYY-MM-DD'),
+            dayjs(filterFechaFin).format('YYYY-MM-DD'),
+          ],
+        },
+        FechaFin: {
+          [Op.between]: [
+            dayjs(filterFechaInicio).format('YYYY-MM-DD'),
+            dayjs(filterFechaFin).format('YYYY-MM-DD'),
+          ],
+        },
+      };
+    }
+
     const projects = await Proyecto.findAll({
+      where,
       include: { model: Costo, attributes: ['CostoTotal'] },
     });
 
@@ -179,7 +200,34 @@ export const reportFinancieroProyectos = async (req, res, next) => {
  */
 export const reportAsignacionRecursos = async (req, res, next) => {
   try {
+    const { fechaInicio: filterFechaInicio, fechaFin: filterFechaFin } =
+      req.query;
+    let where = {};
+
+    if (filterFechaInicio && filterFechaFin) {
+      where = {
+        FechaInicio: {
+          [Op.between]: [
+            dayjs(filterFechaInicio).format('YYYY-MM-DD'),
+            dayjs(filterFechaFin).format('YYYY-MM-DD'),
+          ],
+        },
+        [Op.or]: [
+          { FechaFin: null },
+          {
+            FechaFin: {
+              [Op.between]: [
+                dayjs(filterFechaInicio).format('YYYY-MM-DD'),
+                dayjs(filterFechaFin).format('YYYY-MM-DD'),
+              ],
+            },
+          },
+        ],
+      };
+    }
+
     const tasks = await Tarea.findAll({
+      where,
       include: { model: Recurso, attributes: ['idRecurso', 'Nombre'] },
     });
 
@@ -210,11 +258,40 @@ export const reportAsignacionRecursos = async (req, res, next) => {
  */
 export const reportCargaTrabajoPorMiembro = async (req, res, next) => {
   try {
+    const { fechaInicio: filterFechaInicio, fechaFin: filterFechaFin } =
+      req.query;
+
+    let tareaWhere = {};
+    if (filterFechaInicio && filterFechaFin) {
+      tareaWhere = {
+        FechaInicio: {
+          [Op.between]: [
+            dayjs(filterFechaInicio).format('YYYY-MM-DD'),
+            dayjs(filterFechaFin).format('YYYY-MM-DD'),
+          ],
+        },
+        [Op.or]: [
+          { FechaFin: null },
+          {
+            FechaFin: {
+              [Op.between]: [
+                dayjs(filterFechaInicio).format('YYYY-MM-DD'),
+                dayjs(filterFechaFin).format('YYYY-MM-DD'),
+              ],
+            },
+          },
+        ],
+      };
+    }
+
+    const tareaInclude = {
+      model: Tarea,
+      include: { model: Estado, attributes: ['NombreEstado'] },
+      ...(filterFechaInicio && filterFechaFin ? { where: tareaWhere } : {}),
+    };
+
     const users = await Usuario.findAll({
-      include: {
-        model: Tarea,
-        include: { model: Estado, attributes: ['NombreEstado'] },
-      },
+      include: tareaInclude,
     });
 
     const data = users.map((user) => {
@@ -263,7 +340,34 @@ export const reportCargaTrabajoPorMiembro = async (req, res, next) => {
  */
 export const reportComparativoProyectos = async (req, res, next) => {
   try {
+    const { fechaInicio: filterFechaInicio, fechaFin: filterFechaFin } =
+      req.query;
+    let where = {};
+
+    if (filterFechaInicio && filterFechaFin) {
+      where = {
+        FechaInicio: {
+          [Op.between]: [
+            dayjs(filterFechaInicio).format('YYYY-MM-DD'),
+            dayjs(filterFechaFin).format('YYYY-MM-DD'),
+          ],
+        },
+        [Op.or]: [
+          { FechaFin: null },
+          {
+            FechaFin: {
+              [Op.between]: [
+                dayjs(filterFechaInicio).format('YYYY-MM-DD'),
+                dayjs(filterFechaFin).format('YYYY-MM-DD'),
+              ],
+            },
+          },
+        ],
+      };
+    }
+
     const projects = await Proyecto.findAll({
+      where,
       include: {
         model: Tarea,
         include: { model: Estado, attributes: ['NombreEstado'] },
@@ -273,6 +377,7 @@ export const reportComparativoProyectos = async (req, res, next) => {
     const data = projects.map((project) => {
       const total = project.Tareas ? project.Tareas.length : 0;
       let completadas = 0;
+
       if (project.Tareas) {
         project.Tareas.forEach((task) => {
           const estado = task.Estado
@@ -283,6 +388,7 @@ export const reportComparativoProyectos = async (req, res, next) => {
           }
         });
       }
+
       return {
         idProyecto: project.idProyecto,
         Nombre: project.Nombre,
@@ -349,10 +455,10 @@ export const reportTareasPendientesVencidas = async (req, res, next) => {
  */
 export const reportProyectosPorEstado = async (req, res, next) => {
   try {
-    const { estado } = req.body;
+    const { estado } = req.query;
 
     let includeOptions = { model: Estado, attributes: ['NombreEstado'] };
-
+    console.log(estado);
     if (estado) {
       includeOptions.where = { NombreEstado: estado };
     }
@@ -361,23 +467,15 @@ export const reportProyectosPorEstado = async (req, res, next) => {
       include: includeOptions,
     });
 
-    const grouped = {};
-    projects.forEach((project) => {
-      const state = project.Estado ? project.Estado.NombreEstado : 'SIN ESTADO';
-      if (!grouped[state]) {
-        grouped[state] = [];
-      }
-      grouped[state].push({
-        idProyecto: project.idProyecto,
-        Nombre: project.Nombre,
-        Descripcion: project.Descripcion,
-      });
-    });
+    const result = projects.map((project) => ({
+      estado: project.Estado ? project.Estado.NombreEstado : 'SIN ESTADO',
+      nombreProyecto: project.Nombre,
+    }));
 
     res.status(200).json({
       success: true,
       message: 'Reporte de proyectos por estado obtenido correctamente.',
-      data: grouped,
+      data: result,
     });
   } catch (error) {
     next(error);
@@ -390,7 +488,22 @@ export const reportProyectosPorEstado = async (req, res, next) => {
  */
 export const reportActividadSistema = async (req, res, next) => {
   try {
+    const { fechaInicio, fechaFin } = req.query;
+    let where = {};
+
+    if (fechaInicio && fechaFin) {
+      where = {
+        Tiempo_evento: {
+          [Op.between]: [
+            dayjs(fechaInicio).format('YYYY-MM-DD'),
+            dayjs(fechaFin).format('YYYY-MM-DD'),
+          ],
+        },
+      };
+    }
+
     const events = await BitacoraEventos.findAll({
+      where,
       order: [['Tiempo_evento', 'DESC']],
     });
 

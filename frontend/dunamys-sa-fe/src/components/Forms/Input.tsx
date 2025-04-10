@@ -45,14 +45,13 @@ export const Input = ({
           isInvalid={!!errorMessage}
           value={value}
         />
-        {isPassword && !errorMessage && (
+        {isPassword && (
           <span
             onClick={() => setShowPassword((prev) => !prev)}
             className="position-absolute"
             style={{
-              right: '1rem',
-              top: '45%',
-              transform: 'translateY(-50%)',
+              right: '2rem',
+              top: '5px',
               cursor: 'pointer',
             }}
           >
