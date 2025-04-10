@@ -1,15 +1,14 @@
+import { useCallback, useState } from 'react';
 import { Link } from 'react-router';
-import { BrandName } from '../../../../utils/strings';
 import { Button, Nav, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { LuChevronsLeft, LuChevronsRight } from 'react-icons/lu';
-import '../../styles/Dashboard.scss';
-import { useCallback, useState } from 'react';
 import { MdOutlineSpaceDashboard } from 'react-icons/md';
 import { GoProjectSymlink } from 'react-icons/go';
 import { TbReportAnalytics } from 'react-icons/tb';
 import { FaTasks, FaUsersCog } from 'react-icons/fa';
 import { GrResources } from 'react-icons/gr';
 import { useAuth } from '../../../../context';
+import '../../styles/Dashboard.scss';
 
 export const Sidebar = () => {
   const [toggleSideBar, setToggleSideBar] = useState(false);
@@ -23,7 +22,7 @@ export const Sidebar = () => {
       <div className="d-flex justify-content-between p-4">
         <div className="sidebar-logo">
           <Link to={'/'} replace>
-            {BrandName}
+            Menu Principal
           </Link>
         </div>
         <Button
