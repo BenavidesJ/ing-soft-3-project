@@ -15,6 +15,7 @@ export interface PerfilUsuario {
 export interface Usuario {
   idUsuario: number;
   Nombre: string;
+  Contrasena?: string;
   NombrePila?: string;
   Apellido1: string;
   Apellido2?: string;

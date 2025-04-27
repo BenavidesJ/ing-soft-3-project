@@ -104,7 +104,8 @@ export const GestionUsuarios = () => {
     { header: 'ID', accessor: 'idUsuario' },
     {
       header: 'Nombre Completo',
-      accessor: (usuario: Usuario) => `${usuario.Nombre}`,
+      accessor: (usuario: Usuario) =>
+        `${usuario.Nombre} ${usuario.Apellido1} ${usuario.Apellido2 || ''}`,
     },
     { header: 'Correo', accessor: 'Correo' },
     {

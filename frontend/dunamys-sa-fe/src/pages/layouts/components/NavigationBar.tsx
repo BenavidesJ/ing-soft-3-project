@@ -10,8 +10,16 @@ export const NavigationBar = () => {
     <Navbar bg="brand" data-bs-theme="dark">
       <Container fluid>
         <Navbar.Brand href={pathname}>
-          <Logo text={BrandName} />
-          {getPageName(pathname)}
+          {pathname === '/login' ||
+          pathname === '/register' ||
+          pathname === '/forgot-password' ? (
+            <Logo text={BrandName} />
+          ) : (
+            <>
+              <Logo text={BrandName} />
+              {getPageName(pathname)}
+            </>
+          )}
         </Navbar.Brand>
         <div>
           {pathname !== '/login' && pathname !== '/registro' && <UserProfile />}

@@ -2,6 +2,7 @@ import express from 'express';
 import {
   assignPermissionToRole,
   assignRoleToUser,
+  changePassword,
   createPermission,
   createRole,
   getAllPermissions,
@@ -37,5 +38,7 @@ router.post('/asignar-permiso', authenticate, assignPermissionToRole);
 router.patch('/modificar-rol', authenticate, modifyUserRole);
 // modificar permiso de rol
 router.patch('/modificar-permiso', authenticate, modifyRolePermission);
+// modificar permiso de rol
+router.patch('/cambiarPassword', authenticate, changePassword);
 
 export default router;

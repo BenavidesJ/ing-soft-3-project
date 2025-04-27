@@ -69,6 +69,8 @@ export const updateUser = async (req, res, next) => {
       Apellido1,
       Apellido2,
       Activo,
+      Username,
+      imagenURL,
     } = req.body;
 
     const user = await Usuario.findOne({
@@ -99,6 +101,22 @@ export const updateUser = async (req, res, next) => {
     await user.update(updateData, {
       userId: req.user ? req.user.idUsuario : null,
     });
+
+    if (Username || imagenURL) {
+      const perfil = await PerfilUsuario.findOne({ where: { idUsuario } });
+      if (perfil) {
+        const updatePerfil = {};
+        if (Username) {
+          updatePerfil.nombreUsuario = Username;
+        }
+        if (imagenURL) {
+          updatePerfil.urlImagenPerfil = imagenURL;
+        }
+        await perfil.update(updatePerfil, {
+          userId: req.user ? req.user.idUsuario : null,
+        });
+      }
+    }
 
     return res.status(200).json({
       success: true,
@@ -178,7 +196,7 @@ export const getUserById = async (req, res, next) => {
       message: 'Usuario encontrado',
       data: {
         idUsuario: user.idUsuario,
-        Nombre: `${user.Nombre} ${user.Apellido1} ${user.Apellido2 || ''}`,
+        Nombre: user.Nombre,
         NombrePila: user.Nombre,
         Apellido1: user.Apellido1,
         Apellido2: user.Apellido2,
@@ -239,7 +257,7 @@ export const getUsers = async (_req, res, next) => {
 
       return {
         idUsuario: user.idUsuario,
-        Nombre: `${user.Nombre} ${user.Apellido1} ${user.Apellido2 || ''}`,
+        Nombre: user.Nombre,
         NombrePila: user.Nombre,
         Apellido1: user.Apellido1,
         Apellido2: user.Apellido2,

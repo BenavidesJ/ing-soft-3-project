@@ -9,6 +9,7 @@ import {
 interface PerfilUsuario {
   NombreUsuario: string;
   idPerfilUsuario: number;
+  urlImagenPerfil?: string;
 }
 interface UserData {
   idUsuario: number;
@@ -48,6 +49,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('user', JSON.stringify(userData));
     setIsAuthenticated(true);
   };
+
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem('user', JSON.stringify({ data: currentUser }));
+    }
+  }, [currentUser]);
 
   const endSession = () => {
     localStorage.removeItem('user');

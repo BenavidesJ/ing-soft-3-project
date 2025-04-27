@@ -147,7 +147,10 @@ export const UserDetail = ({ data }: DetailsContentProps) => {
               </div>
 
               <div className="mt-3">
-                <h4 className="mb-0">{userDetail.Nombre}</h4>
+                <h4 className="mb-0">
+                  {userDetail.Nombre} {userDetail.Apellido1}{' '}
+                  {userDetail.Apellido2 || ''}
+                </h4>
                 <div
                   style={{
                     display: 'flex',

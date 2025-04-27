@@ -116,11 +116,13 @@ export const Dashboard = () => {
               <Card.Title>
                 Proyectos activos asignados a {currentUser?.Nombre}
               </Card.Title>
-              <SimpleTable
-                data={proyectos}
-                columns={proyectosColumns}
-                rowStyle={(row) => getRowStyle(row)}
-              />
+              <div style={{ maxHeight: '380px', overflowY: 'auto' }}>
+                <SimpleTable
+                  data={proyectos}
+                  columns={proyectosColumns}
+                  rowStyle={(row) => getRowStyle(row)}
+                />
+              </div>
             </Card.Body>
           </Card>
         </Col>
@@ -130,11 +132,13 @@ export const Dashboard = () => {
               <Card.Title>
                 Tareas activas asignadas a {currentUser?.Nombre}
               </Card.Title>
-              <SimpleTable
-                data={tareas}
-                columns={tareasColumns}
-                rowStyle={(row) => getRowStyle(row)}
-              />
+              <div style={{ maxHeight: '380px', overflowY: 'auto' }}>
+                <SimpleTable
+                  data={tareas}
+                  columns={tareasColumns}
+                  rowStyle={(row) => getRowStyle(row)}
+                />
+              </div>
             </Card.Body>
           </Card>
         </Col>

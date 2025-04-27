@@ -57,12 +57,15 @@ export const registro = async (req, res, next) => {
       message: 'Usuario creado correctamente.',
       data: {
         idUsuario: user.idUsuario,
-        Nombre: `${Nombre} ${Apellido1} ${Apellido2}`,
+        Nombre: user.Nombre,
+        Apellido1: user.Apellido1,
+        Apellido2: user?.Apellido2 || '',
         Correo: user.Correo,
         Access_token: access_token,
         Perfil: {
           idPerfilUsuario: userProfile.idPerfilUsuario,
           NombreUsuario: userProfile.nombreUsuario,
+          urlImagenPerfil: '',
         },
       },
     });
@@ -125,12 +128,15 @@ export const login = async (req, res, next) => {
       message: 'Sesión iniciada correctamente.',
       data: {
         idUsuario: user.idUsuario,
-        Nombre: `${user.Nombre} ${user.Apellido1} ${user?.Apellido2 || ''}`,
+        Nombre: user.Nombre,
+        Apellido1: user.Apellido1,
+        Apellido2: user?.Apellido2 || '',
         Correo: user.Correo,
         Access_token: access_token,
         Perfil: {
           idPerfilUsuario: userProfile.idPerfilUsuario,
           NombreUsuario: userProfile.nombreUsuario,
+          urlImagenPerfil: userProfile?.urlImagenPerfil || '',
         },
         Roles: roles,
         Permisos: allPermissions,
@@ -331,6 +337,43 @@ export const getAllRoles = async (_req, res, next) => {
       success: true,
       message: 'Roles encontrados correctamente.',
       data: roles,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const changePassword = async (req, res, next) => {
+  try {
+    const { idUsuario, currentPassword, newPassword } = req.body;
+
+    if (!idUsuario || !currentPassword || !newPassword) {
+      throw new Error('Faltan datos para cambiar la contraseña.');
+    }
+
+    const user = await Usuario.findOne({ where: { idUsuario } });
+    if (!user) {
+      throw new Error(`El usuario con ID ${idUsuario} no existe.`);
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.Contrasena);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: 'La contraseña actual no es correcta.',
+      });
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    await user.update(
+      { Contrasena: hashedNewPassword },
+      { userId: req.user ? req.user.idUsuario : null }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: 'Contraseña actualizada correctamente.',
     });
   } catch (error) {
     next(error);

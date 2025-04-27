@@ -19,6 +19,8 @@ export const updateUser = (data: {
   Correo?: string;
   Contrasena?: string;
   Activo?: boolean;
+  Username?: string;
+  Imagen?: string;
 }) => {
   return api.patch<ApiResponse<null>>('usuarios/modificar', data);
 };
@@ -33,4 +35,12 @@ export const getUserByID = (id: number) => {
 
 export const deleteUser = (id: number) => {
   return api.patch<ApiResponse<null>>(`usuarios/eliminar/${id}`);
+};
+
+export const changePassword = (data: {
+  idUsuario: number;
+  currentPassword: string;
+  newPassword: string;
+}) => {
+  return api.patch<ApiResponse<null>>('auth/cambiarPassword', data);
 };
